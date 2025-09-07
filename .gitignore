@@ -1,0 +1,29 @@
+# Build artifacts
+*.exe
+*.obj
+*.o
+*.lib
+*.dll
+*.so
+*.a
+# Visual Studio specific
+.vs/
+*.vcxproj.user
+*.vcxproj.filters
+*.sln.Ghost
+*.suo
+# CMake specific
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+# Other common build files
+build/
+bin/
+tmp/
+# ImGui specific (if using a local copy)
+# If you are including ImGui directly in your project and not as a submodule,
+# you might want to exclude its build artifacts if generated in your project's root.
+# Generally, ImGui source files themselves should be tracked.
+# Example:
+# imgui_build_output/
