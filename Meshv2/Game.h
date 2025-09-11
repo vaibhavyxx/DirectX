@@ -4,7 +4,9 @@
 #include <wrl/client.h>
 #include "Mesh.h"
 #include <memory>
-
+#include "Vertex.h"
+#include <DirectXMath.h>
+#include <vector>
 class Game
 {
 public:
@@ -19,7 +21,7 @@ public:
 	void Draw(float deltaTime, float totalTime);
 	void OnResize();
 	void Initialize();
-
+	
 private:
 
 	// Initialization helper methods - feel free to customize, combine, remove, etc.
@@ -27,10 +29,10 @@ private:
 	void CreateGeometry();
 	void FrameReset(float deltaTime);
 	void BuildUI();
-	void PopUI();
+	void MeshDetails(std::shared_ptr<Mesh> mesh, const char* name);
 	template<typename T, size_t N>
 	int ArrayCount(const T (&array)[N]);
-
+	std::vector<DirectX::XMFLOAT3> GenerateVertices(float centerX, float centerY, int sides, int radius);
 	// Note the usage of ComPtr below
 	//  - This is a smart pointer for objects that abide by the
 	//     Component Object Model, which DirectX objects do
@@ -47,5 +49,7 @@ private:
 
 	//Shared ptrs for mesh class
 	std::shared_ptr<Mesh> triangle;
+	std::shared_ptr<Mesh> quad;
+	std::shared_ptr<Mesh> hexagon;
 };
 

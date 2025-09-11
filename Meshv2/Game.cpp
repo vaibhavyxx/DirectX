@@ -6,6 +6,7 @@
 #include "Window.h"
 #include <vector>
 #include <DirectXMath.h>
+#include <iostream>
 
 // Needed for a helper function to load pre-compiled shader files
 #pragma comment(lib, "d3dcompiler.lib")
@@ -161,16 +162,29 @@ int Game::ArrayCount(const T(&array)[N]) {
 	return sizeof(array) / sizeof(array[0]);
 }
 
+std::vector<DirectX::XMFLOAT3> Game::GenerateVertices(float centerX, float centerY, int sides, int radius) {
+	std::vector <DirectX::XMFLOAT3> tempVertex;
+	for (int i = 0; i < sides; ++i) {
+		float angle = (XM_PI * 2.0f) / sides * i;
+		float x = centerX + cosf(angle) * radius;
+		float y = centerY + sinf(angle) * radius;
+		std::cout << angle << ", " << x <<", "<< y << std::endl;
+		tempVertex.push_back(XMFLOAT3(x, y, 0.0f));
+	}
+	tempVertex.push_back(XMFLOAT3(centerX, centerY, 0.0f));
+	return tempVertex;
+}
+
 // --------------------------------------------------------
 // Creates the geometry we're going to draw
 // --------------------------------------------------------
 void Game::CreateGeometry()
 {
+	XMFLOAT4 red = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+	XMFLOAT4 green = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
+	XMFLOAT4 blue = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
 	{
 		//Triangle
-		XMFLOAT4 red = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
-		XMFLOAT4 green = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
-		XMFLOAT4 blue = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
 		Vertex vertices[] =
 		{
 			{ XMFLOAT3(+0.0f, +0.5f, +0.0f), red },
@@ -181,6 +195,40 @@ void Game::CreateGeometry()
 		int vCount = ArrayCount(vertices);
 		int iCount = ArrayCount(indices);
 		triangle = std::make_shared<Mesh>(vertices, vCount, indices, iCount);
+	}
+
+	{
+		//Squares 
+		Vertex vertices[] = {
+			{XMFLOAT3(+0.50f, +0.50f, +0.0f), blue},
+			{XMFLOAT3(+0.75f, +0.50f, +0.0f), red},
+			{XMFLOAT3(+0.50f, -0.50f, +0.0f), red},
+			{XMFLOAT3(+0.75f, -0.50f, +0.0f), blue}
+		};
+		unsigned int indices[] = { 0, 1, 2, 2,1,3};
+		int vCount = ArrayCount(vertices);
+		int iCount = ArrayCount(indices);
+		quad = std::make_shared<Mesh>(vertices, vCount, indices, iCount);
+	}
+
+	{
+		//Hexagons
+		std::vector<DirectX::XMFLOAT3> hexagonPoints = GenerateVertices(0.0f, 0.0f, 6, 1.0f);
+		Vertex vertices[7] = {};
+		for (int i = 0; i < 7; i++) {
+			std::cout << hexagonPoints[i].x  << ", " << hexagonPoints[i].y <<std::endl;
+			vertices[i] = { hexagonPoints[i], blue};
+		}
+		unsigned int indices[] = {
+			6, 0, 1,
+			6, 1, 2,
+			6, 2, 3,
+			6, 3, 4,
+			6, 4, 5,
+			6, 5, 0
+		};
+		hexagon = std::make_shared<Mesh>(vertices, 7, indices, 7);
+
 	}
 }
 
@@ -228,6 +276,8 @@ void Game::Draw(float deltaTime, float totalTime)
 	// - Other Direct3D calls will also be necessary to do more complex things
 	{
 		triangle->Draw();
+		quad->Draw();
+		hexagon->Draw();
 	}
 	
 	// Frame END
@@ -270,44 +320,21 @@ void Game::FrameReset(float deltaTime) {
 }
 
 void Game::BuildUI() {
-	static bool checked = false;
-	static bool popUp = false;
-	static float slide = 0.0f;
 	ImGui::Begin("App Details");
-	ImGui::Text("Window Client Size: %dx%d", Window::Width(), Window::Height());
-	ImGui::Text("Framerate: %f fps", ImGui::GetIO().Framerate);
-	ImGui::ColorEdit4("Background Color", &color[0]);
-	ImVec2 windowSize = ImGui::GetWindowSize();  // 👈 Get current ImGui window size
-	ImGui::Text("ImGui Window Size: %.0fx%.0f", windowSize.x, windowSize.y);
-	
-	if (ImGui::Button(checked? "Hide ImGui Demo Window" : "Show ImGui Demo Window")) {
-		checked = !checked;
-	}
-	if (checked) 
-		ImGui::ShowDemoWindow();
-	if (popUp)
-		PopUI();
-	//1: checkbox
-	ImGui::Checkbox("Another Window", &popUp);
-	//2: graph
-	float graph[100];
-	for (int i = 0; i < 100; i++) {
-		graph[i] = tanf(i + ImGui::GetTime() * 0.5f);
-	}
-	ImGui::PlotLines("Tan", graph, 100);
-	//3: slide values
-	ImGui::SliderFloat("float", &slide, 0.0f, 1.0f);
-	//4.Draws a shape
-	ImDrawList* drawList = ImGui::GetWindowDrawList();
-	ImU32 shapeColor = IM_COL32(255, 255, color[2], 255);
-	ImVec2 min = ImVec2(windowSize.x / 2.0f, windowSize.y * 0.66f);
-	drawList->AddCircle(min, 15.0f, shapeColor, 10, 5);
+	MeshDetails(triangle, "Triangle");
+	MeshDetails(quad, "Quad");
+	MeshDetails(hexagon, "Hexagon");
 	ImGui::End();
 }
-void Game::PopUI() {
-	ImGui::Begin("Pop Up");
-	ImGui::Text("Hey there!");
-	ImGui::End();
+void Game::MeshDetails(std::shared_ptr<Mesh> mesh, const char* name) {
+	std::string title = std::string("Mesh: ") + name;
+	int triangles = mesh->GetIndexCount() / 3;
+
+	if (ImGui::CollapsingHeader(title.c_str())) {
+		ImGui::Text("Triangles: %i", triangles);
+		ImGui::Text("Vertices : %i", mesh->GetVertexCount());
+		ImGui::Text("Indices : %i", mesh->GetIndexCount());
+	}
 }
 
 

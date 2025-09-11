@@ -1,5 +1,5 @@
 ﻿  Game.cpp
-C:\Users\vaibh\Documents\git\ggp-hws\Meshv2\Game.cpp(295,21): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\vaibh\Documents\git\ggp-hws\Meshv2\Game.cpp(216,82): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
   Main.cpp
   Mesh.cpp
   Generating Code...
