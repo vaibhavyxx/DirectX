@@ -1,3 +1,6 @@
-﻿  Mesh.cpp
-     Creating library C:\Users\vaibh\Documents\git\ggp-hws\Mesh 2\x64\Debug\D3D11Starter.lib and object C:\Users\vaibh\Documents\git\ggp-hws\Mesh 2\x64\Debug\D3D11Starter.exp
-  D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\Mesh 2\x64\Debug\D3D11Starter.exe
+﻿  Game.cpp
+C:\Users\vaibh\Documents\git\ggp-hws\Meshv2\Game.cpp(295,21): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  Main.cpp
+  Mesh.cpp
+  Generating Code...
+  D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\Meshv2\x64\Debug\D3D11Starter.exe

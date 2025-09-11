@@ -2,6 +2,8 @@
 
 #include <d3d11.h>
 #include <wrl/client.h>
+#include "Mesh.h"
+#include <memory>
 
 class Game
 {
@@ -26,6 +28,8 @@ private:
 	void FrameReset(float deltaTime);
 	void BuildUI();
 	void PopUI();
+	template<typename T, size_t N>
+	int ArrayCount(const T (&array)[N]);
 
 	// Note the usage of ComPtr below
 	//  - This is a smart pointer for objects that abide by the
@@ -40,5 +44,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader;
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout;
+
+	//Shared ptrs for mesh class
+	std::shared_ptr<Mesh> triangle;
 };
 

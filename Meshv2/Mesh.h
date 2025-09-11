@@ -5,9 +5,9 @@
 #pragma once
 class Mesh
 {
+public:
 	//Basics of OOP
-	Mesh(Vertex vertices[], int indices[]);
-	~Mesh();
+	Mesh(Vertex vertices[], int vertexCount, unsigned int indices[], int indexCount);
 	Mesh(const Mesh&) = delete;					//Removes copy constructor
 	Mesh& operator = (const Mesh&) = delete;	//Removes copy assignment constructor
 
@@ -20,8 +20,9 @@ public:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> GetIndexBuffer();
 	int GetIndexCount();
 	int GetVertexCount();
-	void Draw(float deltaTime, float totalTime);
+	void Draw();
 	int indicesCount;
 	int verticesCount;
+	~Mesh();
 };
 
