@@ -29,10 +29,12 @@ private:
 	void CreateGeometry();
 	void FrameReset(float deltaTime);
 	void BuildUI();
+	void AppDetails();
 	void MeshDetails(std::shared_ptr<Mesh> mesh, const char* name);
 	template<typename T, size_t N>
 	int ArrayCount(const T (&array)[N]);
-	std::vector<DirectX::XMFLOAT3> GenerateVertices(float centerX, float centerY, int sides, int radius);
+	std::vector<DirectX::XMFLOAT3> GenerateVertices(float centerX, float centerY, int sides, float radius);
+	std::vector<unsigned int> GenerateIndices(int sides);
 	// Note the usage of ComPtr below
 	//  - This is a smart pointer for objects that abide by the
 	//     Component Object Model, which DirectX objects do
@@ -50,6 +52,9 @@ private:
 	//Shared ptrs for mesh class
 	std::shared_ptr<Mesh> triangle;
 	std::shared_ptr<Mesh> quad;
+	std::shared_ptr<Mesh> pentagon;
 	std::shared_ptr<Mesh> hexagon;
+	std::shared_ptr<Mesh> dodecagon;
+
 };
 

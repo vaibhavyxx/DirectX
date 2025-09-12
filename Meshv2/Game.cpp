@@ -27,31 +27,12 @@ using namespace DirectX;
 // --------------------------------------------------------
 Game::Game()
 {
-	// Helper methods for loading shaders, creating some basic
-	// geometry to draw and some simple camera matrices.
-	//  - You'll be expanding and/or replacing these later
-	Initialize();	//added
+	Initialize();	
 	LoadShaders();
 	CreateGeometry();
-
-	// Set initial graphics API state
-	//  - These settings persist until we change them
-	//  - Some of these, like the primitive topology & input layout, probably won't change
-	//  - Others, like setting shaders, will need to be moved elsewhere later
 	{
-		// Tell the input assembler (IA) stage of the pipeline what kind of
-		// geometric primitives (points, lines or triangles) we want to draw.  
-		// Essentially: "What kind of shape should the GPU draw with our vertices?"
 		Graphics::Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-		// Ensure the pipeline knows how to interpret all the numbers stored in
-		// the vertex buffer. For this course, all of your vertices will probably
-		// have the same layout, so we can just set this once at startup.
 		Graphics::Context->IASetInputLayout(inputLayout.Get());
-
-		// Set the active vertex and pixel shaders
-		//  - Once you start applying different shaders to different objects,
-		//    these calls will need to happen multiple times per frame
 		Graphics::Context->VSSetShader(vertexShader.Get(), 0, 0);
 		Graphics::Context->PSSetShader(pixelShader.Get(), 0, 0);
 	}
@@ -65,9 +46,6 @@ void Game::Initialize() {
 	ImGui_ImplDX11_Init(Graphics::Device.Get(), Graphics::Context.Get());
 	// Pick a style (uncomment one of these 3)
 	ImGui::StyleColorsDark();
-	//ImGui::StyleColorsLight();
-	//ImGui::StyleColorsClassic();
-	//triangle = std::make_shared<Mesh>(&vertexBuffer, &indexBuffer);
 }
 // --------------------------------------------------------
 // Clean up memory or objects created by this class
@@ -162,17 +140,38 @@ int Game::ArrayCount(const T(&array)[N]) {
 	return sizeof(array) / sizeof(array[0]);
 }
 
-std::vector<DirectX::XMFLOAT3> Game::GenerateVertices(float centerX, float centerY, int sides, int radius) {
+//--------------------------------------------------------
+//Generates Vertices for Polygons
+//--------------------------------------------------------
+
+std::vector<DirectX::XMFLOAT3> Game::GenerateVertices(float centerX, float centerY, int sides, float radius) {
 	std::vector <DirectX::XMFLOAT3> tempVertex;
+
 	for (int i = 0; i < sides; ++i) {
 		float angle = (XM_PI * 2.0f) / sides * i;
 		float x = centerX + cosf(angle) * radius;
 		float y = centerY + sinf(angle) * radius;
-		std::cout << angle << ", " << x <<", "<< y << std::endl;
 		tempVertex.push_back(XMFLOAT3(x, y, 0.0f));
 	}
 	tempVertex.push_back(XMFLOAT3(centerX, centerY, 0.0f));
 	return tempVertex;
+}
+//----------------------------------------------------------
+//Generates indices
+//---------------------------------------------------------
+std::vector<unsigned int> Game::GenerateIndices(int sides) {
+	int vertices = sides + 1;
+	int totalIndices = vertices * 3;
+	int centerIndex = sides;			//last index is the center index
+	std::vector<unsigned int> indices;
+
+	//Iterates through all the sides excluding the center
+	for (int i = 0; i < sides; i++) {
+		indices.push_back(i);
+		indices.push_back(centerIndex);
+		indices.push_back((i + 1) % sides);
+	}
+	return indices;
 }
 
 // --------------------------------------------------------
@@ -198,7 +197,7 @@ void Game::CreateGeometry()
 	}
 
 	{
-		//Squares 
+		//Square
 		Vertex vertices[] = {
 			{XMFLOAT3(+0.50f, +0.50f, +0.0f), blue},
 			{XMFLOAT3(+0.75f, +0.50f, +0.0f), red},
@@ -212,23 +211,54 @@ void Game::CreateGeometry()
 	}
 
 	{
-		//Hexagons
-		std::vector<DirectX::XMFLOAT3> hexagonPoints = GenerateVertices(0.0f, 0.0f, 6, 1.0f);
-		Vertex vertices[7] = {};
-		for (int i = 0; i < 7; i++) {
-			std::cout << hexagonPoints[i].x  << ", " << hexagonPoints[i].y <<std::endl;
-			vertices[i] = { hexagonPoints[i], blue};
+		//Pentagon
+		const int sides = 5;
+		const int totalVertex = sides + 1;		//including center
+		Vertex vertices[totalVertex] = {};
+		unsigned int indices[sides * 3];
+		std::vector<DirectX::XMFLOAT3> pentagonVertices = GenerateVertices(-0.5f, 0.5f, sides, 0.25f);
+		std::vector<unsigned int> pentagonIndices = GenerateIndices(sides);
+		for (int i = 0; i < totalVertex; i++) {
+			vertices[i] = { pentagonVertices[i], red };
 		}
-		unsigned int indices[] = {
-			6, 0, 1,
-			6, 1, 2,
-			6, 2, 3,
-			6, 3, 4,
-			6, 4, 5,
-			6, 5, 0
-		};
-		hexagon = std::make_shared<Mesh>(vertices, 7, indices, 7);
+		for (int i = 0; i < (sides * 3); i++) {
+			indices[i] = pentagonIndices[i];
+		}
+		pentagon = std::make_shared<Mesh>(vertices, totalVertex, indices, sides * 3);
+	}
 
+	{
+		//hexagon
+		const int sides = 6;
+		const int totalVertex = sides + 1;		//including center
+		Vertex vertices[totalVertex] = {};
+		unsigned int indices[sides * 3];
+		std::vector<DirectX::XMFLOAT3> hexagonVerts = GenerateVertices(0.25f, 0.8f, sides, 0.15f);
+		std::vector<unsigned int> hexIndices = GenerateIndices(sides);
+		for (int i = 0; i < totalVertex; i++) {
+			vertices[i] = { hexagonVerts[i], green };
+		}
+		for (int i = 0; i < (sides * 3); i++) {
+			indices[i] = hexIndices[i];
+		}
+		hexagon = std::make_shared<Mesh>(vertices, totalVertex, indices, sides * 3);
+	}
+
+	{
+		//Dodecagon
+		const int sides = 12;
+		const int totalVertex = sides + 1;		//including center
+		Vertex vertices[totalVertex] = {};
+		unsigned int indices[sides * 3];
+		std::vector<DirectX::XMFLOAT3> verts = GenerateVertices(-0.25f, -0.8f, sides, 0.15f);
+		std::vector<unsigned int> ind = GenerateIndices(sides);
+		for (int i = 0; i < totalVertex; i++) {
+			vertices[i] = { verts[i], blue };
+		}
+		for (int i = 0; i < (sides * 3); i++) {
+			indices[i] = ind[i];
+		}
+		dodecagon = std::make_shared<Mesh>(vertices, totalVertex, indices, sides * 3);
 	}
 }
 
@@ -277,7 +307,9 @@ void Game::Draw(float deltaTime, float totalTime)
 	{
 		triangle->Draw();
 		quad->Draw();
+		pentagon->Draw();
 		hexagon->Draw();
+		dodecagon->Draw();
 	}
 	
 	// Frame END
@@ -314,17 +346,51 @@ void Game::FrameReset(float deltaTime) {
 	// Determine new input capture
 	Input::SetKeyboardCapture(io.WantCaptureKeyboard);
 	Input::SetMouseCapture(io.WantCaptureMouse);
-	// Show the demo window
-	//ImGui::ShowDemoWindow();
-	//BuildUI();
 }
 
 void Game::BuildUI() {
-	ImGui::Begin("App Details");
+	ImGui::Begin("Inspector");
+	AppDetails();
 	MeshDetails(triangle, "Triangle");
 	MeshDetails(quad, "Quad");
+	MeshDetails(pentagon, "Pentagon");
 	MeshDetails(hexagon, "Hexagon");
+	MeshDetails(dodecagon, "Dodecagon");
 	ImGui::End();
+}
+void Game::AppDetails() {
+	if (ImGui::CollapsingHeader("App Details")) {
+		static bool checked = false;
+		static bool popUp = false;
+		static float slide = 0.0f;
+		ImGui::Text("Window Client Size: %dx%d", Window::Width(), Window::Height());
+		ImGui::Text("Framerate: %f fps", ImGui::GetIO().Framerate);
+		ImGui::ColorEdit4("Background Color", &color[0]);
+		ImVec2 windowSize = ImGui::GetWindowSize();  // 👈 Get current ImGui window size
+		ImGui::Text("ImGui Window Size: %.0fx%.0f", windowSize.x, windowSize.y);
+
+		if (ImGui::Button(checked ? "Hide ImGui Demo Window" : "Show ImGui Demo Window")) {
+			checked = !checked;
+		}
+		if (checked)
+			ImGui::ShowDemoWindow();
+
+		//1: checkbox
+		ImGui::Checkbox("Another Window", &popUp);
+		//2: graph
+		float graph[100];
+		for (int i = 0; i < 100; i++) {
+			graph[i] = tanf(i + ImGui::GetTime() * 0.5f);
+		}
+		ImGui::PlotLines("Tan", graph, 100);
+		//3: slide values
+		ImGui::SliderFloat("float", &slide, 0.0f, 1.0f);
+		//4.Draws a shape
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+		ImU32 shapeColor = IM_COL32(255, 255, color[2], 255);
+		ImVec2 min = ImVec2(windowSize.x / 2.0f, windowSize.y * 0.66f);
+		drawList->AddCircle(min, 15.0f, shapeColor, 10, 5);
+	}
 }
 void Game::MeshDetails(std::shared_ptr<Mesh> mesh, const char* name) {
 	std::string title = std::string("Mesh: ") + name;
