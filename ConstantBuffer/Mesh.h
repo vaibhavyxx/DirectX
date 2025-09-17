@@ -1,6 +1,7 @@
 #include "Vertex.h"
 #include <d3d11.h>
 #include <wrl/client.h>
+#include "BufferStructs.h"
 
 #pragma once
 class Mesh
@@ -14,6 +15,7 @@ public:
 private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> indexBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> constBuffer;
 
 public:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> GetVertexBuffer();

@@ -2,15 +2,15 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>C:\Users\vaibh\Documents\git\ggp-hws\Meshv2\x64\Debug\D3D11Starter.exe</FullPath>
+      <FullPath>C:\Users\vaibh\Documents\git\ggp-hws\ConstantBuffer\x64\Debug\D3D11Starter.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles>
     <ContentFile>
-      <FullPath>C:\Users\vaibh\Documents\git\ggp-hws\Meshv2\x64\Debug\PixelShader.cso</FullPath>
+      <FullPath>C:\Users\vaibh\Documents\git\ggp-hws\ConstantBuffer\x64\Debug\PixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>C:\Users\vaibh\Documents\git\ggp-hws\Meshv2\x64\Debug\VertexShader.cso</FullPath>
+      <FullPath>C:\Users\vaibh\Documents\git\ggp-hws\ConstantBuffer\x64\Debug\VertexShader.cso</FullPath>
     </ContentFile>
   </ContentFiles>
   <SatelliteDlls />

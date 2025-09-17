@@ -12,6 +12,7 @@
 // Needed for a helper function to load pre-compiled shader files
 #pragma comment(lib, "d3dcompiler.lib")
 #include <d3dcompiler.h>
+#include "BufferStructs.h"
 
 // This code assumes files are in "ImGui" subfolder!
 // Adjust as necessary for your own folder structure and project setup
@@ -54,6 +55,24 @@ Mesh::Mesh(Vertex vertices[],int vertexCount,unsigned int indices[], int indexCo
 		initialBufferData.pSysMem = indices; // pSysMem = Pointer to System Memory
 		Graphics::Device->CreateBuffer(&ibd, &initialBufferData, indexBuffer.GetAddressOf());
 	}
+	//Constant Buffer
+	{
+		unsigned int size = sizeof(ConstantBufferData);
+		size = (size + 15) / 16 * 16;
+
+		D3D11_BUFFER_DESC cbDesc = {};
+		cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		cbDesc.ByteWidth = size;	
+		cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		cbDesc.Usage = D3D11_USAGE_DYNAMIC;
+
+		Graphics::Device->CreateBuffer(&cbDesc, 0, constBuffer.GetAddressOf());
+		
+		Graphics::Context->VSSetConstantBuffers(
+			0,
+			1,
+			constBuffer.GetAddressOf());
+	}
 }
 
 Mesh::~Mesh() {
@@ -74,11 +93,24 @@ int Mesh::GetVertexCount() {
 }
 void Mesh::Draw() {
 	{
+		ConstantBufferData constBufferData = {};
+		constBufferData.colorTint = XMFLOAT4(0.5f, 0.5f, 0.0f, 1.0f);
+		constBufferData.offset = XMFLOAT3(0.0f, 0.5f, 0.0f);
+
+		//Using Constant Buffer
+		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
+		Graphics::Context->Map(constBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
+		memcpy(mappedBuffer.pData, &constBufferData, sizeof(constBufferData));
+		Graphics::Context->Unmap(constBuffer.Get(), 0);
+
 		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
 		Graphics::Context->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), &stride, &offset);
 		Graphics::Context->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-
+		Graphics::Context->VSSetConstantBuffers(
+			0,
+			1,
+			constBuffer.GetAddressOf());
 		Graphics::Context->DrawIndexed(
 			indicesCount,		// The number of indices to use (we could draw a subset if we wanted)
 			0,					// Offset to the first index we want to use

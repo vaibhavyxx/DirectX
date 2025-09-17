@@ -1,4 +1,10 @@
-
+/*cbuffer ExternalDatat : register(b0)
+{
+    float4 colorTint;
+    float3 offset;
+    float padding;
+}
+*/
 // Struct representing the data we expect to receive from earlier pipeline stages
 // - Should match the output of our corresponding vertex shader
 // - The name of the struct itself is unimportant

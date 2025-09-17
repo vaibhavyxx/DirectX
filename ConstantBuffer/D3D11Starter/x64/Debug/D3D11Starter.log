@@ -1,5 +1,2 @@
-﻿  compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\Meshv2\x64\Debug\PixelShader.cso
-  compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\Meshv2\x64\Debug\VertexShader.cso
-  LINK : C:\Users\vaibh\Documents\git\ggp-hws\Meshv2\x64\Debug\D3D11Starter.exe not found or not built by the last incremental link; performing full link
-     Creating library C:\Users\vaibh\Documents\git\ggp-hws\Meshv2\x64\Debug\D3D11Starter.lib and object C:\Users\vaibh\Documents\git\ggp-hws\Meshv2\x64\Debug\D3D11Starter.exp
-  D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\Meshv2\x64\Debug\D3D11Starter.exe
+﻿  compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\ConstantBuffer\x64\Debug\VertexShader.cso
+  D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\ConstantBuffer\x64\Debug\D3D11Starter.exe
