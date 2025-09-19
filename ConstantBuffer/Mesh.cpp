@@ -1,5 +1,4 @@
 #include "Mesh.h"
-#include "Mesh.h"
 #include "Game.h"
 #include "Graphics.h"
 #include "Vertex.h"
@@ -73,6 +72,7 @@ Mesh::Mesh(Vertex vertices[],int vertexCount,unsigned int indices[], int indexCo
 			1,
 			constBuffer.GetAddressOf());
 	}
+	//ConstBuffUI();
 }
 
 Mesh::~Mesh() {
@@ -91,16 +91,17 @@ int Mesh::GetIndexCount() {
 int Mesh::GetVertexCount() {
 	return Mesh::verticesCount;
 }
+
+static ConstantBufferData cbData = {};
 void Mesh::Draw() {
 	{
-		ConstantBufferData constBufferData = {};
-		constBufferData.colorTint = XMFLOAT4(0.5f, 0.5f, 0.0f, 1.0f);
-		constBufferData.offset = XMFLOAT3(0.0f, 0.5f, 0.0f);
+		cbData.colorTint = XMFLOAT4(0.5f, 0.5f, 0.0f, 1.0f);
+		cbData.offset = XMFLOAT3(0.0f, 0.5f, 0.0f);
 
 		//Using Constant Buffer
 		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
 		Graphics::Context->Map(constBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
-		memcpy(mappedBuffer.pData, &constBufferData, sizeof(constBufferData));
+		memcpy(mappedBuffer.pData, &cbData, sizeof(cbData));
 		Graphics::Context->Unmap(constBuffer.Get(), 0);
 
 		UINT stride = sizeof(Vertex);
@@ -116,4 +117,9 @@ void Mesh::Draw() {
 			0,					// Offset to the first index we want to use
 			0);					// Offset to add to each index when looking up vertices
 	}
+}
+
+void Mesh::ConstBuffUI() {
+	ImGui::SliderFloat3("Offset", &cbData.offset.x, -10.0f, 10.0f);
+	ImGui::ColorEdit4("Color Tint", &cbData.colorTint.x);
 }
