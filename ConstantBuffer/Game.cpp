@@ -359,6 +359,7 @@ void Game::BuildUI() {
 	MeshDetails(hexagon, "Hexagon");
 	MeshDetails(dodecagon, "Dodecagon");
 	Mesh::ConstBuffUI();
+
 	ImGui::End();
 }
 void Game::AppDetails() {

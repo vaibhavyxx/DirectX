@@ -22,10 +22,12 @@
 // For the DirectX Math library
 using namespace DirectX;
 
+ConstantBufferData cbData = {};
+
 Mesh::Mesh(Vertex vertices[],int vertexCount,unsigned int indices[], int indexCount) {
 	verticesCount = vertexCount;
 	indicesCount = indexCount;
-	
+
 	//Vertex buffer
 	{
 		D3D11_BUFFER_DESC vbd = {};
@@ -65,13 +67,18 @@ Mesh::Mesh(Vertex vertices[],int vertexCount,unsigned int indices[], int indexCo
 		cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		cbDesc.Usage = D3D11_USAGE_DYNAMIC;
 
-		Graphics::Device->CreateBuffer(&cbDesc, 0, constBuffer.GetAddressOf());
-		
+		HRESULT hr = Graphics::Device->CreateBuffer(&cbDesc, 0, constBuffer.GetAddressOf());
+		if (FAILED(hr)) {
+			OutputDebugStringA("Failed to create a constant buffer!");
+		}
+
 		Graphics::Context->VSSetConstantBuffers(
 			0,
 			1,
 			constBuffer.GetAddressOf());
 	}
+	cbData.offset = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	cbData.colorTint = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 Mesh::~Mesh() {
@@ -91,7 +98,6 @@ int Mesh::GetVertexCount() {
 	return Mesh::verticesCount;
 }
 
-static ConstantBufferData cbData = {};
 void Mesh::Draw() {
 	{
 		//Using Constant Buffer

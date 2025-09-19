@@ -16,8 +16,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> indexBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> constBuffer;
-	//DirectX::XMFLOAT3 offset;
-	//DirectX::XMFLOAT4 colorTint;
+	//ConstantBufferData cbData;
 
 public:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> GetVertexBuffer();
