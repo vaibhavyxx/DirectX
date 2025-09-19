@@ -72,7 +72,6 @@ Mesh::Mesh(Vertex vertices[],int vertexCount,unsigned int indices[], int indexCo
 			1,
 			constBuffer.GetAddressOf());
 	}
-	//ConstBuffUI();
 }
 
 Mesh::~Mesh() {
@@ -95,9 +94,6 @@ int Mesh::GetVertexCount() {
 static ConstantBufferData cbData = {};
 void Mesh::Draw() {
 	{
-		cbData.colorTint = XMFLOAT4(0.5f, 0.5f, 0.0f, 1.0f);
-		cbData.offset = XMFLOAT3(0.0f, 0.5f, 0.0f);
-
 		//Using Constant Buffer
 		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
 		Graphics::Context->Map(constBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
@@ -120,6 +116,6 @@ void Mesh::Draw() {
 }
 
 void Mesh::ConstBuffUI() {
-	ImGui::SliderFloat3("Offset", &cbData.offset.x, -10.0f, 10.0f);
+	ImGui::SliderFloat3("Offset", &cbData.offset.x, -1.0f, 1.0f);
 	ImGui::ColorEdit4("Color Tint", &cbData.colorTint.x);
 }

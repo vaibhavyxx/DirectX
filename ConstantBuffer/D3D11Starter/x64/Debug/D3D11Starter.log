@@ -1,3 +1,2 @@
-﻿  Game.cpp
-C:\Users\vaibh\Documents\git\ggp-hws\ConstantBuffer\Game.cpp(386,22): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+﻿  Mesh.cpp
   D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\ConstantBuffer\x64\Debug\D3D11Starter.exe
