@@ -66,12 +66,20 @@ DirectX::XMFLOAT3 Transform::GetScale()
 
 DirectX::XMFLOAT4X4 Transform::GetWorldMatrix()
 {
-	return DirectX::XMFLOAT4X4();
+	DirectX::XMMATRIX mTransform = XMMatrixTranslation();
+	DirectX::XMMATRIX mScale = XMMatrixScaling();
+	DirectX::XMMATRIX mRotate = XMMatrixRotationRollPitchYaw();
+	DirectX::XMMATRIX mWorld = mScale * mRotate * mTransform;
+	
+	DirectX::XMStoreFloat4x4(&world, mWorld);
+	DirectX::XMStoreFloat4x4(&worldInverseTranspose,
+		DirectX::XMMatrixInverse(0, DirectX::XMMatrixTranspose(mWorld)));
+	return world;
 }
 
 DirectX::XMFLOAT4X4 Transform::GetWorldInverseTransposeMatrix()
 {
-	return DirectX::XMFLOAT4X4();
+	return worldInverseTranspose;
 }
 
 void Transform::MoveAbsolute(float x, float y, float z)
@@ -121,15 +129,21 @@ void Transform::Scale(DirectX::XMFLOAT3 scale)
 
 DirectX::XMMATRIX Transform::XMMatrixTranslation()
 {
-	return DirectX::XMMATRIX();
+	DirectX::XMVECTOR vTranslate = DirectX::XMLoadFloat3(&transformPosition);
+	DirectX::XMMATRIX mTranslate = DirectX::XMMatrixTranslationFromVector(vTranslate);
+	return mTranslate;
 }
 
 DirectX::XMMATRIX Transform::XMMatrixScaling()
 {
-	return DirectX::XMMATRIX();
+	DirectX::XMVECTOR vScale = DirectX::XMLoadFloat3(&transformScale);
+	DirectX::XMMATRIX mScale = DirectX::XMMatrixScalingFromVector(vScale);
+	return mScale;
 }
 
 DirectX::XMMATRIX Transform::XMMatrixRotationRollPitchYaw()
 {
-	return DirectX::XMMATRIX();
+	DirectX::XMVECTOR vRotate = DirectX::XMLoadFloat3(&transformRotation);
+	DirectX::XMMATRIX mRotate = DirectX::XMMatrixTranslationFromVector(vRotate);
+	return mRotate;
 }
