@@ -1,0 +1,47 @@
+﻿  compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\x64\Debug\PixelShader.cso
+  compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\x64\Debug\VertexShader.cso
+  Game.cpp
+C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Game.cpp(387,22): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  Graphics.cpp
+  imgui.cpp
+  imgui_demo.cpp
+  imgui_draw.cpp
+  imgui_impl_dx11.cpp
+  imgui_impl_win32.cpp
+  imgui_tables.cpp
+  imgui_widgets.cpp
+  Input.cpp
+  Main.cpp
+  Mesh.cpp
+C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Mesh.cpp(80,9): error C2039: 'offset': is not a member of 'ConstantBufferData'
+      C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\BufferStructs.h(4,9):
+      see declaration of 'ConstantBufferData'
+  
+C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Mesh.cpp(81,9): error C2039: 'colorTint': is not a member of 'ConstantBufferData'
+      C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\BufferStructs.h(4,9):
+      see declaration of 'ConstantBufferData'
+  
+C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Mesh.cpp(125,40): error C2039: 'offset': is not a member of 'ConstantBufferData'
+      C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\BufferStructs.h(4,9):
+      see declaration of 'ConstantBufferData'
+  
+C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Mesh.cpp(125,9): error C2660: 'ImGui::SliderFloat3': function does not take 3 arguments
+      C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\imgui.h(691,29):
+      see declaration of 'ImGui::SliderFloat3'
+      C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Mesh.cpp(125,9):
+      while trying to match the argument list '(const char [7], float, float)'
+  
+C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Mesh.cpp(126,42): error C2039: 'colorTint': is not a member of 'ConstantBufferData'
+      C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\BufferStructs.h(4,9):
+      see declaration of 'ConstantBufferData'
+  
+C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Mesh.cpp(126,9): error C2660: 'ImGui::ColorEdit4': function does not take 1 arguments
+      C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\imgui.h(726,29):
+      see declaration of 'ImGui::ColorEdit4'
+      C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Mesh.cpp(126,9):
+      while trying to match the argument list '(const char [11])'
+  
+  PathHelpers.cpp
+  Transform.cpp
+  Window.cpp
+  Generating Code...

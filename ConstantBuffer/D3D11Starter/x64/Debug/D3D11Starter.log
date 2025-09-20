@@ -1,7 +1,5 @@
-﻿  Game.cpp
-C:\Users\vaibh\Documents\git\ggp-hws\ConstantBuffer\Game.cpp(387,22): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-  Main.cpp
-  Mesh.cpp
-  Generating Code...
+﻿  compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\ConstantBuffer\x64\Debug\PixelShader.cso
+  compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\ConstantBuffer\x64\Debug\VertexShader.cso
+  LINK : C:\Users\vaibh\Documents\git\ggp-hws\ConstantBuffer\x64\Debug\D3D11Starter.exe not found or not built by the last incremental link; performing full link
      Creating library C:\Users\vaibh\Documents\git\ggp-hws\ConstantBuffer\x64\Debug\D3D11Starter.lib and object C:\Users\vaibh\Documents\git\ggp-hws\ConstantBuffer\x64\Debug\D3D11Starter.exp
   D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\ConstantBuffer\x64\Debug\D3D11Starter.exe
