@@ -7,6 +7,8 @@
 #include "Vertex.h"
 #include <DirectXMath.h>
 #include <vector>
+#include "Transform.h"
+
 class Game
 {
 public:
@@ -55,6 +57,5 @@ private:
 	std::shared_ptr<Mesh> pentagon;
 	std::shared_ptr<Mesh> hexagon;
 	std::shared_ptr<Mesh> dodecagon;
-
 };
 
