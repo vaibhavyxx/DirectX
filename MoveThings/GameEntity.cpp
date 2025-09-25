@@ -8,7 +8,7 @@
 #include <DirectXMath.h>
 
 GameEntity::GameEntity() {
-	transform = std::make_shared<Transform>();
+	//transform = std::make_shared<Transform>();
 }
 GameEntity::~GameEntity() {
 

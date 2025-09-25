@@ -72,13 +72,15 @@ DirectX::XMFLOAT4X4 Transform::GetWorldMatrix()
 	DirectX::XMMATRIX mWorld = mScale * mRotate * mTransform;
 	
 	DirectX::XMStoreFloat4x4(&world, mWorld);
-	DirectX::XMStoreFloat4x4(&worldInverseTranspose,
-		DirectX::XMMatrixInverse(0, DirectX::XMMatrixTranspose(mWorld)));
 	return world;
 }
 
 DirectX::XMFLOAT4X4 Transform::GetWorldInverseTransposeMatrix()
 {
+	DirectX::XMMATRIX mWorld = DirectX::XMLoadFloat4x4(&world);
+	DirectX::XMStoreFloat4x4(&worldInverseTranspose,
+		DirectX::XMMatrixInverse(0, DirectX::XMMatrixTranspose(mWorld)));
+
 	return worldInverseTranspose;
 }
 
