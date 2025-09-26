@@ -343,7 +343,6 @@ void Game::Update(float deltaTime, float totalTime)
 	
 }
 
-
 // --------------------------------------------------------
 // Clear the screen, redraw everything, present to the user
 // --------------------------------------------------------
@@ -357,7 +356,6 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	for(GameEntity& entity: entities)
 	{
-		ConstantBufferData cbData = {};
 		cbData.worldMatrix = entity.GetTransform()->GetWorldMatrix();
 		//TODO: Color Tint
 
@@ -425,7 +423,7 @@ void Game::BuildUI() {
 		std::shared_ptr<Transform> transform = entities[i].GetTransform();
 		EntityValues(transform, i);
 	}
-
+	ConstantBufferUI();
 	ImGui::End();
 }
 void Game::AppDetails() {
@@ -489,13 +487,13 @@ void Game::EntityValues(std::shared_ptr<Transform> entity, unsigned int i) {
 		std::string labelRot = "Rotation##" + std::to_string(i);
 		std::string labelScale = "Scale##" + std::to_string(i);
 
-		if(ImGui::DragFloat3(labelPos.c_str(), &pos.x))
+		if(ImGui::DragFloat3(labelPos.c_str(), &pos.x), -1.0f, 1.0f)
 			entity->SetPosition(pos);
 
-		if(ImGui::DragFloat3(labelRot.c_str(), &rot.x))
+		if(ImGui::DragFloat3(labelRot.c_str(), &rot.x), -1.0f, 1.0f)
 			entity->SetRotation(rot);
 
-		if(ImGui::DragFloat3(labelScale.c_str(), &scale.x))
+		if(ImGui::DragFloat3(labelScale.c_str(), &scale.x), -1.0f, 1.0f)
 			entity->SetScale(scale);
 
 		entity->GetWorldMatrix();
@@ -503,10 +501,9 @@ void Game::EntityValues(std::shared_ptr<Transform> entity, unsigned int i) {
 	}
 }
 
-void Game::ConstantBufferUI(ConstantBufferData& cb) {
+void Game::ConstantBufferUI() {
 	if(ImGui::CollapsingHeader("CB Data")) {
-		ImGui::SliderFloat4("Offset", &cb.worldMatrix._11, -1.0f, 1.0f);	
-		ImGui::ColorEdit4("Color Tint", &cb.colorTint.x);
+		ImGui::ColorEdit4("Color Tint", &cbData.colorTint.x);
 	}
 }
 

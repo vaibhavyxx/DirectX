@@ -35,7 +35,7 @@ private:
 	void AppDetails();
 	void MeshDetails(std::shared_ptr<Mesh> mesh, const char* name);
 	void EntityValues(std::shared_ptr<Transform> entity, unsigned int i);
-	void ConstantBufferUI(ConstantBufferData& cb);
+	void ConstantBufferUI();
 
 	template<typename T, size_t N>
 	int ArrayCount(const T (&array)[N]);
@@ -58,5 +58,6 @@ private:
 
 	std::vector<GameEntity> entities;
 	std::vector<std::shared_ptr<Mesh>> meshes;
+	ConstantBufferData cbData = {};
 };
 
