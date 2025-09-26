@@ -1,4 +1,6 @@
-﻿  Game.cpp
+﻿  compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\x64\Debug\PixelShader.cso
+  compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\x64\Debug\VertexShader.cso
+  Game.cpp
 C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Game.cpp(292,35): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
 C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Game.cpp(292,22): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
 C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Game.cpp(304,47): warning C4305: 'argument': truncation from 'double' to 'float'
@@ -6,5 +8,21 @@ C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Game.cpp(304,42): warning C4305:
 C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Game.cpp(304,37): warning C4305: 'argument': truncation from 'double' to 'float'
 C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Game.cpp(306,48): warning C4305: 'argument': truncation from 'double' to 'float'
 C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Game.cpp(451,22): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  GameEntity.cpp
+  Graphics.cpp
+  imgui.cpp
+  imgui_demo.cpp
+  imgui_draw.cpp
+  imgui_impl_dx11.cpp
+  imgui_impl_win32.cpp
+  imgui_tables.cpp
+  imgui_widgets.cpp
+  Input.cpp
+  Main.cpp
+  Mesh.cpp
+  PathHelpers.cpp
+  Transform.cpp
+  Window.cpp
+  Generating Code...
      Creating library C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\x64\Debug\D3D11Starter.lib and object C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\x64\Debug\D3D11Starter.exp
   D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\x64\Debug\D3D11Starter.exe
