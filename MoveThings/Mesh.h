@@ -15,8 +15,6 @@ public:
 private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> indexBuffer;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> constBuffer;
-	//ConstantBufferData cbData;
 
 public:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> GetVertexBuffer();

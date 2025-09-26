@@ -14,6 +14,7 @@
 #include <d3dcompiler.h>
 #include "BufferStructs.h"
 #include "Transform.h"
+#include "GameEntity.h"
 
 // This code assumes files are in "ImGui" subfolder!
 // Adjust as necessary for your own folder structure and project setup
@@ -49,6 +50,20 @@ void Game::Initialize() {
 	ImGui_ImplDX11_Init(Graphics::Device.Get(), Graphics::Context.Get());
 	// Pick a style (uncomment one of these 3)
 	ImGui::StyleColorsDark();
+
+	unsigned int size = sizeof(ConstantBufferData);
+	size = (size + 15) / 16 * 16;
+
+	D3D11_BUFFER_DESC cbDesc = {};
+	cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cbDesc.ByteWidth = size;
+	cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cbDesc.Usage = D3D11_USAGE_DYNAMIC;
+
+	HRESULT hr = Graphics::Device->CreateBuffer(&cbDesc, 0, constBuffer.GetAddressOf());
+	if (FAILED(hr)) {
+		OutputDebugStringA("Failed to create a constant buffer!");
+	}
 }
 // --------------------------------------------------------
 // Clean up memory or objects created by this class
@@ -185,8 +200,9 @@ void Game::CreateGeometry()
 	XMFLOAT4 red = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
 	XMFLOAT4 green = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
 	XMFLOAT4 blue = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+
+#pragma region Triangle
 	{
-		//Triangle
 		Vertex vertices[] =
 		{
 			{ XMFLOAT3(+0.0f, +0.5f, +0.0f), red },
@@ -196,9 +212,11 @@ void Game::CreateGeometry()
 		unsigned int indices[] = { 0, 1, 2 };
 		int vCount = ArrayCount(vertices);
 		int iCount = ArrayCount(indices);
-		triangle = std::make_shared<Mesh>(vertices, vCount, indices, iCount);
+		std::shared_ptr<Mesh> mesh1 = (std::make_shared<Mesh>(vertices, vCount, indices, iCount));
+		meshes.push_back(mesh1);
 	}
-
+#pragma endregion
+#pragma region Square
 	{
 		//Square
 		Vertex vertices[] = {
@@ -207,14 +225,15 @@ void Game::CreateGeometry()
 			{XMFLOAT3(+0.50f, -0.50f, +0.0f), red},
 			{XMFLOAT3(+0.75f, -0.50f, +0.0f), blue}
 		};
-		unsigned int indices[] = { 0, 1, 2, 2,1,3};
+		unsigned int indices[] = { 0, 1, 2, 2,1,3 };
 		int vCount = ArrayCount(vertices);
 		int iCount = ArrayCount(indices);
-		quad = std::make_shared<Mesh>(vertices, vCount, indices, iCount);
+		std::shared_ptr<Mesh> mesh2 = std::make_shared<Mesh>(vertices, vCount, indices, iCount);
+		meshes.push_back(mesh2);
 	}
-
+#pragma endregion
+#pragma region Pentagon
 	{
-		//Pentagon
 		const int sides = 5;
 		const int totalVertex = sides + 1;		//including center
 		Vertex vertices[totalVertex] = {};
@@ -227,11 +246,12 @@ void Game::CreateGeometry()
 		for (int i = 0; i < (sides * 3); i++) {
 			indices[i] = pentagonIndices[i];
 		}
-		pentagon = std::make_shared<Mesh>(vertices, totalVertex, indices, sides * 3);
+		std::shared_ptr<Mesh> mesh3 = (std::make_shared<Mesh>(vertices, totalVertex, indices, sides * 3));
+		meshes.push_back(mesh3);
 	}
-
+#pragma endregion
+#pragma region Hexagon
 	{
-		//hexagon
 		const int sides = 6;
 		const int totalVertex = sides + 1;		//including center
 		Vertex vertices[totalVertex] = {};
@@ -244,24 +264,20 @@ void Game::CreateGeometry()
 		for (int i = 0; i < (sides * 3); i++) {
 			indices[i] = hexIndices[i];
 		}
-		hexagon = std::make_shared<Mesh>(vertices, totalVertex, indices, sides * 3);
+		std::shared_ptr<Mesh> mesh4 = (std::make_shared<Mesh>(vertices, totalVertex, indices, sides * 3));
+		meshes.push_back(mesh4);
 	}
+#pragma endregion
 
-	{
-		//Dodecagon
-		const int sides = 12;
-		const int totalVertex = sides + 1;		//including center
-		Vertex vertices[totalVertex] = {};
-		unsigned int indices[sides * 3];
-		std::vector<DirectX::XMFLOAT3> verts = GenerateVertices(-0.25f, -0.8f, sides, 0.15f);
-		std::vector<unsigned int> ind = GenerateIndices(sides);
-		for (int i = 0; i < totalVertex; i++) {
-			vertices[i] = { verts[i], blue };
+	const int meshCount = meshes.size();
+	//Setting it up 5 entities
+	for (int i = 0; i < 5; i++) {
+		if (i < meshCount) {
+			entities.push_back(meshes[i]);
 		}
-		for (int i = 0; i < (sides * 3); i++) {
-			indices[i] = ind[i];
+		else {
+			entities.push_back(entities[(meshCount - 1)]);
 		}
-		dodecagon = std::make_shared<Mesh>(vertices, totalVertex, indices, sides * 3);
 	}
 }
 
@@ -294,25 +310,31 @@ void Game::Update(float deltaTime, float totalTime)
 // --------------------------------------------------------
 void Game::Draw(float deltaTime, float totalTime)
 {
-	// Frame START
-	// - These things should happen ONCE PER FRAME
-	// - At the beginning of Game::Draw() before drawing *anything*
 	{
 		// Clear the back buffer (erase what's on screen) and depth buffer
-		//color[4] = { 0.4f, 0.6f, 0.75f, 0.0f };
 		Graphics::Context->ClearRenderTargetView(Graphics::BackBufferRTV.Get(),	color);
 		Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
 
-	// DRAW geometry
-	// - These steps are generally repeated for EACH object you draw
-	// - Other Direct3D calls will also be necessary to do more complex things
+	for(GameEntity& entity: entities)
 	{
-		triangle->Draw();
-		quad->Draw();
-		pentagon->Draw();
-		hexagon->Draw();
-		dodecagon->Draw();
+		ConstantBufferData cbData = {};
+		cbData.worldMatrix = entity.GetTransform()->GetWorldMatrix();
+		//TODO: Color Tint
+		// cbData.colorTint = entity.G
+
+		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
+		Graphics::Context->Map(constBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
+		memcpy(mappedBuffer.pData, &cbData, sizeof(cbData));
+		Graphics::Context->Unmap(constBuffer.Get(), 0);
+
+		//Binds it in order to draw the mesh with cb data
+		Graphics::Context->VSSetConstantBuffers(
+			0,
+			1,
+			constBuffer.GetAddressOf());
+
+		entity.GetMesh()->Draw();
 	}
 	
 	// Frame END
@@ -351,15 +373,21 @@ void Game::FrameReset(float deltaTime) {
 	Input::SetMouseCapture(io.WantCaptureMouse);
 }
 
+int count = 0;
 void Game::BuildUI() {
 	ImGui::Begin("Inspector");
 	AppDetails();
-	MeshDetails(triangle, "Triangle");
-	MeshDetails(quad, "Quad");
-	MeshDetails(pentagon, "Pentagon");
-	MeshDetails(hexagon, "Hexagon");
-	MeshDetails(dodecagon, "Dodecagon");
-	Mesh::ConstBuffUI();
+	MeshDetails(entities[0].GetMesh(), "Triangle");
+	MeshDetails(entities[1].GetMesh(), "Quad");
+	MeshDetails(entities[2].GetMesh(), "Pentagon");
+	MeshDetails(entities[3].GetMesh(), "Hexagon");
+	MeshDetails(entities[4].GetMesh(), "Dodecagon");
+
+	for (unsigned int i = 0; i < entities.size(); i++)
+	{
+		std::shared_ptr<Transform> transform = entities[i].GetTransform();
+		EntityValues(transform, i);
+	}
 
 	ImGui::End();
 }
@@ -397,10 +425,10 @@ void Game::AppDetails() {
 		drawList->AddCircle(min, 15.0f, shapeColor, 10, 5);
 	}
 }
-void Game::MeshDetails(std::shared_ptr<Mesh> mesh, const char* name) {
-	std::string title = std::string("Mesh: ") + name;
-	int triangles = mesh->GetIndexCount() / 3;
 
+void Game::MeshDetails(std::shared_ptr<Mesh> mesh, const char* name) {
+	std::string title = std::string("Mesh: ") + name + std::string("##") + name;
+	int triangles = mesh->GetIndexCount() / 3;
 	if (ImGui::CollapsingHeader(title.c_str())) {
 		ImGui::Text("Triangles: %i", triangles);
 		ImGui::Text("Vertices : %i", mesh->GetVertexCount());
@@ -408,5 +436,40 @@ void Game::MeshDetails(std::shared_ptr<Mesh> mesh, const char* name) {
 	}
 }
 
+void Game::EntityValues(std::shared_ptr<Transform> entity, unsigned int i) {
+	i += 1;
+	std::string title = std::string("Entity ")+ std::to_string(i)+ 
+		std::string("##") + std::to_string(i);
 
+	if (ImGui::CollapsingHeader(title.c_str())) {
+
+		//Save user input
+		DirectX::XMFLOAT3 pos =  entity->GetPosition();
+		DirectX::XMFLOAT3 rot = entity->GetPitchYawRoll();
+		DirectX::XMFLOAT3 scale = entity->GetScale();
+		
+		std::string labelPos = "Position##" + std::to_string(i);
+		std::string labelRot = "Rotation##" + std::to_string(i);
+		std::string labelScale = "Scale##" + std::to_string(i);
+
+		if(ImGui::DragFloat3(labelPos.c_str(), &pos.x))
+			entity->SetPosition(pos);
+
+		if(ImGui::DragFloat3(labelRot.c_str(), &rot.x))
+			entity->SetRotation(rot);
+
+		if(ImGui::DragFloat3(labelScale.c_str(), &scale.x))
+			entity->SetScale(scale);
+
+		entity->GetWorldMatrix();
+		entity->GetWorldInverseTransposeMatrix();
+	}
+}
+
+void Game::ConstantBufferUI(ConstantBufferData& cb) {
+	if(ImGui::CollapsingHeader("CB Data")) {
+		ImGui::SliderFloat4("Offset", &cb.worldMatrix._11, -1.0f, 1.0f);	
+		ImGui::ColorEdit4("Color Tint", &cb.colorTint.x);
+	}
+}
 

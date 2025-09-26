@@ -8,6 +8,7 @@
 #include <DirectXMath.h>
 #include <vector>
 #include "Transform.h"
+#include "GameEntity.h"
 
 class Game
 {
@@ -15,8 +16,8 @@ public:
 	// Basic OOP setup
 	Game();
 	~Game();
-	Game(const Game&) = delete; // Remove copy constructor
-	Game& operator=(const Game&) = delete; // Remove copy-assignment operator
+	//Game(const Game&) = delete; // Remove copy constructor
+	//Game& operator=(const Game&) = delete; // Remove copy-assignment operator
 
 	// Primary functions
 	void Update(float deltaTime, float totalTime);
@@ -33,6 +34,9 @@ private:
 	void BuildUI();
 	void AppDetails();
 	void MeshDetails(std::shared_ptr<Mesh> mesh, const char* name);
+	void EntityValues(std::shared_ptr<Transform> entity, unsigned int i);
+	void ConstantBufferUI(ConstantBufferData& cb);
+
 	template<typename T, size_t N>
 	int ArrayCount(const T (&array)[N]);
 	std::vector<DirectX::XMFLOAT3> GenerateVertices(float centerX, float centerY, int sides, float radius);
@@ -45,17 +49,14 @@ private:
 	// Buffers to hold actual geometry data
 	Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> indexBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> constBuffer;
 
 	// Shaders and shader-related constructs
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader;
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout;
 
-	//Shared ptrs for mesh class
-	std::shared_ptr<Mesh> triangle;
-	std::shared_ptr<Mesh> quad;
-	std::shared_ptr<Mesh> pentagon;
-	std::shared_ptr<Mesh> hexagon;
-	std::shared_ptr<Mesh> dodecagon;
+	std::vector<GameEntity> entities;
+	std::vector<std::shared_ptr<Mesh>> meshes;
 };
 

@@ -1,5 +1,6 @@
 cbuffer ExternalDatat : register(b0)
 {
+    float4 colorTint;
     float4x4 world;
 }
 
@@ -48,6 +49,6 @@ VertexToPixel main( VertexShaderInput input )
 	VertexToPixel output;
     //float3 movedPos = input.localPosition + offset;
     output.screenPosition = mul(world, float4(input.localPosition, 1.0f));
-    output.color = input.color;// * colorTint;
+    output.color = input.color * colorTint;
 	return output;
 }

@@ -12,8 +12,8 @@ public:
 	void SetPosition(float x, float y, float z);
 	void SetPosition(DirectX::XMFLOAT3 position);
 
-	void SetRosition(float pitch, float yaw, float roll);
-	void SetRosition(DirectX::XMFLOAT3 rotation); //Quaternion for future?
+	void SetRotation(float pitch, float yaw, float roll);
+	void SetRotation(DirectX::XMFLOAT3 rotation); //Quaternion for future?
 
 	void SetScale(float x, float y, float z);
 	void SetScale(DirectX::XMFLOAT3 scale);
@@ -40,12 +40,12 @@ public:
 	DirectX::XMMATRIX XMMatrixRotationRollPitchYaw();
 
 private:
+	bool updateMatrices;
 	DirectX::XMFLOAT4X4 world;
-	DirectX::XMFLOAT4X4 worldInverseTranspose;
-	DirectX::XMFLOAT3 transformPosition;
-	DirectX::XMFLOAT3 transformRotation;
-	DirectX::XMFLOAT3 transformScale;
-
+	DirectX::XMFLOAT4X4 f4WorldInverseTranspose;
+	DirectX::XMFLOAT3 f3Position;
+	DirectX::XMFLOAT3 f3Rotation;
+	DirectX::XMFLOAT3 f3Scale;
 
 };
 

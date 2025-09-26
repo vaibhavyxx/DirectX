@@ -7,18 +7,16 @@
 #include "Vertex.h"
 #include <DirectXMath.h>
 
-GameEntity::GameEntity() {
-	//transform = std::make_shared<Transform>();
-}
-GameEntity::~GameEntity() {
-
+GameEntity::GameEntity(std::shared_ptr<Mesh> mesh): mesh(mesh)
+{
+	transform = std::make_shared<Transform>();
 }
 
 std::shared_ptr<Mesh> GameEntity::GetMesh() {
 	return mesh;
 }
 std::shared_ptr<Transform> GameEntity::GetTransform() {
-	return;//transform;
+	return transform;
 }
 void GameEntity::Draw() {
 	mesh->Draw();
