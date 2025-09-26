@@ -356,8 +356,8 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	for(GameEntity& entity: entities)
 	{
+		//ConstantBufferData cbData = {};
 		cbData.worldMatrix = entity.GetTransform()->GetWorldMatrix();
-		//TODO: Color Tint
 
 		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
 		Graphics::Context->Map(constBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
@@ -497,7 +497,6 @@ void Game::EntityValues(std::shared_ptr<Transform> entity, unsigned int i) {
 			entity->SetScale(scale);
 
 		entity->GetWorldMatrix();
-		entity->GetWorldInverseTransposeMatrix();
 	}
 }
 

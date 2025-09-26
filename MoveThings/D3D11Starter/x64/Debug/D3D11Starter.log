@@ -6,4 +6,7 @@ C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Game.cpp(304,42): warning C4305:
 C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Game.cpp(304,37): warning C4305: 'argument': truncation from 'double' to 'float'
 C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Game.cpp(306,48): warning C4305: 'argument': truncation from 'double' to 'float'
 C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Game.cpp(451,22): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  Main.cpp
+  Mesh.cpp
+  Generating Code...
   D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\x64\Debug\D3D11Starter.exe
