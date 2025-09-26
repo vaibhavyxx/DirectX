@@ -350,7 +350,7 @@ void Game::Draw(float deltaTime, float totalTime)
 {
 	{
 		// Clear the back buffer (erase what's on screen) and depth buffer
-		Graphics::Context->ClearRenderTargetView(Graphics::BackBufferRTV.Get(),	color);
+		Graphics::Context->ClearRenderTargetView(Graphics::BackBufferRTV.Get(), color);
 		Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
 
@@ -471,34 +471,31 @@ void Game::MeshDetails(std::shared_ptr<Mesh> mesh, const char* name) {
 	}
 }
 
-void Game::EntityValues(std::shared_ptr<Transform> entity, unsigned int i) {
-	i += 1;
-	std::string title = std::string("Entity ")+ std::to_string(i)+ 
-		std::string("##") + std::to_string(i);
+void Game::EntityValues(std::shared_ptr<Transform> entity, unsigned int i)
+{
+	std::string title = "Entity " + std::to_string(i + 1) + "##" + std::to_string(i);
 
-	if (ImGui::CollapsingHeader(title.c_str())) {
-
-		//Save user input
-		DirectX::XMFLOAT3 pos =  entity->GetPosition();
+	if (ImGui::CollapsingHeader(title.c_str()))
+	{
+		DirectX::XMFLOAT3 pos = entity->GetPosition();
 		DirectX::XMFLOAT3 rot = entity->GetPitchYawRoll();
 		DirectX::XMFLOAT3 scale = entity->GetScale();
-		
+
 		std::string labelPos = "Position##" + std::to_string(i);
 		std::string labelRot = "Rotation##" + std::to_string(i);
 		std::string labelScale = "Scale##" + std::to_string(i);
 
-		if(ImGui::DragFloat3(labelPos.c_str(), &pos.x), -1.0f, 1.0f)
+		if (ImGui::DragFloat3(labelPos.c_str(), &pos.x, 0.01f, -1.0f, 1.0f))
 			entity->SetPosition(pos);
 
-		if(ImGui::DragFloat3(labelRot.c_str(), &rot.x), -1.0f, 1.0f)
+		if (ImGui::DragFloat3(labelRot.c_str(), &rot.x, 0.01f, -XM_PI, XM_PI))
 			entity->SetRotation(rot);
 
-		if(ImGui::DragFloat3(labelScale.c_str(), &scale.x), -1.0f, 1.0f)
+		if (ImGui::DragFloat3(labelScale.c_str(), &scale.x, 0.01f, 0.1f, 10.0f))
 			entity->SetScale(scale);
-
-		entity->GetWorldMatrix();
 	}
 }
+
 
 void Game::ConstantBufferUI() {
 	if(ImGui::CollapsingHeader("CB Data")) {
