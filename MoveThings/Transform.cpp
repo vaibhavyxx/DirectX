@@ -17,6 +17,14 @@ Transform::~Transform()
 	//Nothing so far
 }
 
+DirectX::XMMATRIX Transform::XMMatrixMultipy() {
+	//The order is S* R* T 
+	DirectX::XMMATRIX mTransform = XMMatrixTranslation();
+	DirectX::XMMATRIX mScale = XMMatrixScaling();
+	DirectX::XMMATRIX mRotate = XMMatrixRotationRollPitchYaw();
+	return mScale * mRotate * mTransform;
+}
+
 void Transform::SetPosition(float x, float y, float z)
 {
 	f3Position.x = x;
@@ -77,12 +85,8 @@ DirectX::XMFLOAT3 Transform::GetScale()
 DirectX::XMFLOAT4X4 Transform::GetWorldMatrix()
 {
 	if (updateMatrices) {
-		DirectX::XMMATRIX mTransform = XMMatrixTranslation();
-		DirectX::XMMATRIX mScale = XMMatrixScaling();
-		DirectX::XMMATRIX mRotate = XMMatrixRotationRollPitchYaw();
-		DirectX::XMMATRIX mWorld = mScale * mRotate * mTransform;
 
-		DirectX::XMStoreFloat4x4(&world, mWorld);
+		DirectX::XMStoreFloat4x4(&world, XMMatrixMultipy());
 	}
 	return world;
 }

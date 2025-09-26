@@ -269,9 +269,29 @@ void Game::CreateGeometry()
 	}
 #pragma endregion
 
+#pragma region Octagon
+	{
+		const int sides = 8;
+		const int totalVertex = sides + 1;		//including center
+		Vertex vertices[totalVertex] = {};
+		unsigned int indices[sides * 3];
+		std::vector<DirectX::XMFLOAT3> hexagonVerts = GenerateVertices(-0.25f, 0.5f, sides, 0.15f);
+		std::vector<unsigned int> hexIndices = GenerateIndices(sides);
+		for (int i = 0; i < totalVertex; i++) {
+			vertices[i] = { hexagonVerts[i], green };
+		}
+		for (int i = 0; i < (sides * 3); i++) {
+			indices[i] = hexIndices[i];
+		}
+		std::shared_ptr<Mesh> mesh4 = (std::make_shared<Mesh>(vertices, totalVertex, indices, sides * 3));
+		meshes.push_back(mesh4);
+	}
+#pragma endregion
+
+
 	const int meshCount = meshes.size();
 	//Setting it up 5 entities
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < 7; i++) {
 		if (i < meshCount) {
 			entities.push_back(meshes[i]);
 		}
@@ -279,6 +299,13 @@ void Game::CreateGeometry()
 			entities.push_back(entities[(meshCount - 1)]);
 		}
 	}
+	
+	//Setting values
+	entities[0].GetTransform()->Rotate(0.3, 0.3, 0.1);
+	entities[1].GetTransform()->MoveAbsolute(0.45f, 0.5f, 1.0);
+	entities[2].GetTransform()->MoveAbsolute(0.0, 0.01, 1.0f);
+	entities[3].GetTransform()->Scale(1.5f, 1.3f, 1.0f);
+	//entities[4].GetTransform()->Rotate(0.45f, 0.5f, 1.3f);*/
 }
 
 
@@ -297,11 +324,23 @@ float color[4] = { 0.4f, 0.6f, 0.75f, 1.0f };//might have to delete it
 // --------------------------------------------------------
 void Game::Update(float deltaTime, float totalTime)
 {
+	for (int i = 0; i < entities.size(); i++) {
+		entities[i].GetTransform()->GetWorldMatrix();
+	}
+
 	FrameReset(deltaTime);
 	BuildUI();
 	// Example input checking: Quit if the escape key is pressed
 	if (Input::KeyDown(VK_ESCAPE))
 		Window::Quit();
+
+	//Animation
+	float speed = 0.707f;
+	float scale = (float)cos(totalTime) * 0.5f ;
+	entities[3].GetTransform()->SetScale(scale, scale, scale);
+	entities[0].GetTransform()->SetPosition((float)cos(totalTime * speed), (float)sin(totalTime * speed), 0);
+	entities[4].GetTransform()->SetRotation(DirectX::XMFLOAT3(sin(totalTime) * speed, sin(totalTime) * speed, 0));
+	
 }
 
 
@@ -321,7 +360,6 @@ void Game::Draw(float deltaTime, float totalTime)
 		ConstantBufferData cbData = {};
 		cbData.worldMatrix = entity.GetTransform()->GetWorldMatrix();
 		//TODO: Color Tint
-		// cbData.colorTint = entity.G
 
 		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
 		Graphics::Context->Map(constBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
@@ -381,7 +419,6 @@ void Game::BuildUI() {
 	MeshDetails(entities[1].GetMesh(), "Quad");
 	MeshDetails(entities[2].GetMesh(), "Pentagon");
 	MeshDetails(entities[3].GetMesh(), "Hexagon");
-	MeshDetails(entities[4].GetMesh(), "Dodecagon");
 
 	for (unsigned int i = 0; i < entities.size(); i++)
 	{

@@ -1,9 +1,9 @@
 ﻿  Game.cpp
-C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Game.cpp(272,35): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Game.cpp(272,22): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
-C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Game.cpp(416,22): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-  Main.cpp
-  Mesh.cpp
-  Generating Code...
-     Creating library C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\x64\Debug\D3D11Starter.lib and object C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\x64\Debug\D3D11Starter.exp
+C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Game.cpp(292,35): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Game.cpp(292,22): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
+C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Game.cpp(304,47): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Game.cpp(304,42): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Game.cpp(304,37): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Game.cpp(306,48): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\Game.cpp(453,22): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
   D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\MoveThings\x64\Debug\D3D11Starter.exe

@@ -38,6 +38,7 @@ public:
 	DirectX::XMMATRIX XMMatrixTranslation();
 	DirectX::XMMATRIX XMMatrixScaling();
 	DirectX::XMMATRIX XMMatrixRotationRollPitchYaw();
+	DirectX::XMMATRIX XMMatrixMultipy();
 
 private:
 	bool updateMatrices;
