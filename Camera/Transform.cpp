@@ -116,6 +116,21 @@ void Transform::MoveAbsolute(DirectX::XMFLOAT3 offset)
 	DirectX::XMStoreFloat3(&f3Position, tPos);
 }
 
+void Transform::MoveRelative(float x, float y, float z)
+{
+	DirectX::XMFLOAT3 pos = DirectX::XMFLOAT3(x, y, z);
+	MoveRelative(pos);
+}
+
+void Transform::MoveRelative(DirectX::XMFLOAT3 offset)
+{
+	DirectX::XMVECTOR vPos = DirectX::XMLoadFloat3(&offset);
+	DirectX::XMVECTOR v3Quat = DirectX::XMQuaternionRotationRollPitchYaw(
+		GetPitchYawRoll().x, GetPitchYawRoll().y, GetPitchYawRoll().z);
+	DirectX::XMVECTOR vTransform = DirectX::XMVector3Rotate(vPos, v3Quat);
+	DirectX::XMStoreFloat3(&f3Position, vTransform);
+}
+
 void Transform::Rotate(float pitch, float yaw, float roll)
 {
 	f3Rotation.x += pitch;
