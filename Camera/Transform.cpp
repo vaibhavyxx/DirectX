@@ -25,6 +25,17 @@ DirectX::XMMATRIX Transform::XMMatrixMultipy() {
 	return mScale * mRotate * mTransform;
 }
 
+DirectX::XMFLOAT3 Transform::RotateObjectCenter(DirectX::XMFLOAT3 oldFloat)
+{
+	DirectX::XMVECTOR floatIntoVector = DirectX::XMLoadFloat3(&oldFloat);
+	DirectX::XMVECTOR rotationVector = DirectX::XMQuaternionRotationRollPitchYaw(
+		GetPitchYawRoll().x, GetPitchYawRoll().y, GetPitchYawRoll().z);
+	DirectX::XMVECTOR newFloatAsVector = DirectX::XMVector3Rotate(floatIntoVector, rotationVector);
+	DirectX::XMStoreFloat3(&oldFloat, newFloatAsVector);
+
+	return oldFloat;
+}
+
 void Transform::SetPosition(float x, float y, float z)
 {
 	f3Position.x = x;
@@ -99,6 +110,27 @@ DirectX::XMFLOAT4X4 Transform::GetWorldInverseTransposeMatrix()
 			DirectX::XMMatrixInverse(0, DirectX::XMMatrixTranspose(mWorld)));
 	}
 	return f4WorldInverseTranspose;
+}
+
+DirectX::XMFLOAT3 Transform::GetRight()
+{
+	DirectX::XMFLOAT3 right(1.0f, 0.0f, 0.0f);
+	DirectX::XMFLOAT3 newRight = RotateObjectCenter(right);
+	return newRight;
+}
+
+DirectX::XMFLOAT3 Transform::GetUp()
+{
+	DirectX::XMFLOAT3 up(0.0f, 1.0f, 0.0f);
+	DirectX::XMFLOAT3 newUp = RotateObjectCenter(up);
+	return newUp;
+}
+
+DirectX::XMFLOAT3 Transform::GetForward()
+{
+	DirectX::XMFLOAT3 forward(0.0f, 1.0f, 0.0f);
+	DirectX::XMFLOAT3 newForward = RotateObjectCenter(forward);
+	return newForward;
 }
 
 void Transform::MoveAbsolute(float x, float y, float z)
