@@ -40,22 +40,7 @@ Game::Game()
 		Graphics::Context->IASetInputLayout(inputLayout.Get());
 		Graphics::Context->VSSetShader(vertexShader.Get(), 0, 0);
 		Graphics::Context->PSSetShader(pixelShader.Get(), 0, 0);
-	}
-	{
-		// Create rasterizer state with no culling
-		D3D11_RASTERIZER_DESC rasterDesc = {};
-		rasterDesc.FillMode = D3D11_FILL_SOLID;
-		rasterDesc.CullMode = D3D11_CULL_NONE; // disable backface culling
-		rasterDesc.FrontCounterClockwise = false; // depends on your vertex winding
-		rasterDesc.DepthClipEnable = true;
-
-		Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterState;
-		Graphics::Device->CreateRasterizerState(&rasterDesc, rasterState.GetAddressOf());
-
-		// Bind it to the pipeline
-		Graphics::Context->RSSetState(rasterState.Get());
-	}
-	
+	}	
 }
 
 void Game::Initialize() {
@@ -75,8 +60,8 @@ void Game::Initialize() {
 	}
 
 	{
-	unsigned int size = sizeof(ConstantBufferData);
-	size = (size + 15) / 16 * 16;
+		unsigned int size = sizeof(ConstantBufferData);
+		size = (size + 15) / 16 * 16;
 	
 		D3D11_BUFFER_DESC cbDesc = {};
 		cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -93,7 +78,7 @@ void Game::Initialize() {
 		Window::AspectRatio(), 
 		DirectX::XMFLOAT3(0.0f, 0.0f, -5.0f), 
 		DirectX::XM_PIDIV4, 
-		0.01, 1000, 1.0f, 5.0f, false
+		0.01, 1000, 1.0f, 0.01f, false
 	);
 }
 // --------------------------------------------------------
@@ -428,12 +413,7 @@ void Game::FrameReset(float deltaTime) {
 int count = 0;
 void Game::BuildUI() {
 	ImGui::Begin("Inspector");
-	/*AppDetails();
-	MeshDetails(entities[0].GetMesh(), "Triangle");
-	MeshDetails(entities[1].GetMesh(), "Quad");
-	MeshDetails(entities[2].GetMesh(), "Pentagon");
-	MeshDetails(entities[3].GetMesh(), "Hexagon");
-	*/
+
 	for (unsigned int i = 0; i < entities.size(); i++)
 	{
 		std::shared_ptr<Transform> transform = entities[i].GetTransform();

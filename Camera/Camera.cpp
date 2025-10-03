@@ -18,18 +18,18 @@ Camera::Camera(float aspectRatio, DirectX::XMFLOAT3 initialPosition, float field
     transform->SetPosition(initialPosition);
 
     UpdateViewMatrix();
-    UpdateProjectionMatrix(aspectRatio);
+    UpdateProjectionMatrix(this->aspectRatio);
 }
 
 DirectX::XMFLOAT4X4 Camera::GetView()
 {
-    UpdateViewMatrix();
+    //UpdateViewMatrix();
     return viewMatrix;
 }
 
 DirectX::XMFLOAT4X4 Camera::GetProjection()
 {
-    UpdateViewMatrix();
+    //UpdateViewMatrix();
     return projectionMatrix;
 }
 
@@ -38,7 +38,7 @@ void Camera::UpdateProjectionMatrix(float aspectRatio)
     this->aspectRatio = aspectRatio;    //For window resizing
     DirectX::XMMATRIX projection;
     if (!orthographic) {
-        projection = DirectX::XMMatrixPerspectiveFovLH(fov, aspectRatio, nearClip, farClip);
+        projection = DirectX::XMMatrixPerspectiveFovLH(fov, this->aspectRatio, nearClip, farClip);
     }
     else {
         projection = DirectX::XMMatrixOrthographicLH(100, 100, nearClip, farClip);
@@ -83,20 +83,23 @@ void Camera::Update(float dt)
         transform->MoveAbsolute(0, distance, 0);
 
     if (Input::MouseLeftDown()) {
-        float cursorMovementX = Input::GetMouseXDelta() * mouseLookSpeed;
-        float cursorMovementY = Input::GetMouseYDelta() * mouseLookSpeed;
+
+        float cursorMovementX = Input::GetMouseXDelta() * this->mouseLookSpeed;
+        float cursorMovementY = Input::GetMouseYDelta() * this->mouseLookSpeed;
         transform->Rotate(cursorMovementY, cursorMovementX, 0.0f);
+        //std::cout << "mouse: " << cursorMovementX << ", " << cursorMovementY << "\n";
 
         DirectX::XMFLOAT3 pitchYawRoll = transform->GetPitchYawRoll();
         if (pitchYawRoll.x > DirectX::XM_PIDIV2)
             pitchYawRoll.x = DirectX::XM_PIDIV2;
 
-        if( pitchYawRoll.x < (DirectX::XM_PIDIV2 * -1.0f)) 
+        if( pitchYawRoll.x < (-DirectX::XM_PIDIV2)) 
             pitchYawRoll.x = -DirectX::XM_PIDIV2;
-        std::cout << "mouse: " << cursorMovementX << ", " << cursorMovementY <<"\n";
+        //std::cout << "mouse: " << cursorMovementX << ", " << cursorMovementY <<"\n";
         transform->SetRotation(pitchYawRoll);
         DirectX::XMFLOAT3 pyr = transform->GetPitchYawRoll();
-        std::cout << "rotation: " << pyr.x << ", " << pyr.y <<", "<< pyr.z << "\n";
+        if(pyr.x > 0 || pyr.y >0 || pyr.z >0)
+            std::cout << "rotation: " << pyr.x << ", " << pyr.y <<", "<< pyr.z << "\n";
     }
     UpdateViewMatrix();
 }

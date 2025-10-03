@@ -24,10 +24,6 @@ std::shared_ptr<Transform> GameEntity::GetTransform() {
 
 void GameEntity::Draw(Microsoft::WRL::ComPtr<ID3D11Buffer> vsConstantBuffer, std::shared_ptr<Camera> cam) {
 	
-	//DirectX::XMStoreFloat4x4(&vsData.worldMatrix, DirectX::XMMatrixIdentity());
-	//DirectX::XMStoreFloat4x4(&vsData.viewMatrix, DirectX::XMMatrixIdentity());//camera->GetView();
-	//vsData.projectionMatrix = cam->GetProjection();
-
 	ConstantBufferData vsData = {};
 	vsData.worldMatrix = transform->GetWorldMatrix();
 	vsData.viewMatrix = cam->GetView();
@@ -37,8 +33,10 @@ void GameEntity::Draw(Microsoft::WRL::ComPtr<ID3D11Buffer> vsConstantBuffer, std
 	// Copy this data to the constant buffer we intend to use
 	D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
 	Graphics::Context->Map(vsConstantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
+
 	// Straight memcpy() into the resource
 	memcpy(mappedBuffer.pData, &vsData, sizeof(vsData));
+
 	// Unmap so the GPU can once again use the buffer
 	Graphics::Context->Unmap(vsConstantBuffer.Get(), 0);
 	Graphics::Context->VSSetConstantBuffers(0, 1, vsConstantBuffer.GetAddressOf());

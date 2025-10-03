@@ -12,6 +12,7 @@ Transform::Transform():
 	//Sets world and inverse world matrix to identity matrices
 	DirectX::XMStoreFloat4x4(&world, DirectX::XMMatrixIdentity());
 	DirectX::XMStoreFloat4x4(&f4WorldInverseTranspose, DirectX::XMMatrixIdentity());
+	UpdateAxis();
 }
 
 Transform::~Transform()
@@ -141,6 +142,8 @@ void Transform::MoveAbsolute(float x, float y, float z)
 	f3Position.x += x;
 	f3Position.y += y;
 	f3Position.z += z;
+
+	updateVectors = true;
 }
 
 void Transform::MoveAbsolute(DirectX::XMFLOAT3 offset)
@@ -162,6 +165,7 @@ void Transform::MoveRelative(float x, float y, float z)
 	// Add and store, and invalidate the matrices
 	XMStoreFloat3(&f3Position, XMLoadFloat3(&f3Position) + dir);
 	updateMatrices = true;
+	updateVectors = true;
 }
 
 void Transform::MoveRelative(DirectX::XMFLOAT3 offset)
@@ -169,6 +173,7 @@ void Transform::MoveRelative(DirectX::XMFLOAT3 offset)
 	//Testing
 	MoveRelative(offset.x, offset.y, offset.z);
 	updateMatrices = true;
+	updateVectors = true;
 }
 
 void Transform::Rotate(float pitch, float yaw, float roll)
@@ -177,6 +182,7 @@ void Transform::Rotate(float pitch, float yaw, float roll)
 	f3Rotation.y += yaw;
 	f3Rotation.z += roll;
 	updateMatrices = true;
+	updateVectors = true;
 }
 
 void Transform::Rotate(DirectX::XMFLOAT3 rotation)
@@ -186,6 +192,7 @@ void Transform::Rotate(DirectX::XMFLOAT3 rotation)
 	tRot = DirectX::XMVectorAdd(tRot, tOffset);
 	DirectX::XMStoreFloat3(&f3Rotation, tRot);
 	updateMatrices = true;
+	updateVectors = true;
 }
 
 void Transform::Scale(float x, float y, float z)
@@ -194,6 +201,7 @@ void Transform::Scale(float x, float y, float z)
 	f3Scale.y *= y;
 	f3Scale.z *= z;
 	updateMatrices = true;
+	updateVectors = true;
 }
 
 void Transform::Scale(DirectX::XMFLOAT3 scale)
@@ -203,6 +211,7 @@ void Transform::Scale(DirectX::XMFLOAT3 scale)
 	tScale = DirectX::XMVectorMultiply(tScale, tOffset);
 	DirectX::XMStoreFloat3(&f3Scale, tScale);
 	updateMatrices = true;
+	updateVectors = true;
 }
 
 DirectX::XMMATRIX Transform::XMMatrixTranslation()
