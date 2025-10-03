@@ -41,6 +41,21 @@ Game::Game()
 		Graphics::Context->VSSetShader(vertexShader.Get(), 0, 0);
 		Graphics::Context->PSSetShader(pixelShader.Get(), 0, 0);
 	}
+	
+		// Create rasterizer state with no culling
+		D3D11_RASTERIZER_DESC rasterDesc = {};
+		rasterDesc.FillMode = D3D11_FILL_SOLID;
+		rasterDesc.CullMode = D3D11_CULL_NONE; // disable backface culling
+		rasterDesc.FrontCounterClockwise = false; // depends on your vertex winding
+		rasterDesc.DepthClipEnable = true;
+
+		Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterState;
+		Graphics::Device->CreateRasterizerState(&rasterDesc, rasterState.GetAddressOf());
+
+		// Bind it to the pipeline
+		Graphics::Context->RSSetState(rasterState.Get());
+
+	
 }
 
 void Game::Initialize() {
@@ -69,12 +84,12 @@ void Game::Initialize() {
 	//float aspectRatio, DirectX::XMFLOAT3 initialPosition, 
 	// float fieldOfView, float nearClip, float farClip, float movementSpeed, float mouseLookSpeed
 	//Setting up a camera
-	/*camera = std::make_shared<Camera>(
+	camera = std::make_shared<Camera>(
 		Window::AspectRatio(), 
 		DirectX::XMFLOAT3(0.0f, 0.0f, -5.0f), 
 		DirectX::XM_PIDIV2, 
 		0.01, 1000, 0.05f, 0.02f, false
-	);*/
+	);
 }
 // --------------------------------------------------------
 // Clean up memory or objects created by this class
@@ -349,7 +364,7 @@ void Game::Update(float deltaTime, float totalTime)
 	entities[0].GetTransform()->SetPosition((float)cos(totalTime * speed), (float)sin(totalTime * speed), 0);
 	entities[4].GetTransform()->SetRotation(DirectX::XMFLOAT3(sin(totalTime) * speed, sin(totalTime) * speed, 0));
 	
-	//camera->Update(deltaTime);
+	camera->Update(deltaTime);
 }
 
 // --------------------------------------------------------
@@ -365,12 +380,17 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	for(GameEntity& entity: entities)
 	{
-		//ConstantBufferData cbData = {};
-		//cbData.worldMatrix = entity.GetTransform()->GetWorldMatrix();
-		entity.GetMesh()->Draw();
-		auto pos = entity.GetTransform()->GetPosition();
-		std::cout << "mesh: (" << pos.x << ", " << pos.y << ", " << pos.z << ")\n";
+		ConstantBufferData data = {};
+		data.worldMatrix = entity.GetTransform()->GetWorldMatrix();
+		data.viewMatrix = camera->GetView();
+		data.projectionMatrix = camera->GetProjection();
 
+		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
+		Graphics::Context->Map(constBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
+		memcpy(mappedBuffer.pData, &data, sizeof(data));
+		Graphics::Context->Unmap(constBuffer.Get(), 0);
+
+		entity.GetMesh()->Draw();
 	}
 	
 	// Frame END

@@ -32,7 +32,7 @@ using namespace DirectX;
 // --------------------------------------------------------
 Game::Game()
 {
-	Initialize();	
+	Initialize();
 	LoadShaders();
 	CreateGeometry();
 	{
@@ -52,31 +52,69 @@ void Game::Initialize() {
 	// Pick a style (uncomment one of these 3)
 	ImGui::StyleColorsDark();
 
-	unsigned int size = sizeof(ConstantBufferData);
-	size = (size + 15) / 16 * 16;
+	{
+		Graphics::Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	D3D11_BUFFER_DESC cbDesc = {};
-	cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cbDesc.ByteWidth = size;
-	cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cbDesc.Usage = D3D11_USAGE_DYNAMIC;
+		// Ensure the pipeline knows how to interpret all the numbers stored in
+		// the vertex buffer. For this course, all of your vertices will probably
+		// have the same layout, so we can just set this once at startup.
+		Graphics::Context->IASetInputLayout(inputLayout.Get());
 
-	HRESULT hr = Graphics::Device->CreateBuffer(&cbDesc, 0, constBuffer.GetAddressOf());
-	if (FAILED(hr)) {
-		OutputDebugStringA("Failed to create a constant buffer!");
+		// Set the active vertex and pixel shaders
+		//  - Once you start applying different shaders to different objects,
+		//    these calls will need to happen multiple times per frame
+		Graphics::Context->VSSetShader(vertexShader.Get(), 0, 0);
+		Graphics::Context->PSSetShader(pixelShader.Get(), 0, 0);
 	}
+
+	{
+		unsigned int size = sizeof(ConstantBufferData);
+		size = (size + 15) / 16 * 16;
+
+		D3D11_BUFFER_DESC cbDesc = {};
+		cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		cbDesc.ByteWidth = size;
+		cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		cbDesc.Usage = D3D11_USAGE_DYNAMIC;
+
+		Graphics::Context->VSSetConstantBuffers(
+			0,		// Which slot (register) to bind the buffer to?
+			1,		// How many are we activating?  Can set more than one at a time, if we need
+			constBuffer.GetAddressOf());	// Array of constant buffers or the address of just one (same thing in C++)
+	
+		HRESULT hr = Graphics::Device->CreateBuffer(&cbDesc, 0, constBuffer.GetAddressOf());
+		if (FAILED(hr)) {
+			OutputDebugStringA("Failed to create a constant buffer!");
+		}
+	}
+
+	{
+		// Create rasterizer state with no culling
+		D3D11_RASTERIZER_DESC rasterDesc = {};
+		rasterDesc.FillMode = D3D11_FILL_SOLID;
+		rasterDesc.CullMode = D3D11_CULL_NONE; // disable backface culling
+		rasterDesc.FrontCounterClockwise = false; // depends on your vertex winding
+		rasterDesc.DepthClipEnable = true;
+
+		Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterState;
+		Graphics::Device->CreateRasterizerState(&rasterDesc, rasterState.GetAddressOf());
+
+		// Bind it to the pipeline
+		Graphics::Context->RSSetState(rasterState.Get());
+	}
+
 	camera = std::make_shared<Camera>(
-		XMFLOAT3(0.0f, 0.0f, 5.0f),
+		XMFLOAT3(0.0f, 0.0f, -5.0f),
 		Window::AspectRatio(),
 		XM_PIDIV4,
 		0.001,
 		1000,
 		0.05f,
-		0.05f,
+		0.001f,
 		100.0f,
 		true
 	);
-	
+
 }
 // --------------------------------------------------------
 // Clean up memory or objects created by this class
@@ -312,13 +350,16 @@ void Game::CreateGeometry()
 			entities.push_back(entities[(meshCount - 1)]);
 		}
 	}
-	
+
 	//Setting values
-	entities[0].GetTransform()->Rotate(0.3f, 0.3f, 0.1f);
-	entities[1].GetTransform()->MoveAbsolute(0.45f, 0.5f, 1.0f);
+	/*entities[0].GetTransform()->Rotate(0.3f, 0.3f, 0.1f);
+	entities[1].GetTransform()->MoveRelative(0.45f, 0.5f, 1.0f);
 	entities[2].GetTransform()->MoveAbsolute(0.0f, 0.01f, 1.0f);
-	entities[3].GetTransform()->Scale(1.5f, 1.3f, 1.0f);
-	//entities[4].GetTransform()->Rotate(0.45f, 0.5f, 1.3f);*/
+	entities[3].GetTransform()->Scale(1.5f, 1.3f, 1.0f);*/
+	for (int i = 0; i < entities.size(); i++) {
+		entities[i].GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
+	}
+	//entities[4].GetTransform()->Rotate(0.45f, 0.5f, 1.3f);
 }
 
 
@@ -337,7 +378,7 @@ float color[4] = { 0.4f, 0.6f, 0.75f, 1.0f };//might have to delete it
 // --------------------------------------------------------
 void Game::Update(float deltaTime, float totalTime)
 {
-	
+
 	FrameReset(deltaTime);
 	BuildUI();
 	// Example input checking: Quit if the escape key is pressed
@@ -345,12 +386,12 @@ void Game::Update(float deltaTime, float totalTime)
 		Window::Quit();
 
 	//Animation
-	float speed = 0.707f;
-	float scale = (float)cos(totalTime) * 0.5f ;
+	/*float speed = 0.707f;
+	float scale = (float)cos(totalTime) * 0.5f;
 	entities[3].GetTransform()->SetScale(scale, scale, scale);
 	entities[0].GetTransform()->SetPosition((float)cos(totalTime * speed), (float)sin(totalTime * speed), 0.0f);
-	entities[4].GetTransform()->SetRotation(DirectX::XMFLOAT3( (float)(sin(totalTime) * speed),float(sin(totalTime) * speed), 0.0f));
-	
+	entities[4].GetTransform()->SetRotation(DirectX::XMFLOAT3((float)(sin(totalTime) * speed), float(sin(totalTime) * speed), 0.0f));
+	*/
 	camera->Update(deltaTime);
 }
 
@@ -365,20 +406,25 @@ void Game::Draw(float deltaTime, float totalTime)
 		Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
 
-	for(GameEntity& entity: entities)
+	for (GameEntity& entity : entities)
 	{
 		entity.Draw(constBuffer, camera);
 	}
-	
+	//Binds it in order to draw the mesh with cb data
+	/*Graphics::Context->VSSetConstantBuffers(
+		0,
+		1,
+		constBuffer.GetAddressOf());*/
+
 	// Frame END
 	// - These should happen exactly ONCE PER FRAME
 	// - At the very end of the frame (after drawing *everything*)
 	{
 		// Present at the end of the frame
-		bool vsync = Graphics::VsyncState();
 		ImGui::Render(); // Turns this frame’s UI into renderable triangles
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData()); // Draws it to the screen
 
+		bool vsync = Graphics::VsyncState();
 		Graphics::SwapChain->Present(
 			vsync ? 1 : 0,
 			vsync ? 0 : DXGI_PRESENT_ALLOW_TEARING);

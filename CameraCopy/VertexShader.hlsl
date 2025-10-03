@@ -1,8 +1,8 @@
 cbuffer ExternalDatat : register(b0)
 {
-    float4x4 world;
-    float4x4 view;
-    float4x4 proj;
+    row_major float4x4 world;
+    row_major float4x4 view;
+    row_major float4x4 proj;
 }
 
 // Struct representing a single vertex worth of data

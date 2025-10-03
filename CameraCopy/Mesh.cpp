@@ -24,11 +24,11 @@ using namespace DirectX;
 
 
 Mesh::Mesh(Vertex vertices[],int vertexCount,unsigned int indices[], int indexCount) {
-	verticesCount = vertexCount;
-	indicesCount = indexCount;
+	this->verticesCount = vertexCount;
+	this->indicesCount = indexCount;
 
 	//Vertex buffer
-	{
+	/* {
 		D3D11_BUFFER_DESC vbd = {};
 		vbd.Usage = D3D11_USAGE_IMMUTABLE;						// Will NEVER change
 		vbd.ByteWidth = sizeof(Vertex) * verticesCount;			// 3 = number of vertices in the buffer
@@ -54,7 +54,7 @@ Mesh::Mesh(Vertex vertices[],int vertexCount,unsigned int indices[], int indexCo
 		D3D11_SUBRESOURCE_DATA initialBufferData = {};
 		initialBufferData.pSysMem = indices; // pSysMem = Pointer to System Memory
 		Graphics::Device->CreateBuffer(&ibd, &initialBufferData, indexBuffer.GetAddressOf());
-	}
+	}*/
 }
 
 Mesh::~Mesh() {
@@ -80,8 +80,9 @@ void Mesh::Draw() {
 		UINT offset = 0;
 		Graphics::Context->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), &stride, &offset);
 		Graphics::Context->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+		
 		Graphics::Context->DrawIndexed(
-			indicesCount,		// The number of indices to use (we could draw a subset if we wanted)
+			this->indicesCount,		// The number of indices to use (we could draw a subset if we wanted)
 			0,					// Offset to the first index we want to use
 			0);					// Offset to add to each index when looking up vertices
 	}

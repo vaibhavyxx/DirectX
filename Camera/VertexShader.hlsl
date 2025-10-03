@@ -1,8 +1,8 @@
-cbuffer ExternalDatat : register(b0)
+cbuffer ExternalData : register(b0)
 {
-    matrix world;
-    matrix view;
-    matrix projection;
+    row_major matrix world;
+    row_major matrix view;
+    row_major matrix projection;
 }
 
 // Struct representing a single vertex worth of data

@@ -23,11 +23,13 @@ Camera::Camera(float aspectRatio, DirectX::XMFLOAT3 initialPosition, float field
 
 DirectX::XMFLOAT4X4 Camera::GetView()
 {
+    UpdateViewMatrix();
     return viewMatrix;
 }
 
 DirectX::XMFLOAT4X4 Camera::GetProjection()
 {
+    UpdateViewMatrix();
     return projectionMatrix;
 }
 
@@ -48,6 +50,9 @@ void Camera::UpdateViewMatrix()
 {
     DirectX::XMFLOAT3 forward = transform->GetForward();
     DirectX::XMFLOAT3 pos = transform->GetPosition();
+
+    std::cout << "Camera pos: " << pos.x << "," << pos.y << "," << pos.z << "\n";
+    std::cout << "Camera forward: " << forward.x << "," << forward.y << "," << forward.z << "\n";
 
     DirectX::XMMATRIX view =
         DirectX::XMMatrixLookToLH(

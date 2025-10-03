@@ -163,6 +163,6 @@ DirectX::XMMATRIX Transform::XMMatrixScaling()
 DirectX::XMMATRIX Transform::XMMatrixRotationRollPitchYaw()
 {
 	DirectX::XMVECTOR vRotate = DirectX::XMLoadFloat3(&f3Rotation);
-	DirectX::XMMATRIX mRotate = DirectX::XMMatrixTranslationFromVector(vRotate);
+	DirectX::XMMATRIX mRotate = DirectX::XMMatrixRotationRollPitchYawFromVector(vRotate);
 	return mRotate;
 }

@@ -6,8 +6,8 @@ Transform::Transform():
 	f3Position(0,0,0),
 	f3Rotation(0,0,0),
 	f3Scale(1,1,1),
-	updateMatrices(false),
-	updateVectors(false)
+	updateMatrices(true),
+	updateVectors(true)
 {
 	//Sets world and inverse world matrix to identity matrices
 	DirectX::XMStoreFloat4x4(&world, DirectX::XMMatrixIdentity());
@@ -37,6 +37,7 @@ void Transform::UpdateAxis()
 	XMStoreFloat3(&up, XMVector3Rotate(XMVectorSet(0, 1, 0, 0), rotQuat));
 	XMStoreFloat3(&right, XMVector3Rotate(XMVectorSet(1, 0, 0, 0), rotQuat));
 	XMStoreFloat3(&forward, XMVector3Rotate(XMVectorSet(0, 0, 1, 0), rotQuat));
+	
 	updateVectors = false;
 }
 

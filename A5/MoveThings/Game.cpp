@@ -364,12 +364,6 @@ void Game::Draw(float deltaTime, float totalTime)
 		memcpy(mappedBuffer.pData, &cbData, sizeof(cbData));
 		Graphics::Context->Unmap(constBuffer.Get(), 0);
 
-		//Binds it in order to draw the mesh with cb data
-		Graphics::Context->VSSetConstantBuffers(
-			0,
-			1,
-			constBuffer.GetAddressOf());
-
 		entity.GetMesh()->Draw();
 	}
 	
@@ -391,6 +385,13 @@ void Game::Draw(float deltaTime, float totalTime)
 			1,
 			Graphics::BackBufferRTV.GetAddressOf(),
 			Graphics::DepthBufferDSV.Get());
+
+		//Binds it in order to draw the mesh with cb data
+		Graphics::Context->VSSetConstantBuffers(
+			0,
+			1,
+			constBuffer.GetAddressOf());
+
 	}
 }
 
