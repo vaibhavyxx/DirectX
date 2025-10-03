@@ -50,9 +50,13 @@ void Camera::UpdateViewMatrix()
 {
     DirectX::XMFLOAT3 forward = transform->GetForward();
     DirectX::XMFLOAT3 pos = transform->GetPosition();
+    DirectX::XMFLOAT3 right = transform->GetRight();
+    DirectX::XMFLOAT3 up = transform->GetUp();
 
     std::cout << "Camera pos: " << pos.x << "," << pos.y << "," << pos.z << "\n";
     std::cout << "Camera forward: " << forward.x << "," << forward.y << "," << forward.z << "\n";
+    std::cout << "Camera right: " << right.x << "," << right.y << "," << right.z << "\n";
+    std::cout << "Camera up: " << up.x << "," << up.y << "," << up.z << "\n";
 
     DirectX::XMMATRIX view =
         DirectX::XMMatrixLookToLH(
