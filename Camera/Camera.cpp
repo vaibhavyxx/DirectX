@@ -81,9 +81,6 @@ void Camera::Update(float dt)
     if (Input::KeyDown('D'))
         transform->MoveRelative(distance, 0, 0);
 
-    auto pos = transform->GetPosition();
-    std::cout << "camera: (" << pos.x << ", " << pos.y << ", " << pos.z << ")\n";
-
     //Absolute movement
     if (Input::KeyDown(VK_SPACE))
         transform->MoveAbsolute(0, -distance, 0);

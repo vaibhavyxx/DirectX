@@ -364,7 +364,7 @@ void Game::Draw(float deltaTime, float totalTime)
 		memcpy(mappedBuffer.pData, &cbData, sizeof(cbData));
 		Graphics::Context->Unmap(constBuffer.Get(), 0);
 
-		entity.GetMesh()->Draw();
+		entity.Draw();
 	}
 	
 	// Frame END

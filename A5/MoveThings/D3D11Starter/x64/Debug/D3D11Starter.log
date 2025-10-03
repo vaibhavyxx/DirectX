@@ -2,4 +2,5 @@
 C:\Users\vaibh\Documents\git\ggp-hws\A5\MoveThings\Game.cpp(292,35): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
 C:\Users\vaibh\Documents\git\ggp-hws\A5\MoveThings\Game.cpp(292,22): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
 C:\Users\vaibh\Documents\git\ggp-hws\A5\MoveThings\Game.cpp(452,22): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+     Creating library C:\Users\vaibh\Documents\git\ggp-hws\A5\MoveThings\x64\Debug\D3D11Starter.lib and object C:\Users\vaibh\Documents\git\ggp-hws\A5\MoveThings\x64\Debug\D3D11Starter.exp
   D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\A5\MoveThings\x64\Debug\D3D11Starter.exe

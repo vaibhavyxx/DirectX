@@ -32,7 +32,7 @@ using namespace DirectX;
 // --------------------------------------------------------
 Game::Game()
 {
-	Initialize();	
+	Initialize();
 	LoadShaders();
 	CreateGeometry();
 	{
@@ -41,7 +41,7 @@ Game::Game()
 		Graphics::Context->VSSetShader(vertexShader.Get(), 0, 0);
 		Graphics::Context->PSSetShader(pixelShader.Get(), 0, 0);
 	}
-	
+	{
 		// Create rasterizer state with no culling
 		D3D11_RASTERIZER_DESC rasterDesc = {};
 		rasterDesc.FillMode = D3D11_FILL_SOLID;
@@ -54,7 +54,7 @@ Game::Game()
 
 		// Bind it to the pipeline
 		Graphics::Context->RSSetState(rasterState.Get());
-
+	}
 	
 }
 
@@ -67,27 +67,32 @@ void Game::Initialize() {
 	// Pick a style (uncomment one of these 3)
 	ImGui::StyleColorsDark();
 
-	unsigned int size = sizeof(ConstantBufferData);
-	size = (size + 15) / 16 * 16;
-
-	D3D11_BUFFER_DESC cbDesc = {};
-	cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cbDesc.ByteWidth = size;
-	cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cbDesc.Usage = D3D11_USAGE_DYNAMIC;
-
-	HRESULT hr = Graphics::Device->CreateBuffer(&cbDesc, 0, constBuffer.GetAddressOf());
-	if (FAILED(hr)) {
-		OutputDebugStringA("Failed to create a constant buffer!");
+	{
+		Graphics::Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		Graphics::Context->IASetInputLayout(inputLayout.Get());
+		Graphics::Context->VSSetShader(vertexShader.Get(), 0, 0);
+		Graphics::Context->PSSetShader(pixelShader.Get(), 0, 0);
 	}
 
+	{
+	unsigned int size = sizeof(ConstantBufferData);
+	size = (size + 15) / 16 * 16;
+	
+		D3D11_BUFFER_DESC cbDesc = {};
+		cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		cbDesc.ByteWidth = size;
+		cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		cbDesc.Usage = D3D11_USAGE_DYNAMIC;
+
+		Graphics::Device->CreateBuffer(&cbDesc, 0, constBuffer.GetAddressOf());
+	}
 	//float aspectRatio, DirectX::XMFLOAT3 initialPosition, 
 	// float fieldOfView, float nearClip, float farClip, float movementSpeed, float mouseLookSpeed
 	//Setting up a camera
 	camera = std::make_shared<Camera>(
 		Window::AspectRatio(), 
 		DirectX::XMFLOAT3(0.0f, 0.0f, -5.0f), 
-		DirectX::XM_PIDIV2, 
+		DirectX::XM_PIDIV4, 
 		0.01, 1000, 0.05f, 0.02f, false
 	);
 }
@@ -345,7 +350,6 @@ void Game::OnResize()
 	camera->UpdateProjectionMatrix(Window::AspectRatio());
 }
 
-float color[4] = { 0.4f, 0.6f, 0.75f, 1.0f };//might have to delete it
 // --------------------------------------------------------
 // Update your game here - user input, move objects, AI, etc.
 // --------------------------------------------------------
@@ -367,6 +371,7 @@ void Game::Update(float deltaTime, float totalTime)
 	camera->Update(deltaTime);
 }
 
+float color[4] = { 0.4f, 0.6f, 0.75f, 1.0f };//might have to delete it
 // --------------------------------------------------------
 // Clear the screen, redraw everything, present to the user
 // --------------------------------------------------------
@@ -380,28 +385,19 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	for(GameEntity& entity: entities)
 	{
-		ConstantBufferData data = {};
-		data.worldMatrix = entity.GetTransform()->GetWorldMatrix();
-		data.viewMatrix = camera->GetView();
-		data.projectionMatrix = camera->GetProjection();
-
-		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
-		Graphics::Context->Map(constBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
-		memcpy(mappedBuffer.pData, &data, sizeof(data));
-		Graphics::Context->Unmap(constBuffer.Get(), 0);
-
-		entity.GetMesh()->Draw();
+		entity.Draw(constBuffer);
 	}
 	
 	// Frame END
 	// - These should happen exactly ONCE PER FRAME
 	// - At the very end of the frame (after drawing *everything*)
 	{
+		// Draw the UI after everything else
+		ImGui::Render();
+		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
 		// Present at the end of the frame
 		bool vsync = Graphics::VsyncState();
-		ImGui::Render(); // Turns this frame’s UI into renderable triangles
-		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData()); // Draws it to the screen
-
 		Graphics::SwapChain->Present(
 			vsync ? 1 : 0,
 			vsync ? 0 : DXGI_PRESENT_ALLOW_TEARING);
@@ -432,17 +428,40 @@ void Game::FrameReset(float deltaTime) {
 int count = 0;
 void Game::BuildUI() {
 	ImGui::Begin("Inspector");
-	AppDetails();
+	/*AppDetails();
 	MeshDetails(entities[0].GetMesh(), "Triangle");
 	MeshDetails(entities[1].GetMesh(), "Quad");
 	MeshDetails(entities[2].GetMesh(), "Pentagon");
 	MeshDetails(entities[3].GetMesh(), "Hexagon");
-
+	*/
 	for (unsigned int i = 0; i < entities.size(); i++)
 	{
 		std::shared_ptr<Transform> transform = entities[i].GetTransform();
 		EntityValues(transform, i);
 	}
+
+	if (ImGui::CollapsingHeader("Camera"))
+	{
+		DirectX::XMFLOAT4X4 view = camera->GetView();
+		DirectX::XMFLOAT4X4 proj = camera->GetProjection();
+
+		// Display view matrix
+		ImGui::Text("View Matrix:");
+		for (int i = 0; i < 4; i++)
+		{
+			ImGui::Text("%.2f %.2f %.2f %.2f",
+				view.m[i][0], view.m[i][1], view.m[i][2], view.m[i][3]);
+		}
+
+		// Display projection matrix
+		ImGui::Text("Projection Matrix:");
+		for (int i = 0; i < 4; i++)
+		{
+			ImGui::Text("%.2f %.2f %.2f %.2f",
+				proj.m[i][0], proj.m[i][1], proj.m[i][2], proj.m[i][3]);
+		}
+	}
+
 	ImGui::End();
 }
 void Game::AppDetails() {
