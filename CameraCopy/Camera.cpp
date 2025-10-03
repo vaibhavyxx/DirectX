@@ -1,5 +1,6 @@
 #include "Camera.h"
 #include "Input.h"
+#include <iostream>
 
 Camera::Camera(DirectX::XMFLOAT3 position, float aspectRatio, 
     float fov, float nearClip, float farClip, float moveSpeed, 
@@ -77,4 +78,28 @@ void Camera::Update(float dt)
     if (Input::KeyDown('X')) { transform->MoveAbsolute(0, -dis, 0); }
     if (Input::KeyDown(' ')) { transform->MoveAbsolute(0, dis, 0); }
 
+    auto pos = transform->GetPosition();
+    std::cout << "camera: (" << pos.x << ", " << pos.y << ", " << pos.z << ")\n";
+    
+    //Absolute movement
+    if (Input::KeyDown(VK_SPACE))
+        transform->MoveAbsolute(0, -dis, 0);
+    if (Input::KeyDown('X'))
+        transform->MoveAbsolute(0, dis, 0);
+
+    if (Input::MouseLeftDown()) {
+        int cursorMovementX = Input::GetMouseXDelta() * mouseLookSpeed;
+        int cursorMovementY = Input::GetMouseYDelta() * mouseLookSpeed;
+        transform->Rotate(cursorMovementY, cursorMovementX, 0.0f);
+
+        DirectX::XMFLOAT3 pitchYawRoll = transform->GetPitchYawRoll();
+        if (pitchYawRoll.x > DirectX::XM_PIDIV2)
+            pitchYawRoll.x = DirectX::XM_PIDIV2;
+
+        if (pitchYawRoll.x < (DirectX::XM_PIDIV2 * -1.0f))
+            pitchYawRoll.x = -DirectX::XM_PIDIV2;
+
+        transform->SetRotation(pitchYawRoll);
+    }
+    UpdateViewMatrix();
 }

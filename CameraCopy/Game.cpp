@@ -351,7 +351,7 @@ void Game::Update(float deltaTime, float totalTime)
 	entities[0].GetTransform()->SetPosition((float)cos(totalTime * speed), (float)sin(totalTime * speed), 0.0f);
 	entities[4].GetTransform()->SetRotation(DirectX::XMFLOAT3( (float)(sin(totalTime) * speed),float(sin(totalTime) * speed), 0.0f));
 	
-	//camera->Update(deltaTime);
+	camera->Update(deltaTime);
 }
 
 // --------------------------------------------------------
