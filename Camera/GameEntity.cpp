@@ -22,14 +22,16 @@ std::shared_ptr<Transform> GameEntity::GetTransform() {
 	return transform;
 }
 
-void GameEntity::Draw(Microsoft::WRL::ComPtr<ID3D11Buffer> vsConstantBuffer) {
+void GameEntity::Draw(Microsoft::WRL::ComPtr<ID3D11Buffer> vsConstantBuffer, std::shared_ptr<Camera> cam) {
 	
+	//DirectX::XMStoreFloat4x4(&vsData.worldMatrix, DirectX::XMMatrixIdentity());
+	//DirectX::XMStoreFloat4x4(&vsData.viewMatrix, DirectX::XMMatrixIdentity());//camera->GetView();
+	//vsData.projectionMatrix = cam->GetProjection();
+
 	ConstantBufferData vsData = {};
-	//vsData.worldMatrix = transform->GetWorldMatrix();
-	DirectX::XMStoreFloat4x4(&vsData.worldMatrix, DirectX::XMMatrixIdentity());
-	DirectX::XMStoreFloat4x4(&vsData.viewMatrix, DirectX::XMMatrixIdentity());//camera->GetView();
+	vsData.worldMatrix = transform->GetWorldMatrix();
+	vsData.viewMatrix = cam->GetView();
 	DirectX::XMStoreFloat4x4(&vsData.projectionMatrix, DirectX::XMMatrixIdentity());
-	//vsData.projectionMatrix = camera->GetProjection();
 
 	// Copy this data to the constant buffer we intend to use
 	D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};

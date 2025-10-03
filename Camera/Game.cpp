@@ -93,7 +93,7 @@ void Game::Initialize() {
 		Window::AspectRatio(), 
 		DirectX::XMFLOAT3(0.0f, 0.0f, -5.0f), 
 		DirectX::XM_PIDIV4, 
-		0.01, 1000, 0.05f, 0.02f, false
+		0.01, 1000, 1.0f, 5.0f, false
 	);
 }
 // --------------------------------------------------------
@@ -385,7 +385,7 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	for(GameEntity& entity: entities)
 	{
-		entity.Draw(constBuffer);
+		entity.Draw(constBuffer, camera);
 	}
 	
 	// Frame END

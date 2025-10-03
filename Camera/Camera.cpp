@@ -53,10 +53,11 @@ void Camera::UpdateViewMatrix()
     DirectX::XMFLOAT3 right = transform->GetRight();
     DirectX::XMFLOAT3 up = transform->GetUp();
 
-    std::cout << "Camera pos: " << pos.x << "," << pos.y << "," << pos.z << "\n";
+    /*std::cout << "Camera pos: " << pos.x << "," << pos.y << "," << pos.z << "\n";
     std::cout << "Camera forward: " << forward.x << "," << forward.y << "," << forward.z << "\n";
     std::cout << "Camera right: " << right.x << "," << right.y << "," << right.z << "\n";
     std::cout << "Camera up: " << up.x << "," << up.y << "," << up.z << "\n";
+    */
 
     DirectX::XMMATRIX view =
         DirectX::XMMatrixLookToLH(
@@ -88,8 +89,8 @@ void Camera::Update(float dt)
         transform->MoveAbsolute(0, distance, 0);
 
     if (Input::MouseLeftDown()) {
-        int cursorMovementX = Input::GetMouseXDelta() * mouseLookSpeed;
-        int cursorMovementY = Input::GetMouseYDelta() * mouseLookSpeed;
+        float cursorMovementX = Input::GetMouseXDelta() * mouseLookSpeed;
+        float cursorMovementY = Input::GetMouseYDelta() * mouseLookSpeed;
         transform->Rotate(cursorMovementY, cursorMovementX, 0.0f);
 
         DirectX::XMFLOAT3 pitchYawRoll = transform->GetPitchYawRoll();
@@ -98,8 +99,10 @@ void Camera::Update(float dt)
 
         if( pitchYawRoll.x < (DirectX::XM_PIDIV2 * -1.0f)) 
             pitchYawRoll.x = -DirectX::XM_PIDIV2;
-       
+        std::cout << "mouse: " << cursorMovementX << ", " << cursorMovementY <<"\n";
         transform->SetRotation(pitchYawRoll);
+        DirectX::XMFLOAT3 pyr = transform->GetPitchYawRoll();
+        std::cout << "rotation: " << pyr.x << ", " << pyr.y <<", "<< pyr.z << "\n";
     }
     UpdateViewMatrix();
 }
