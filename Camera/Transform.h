@@ -44,16 +44,22 @@ public:
 	DirectX::XMMATRIX XMMatrixTranslation();
 	DirectX::XMMATRIX XMMatrixScaling();
 	DirectX::XMMATRIX XMMatrixRotationRollPitchYaw();
-	DirectX::XMMATRIX XMMatrixMultipy();
+	DirectX::XMMATRIX XMMatrixMultiply();
 
 private:
 	bool updateMatrices;
+	bool updateVectors;
+
 	DirectX::XMFLOAT4X4 world;
 	DirectX::XMFLOAT4X4 f4WorldInverseTranspose;
 	DirectX::XMFLOAT3 f3Position;
 	DirectX::XMFLOAT3 f3Rotation;
 	DirectX::XMFLOAT3 f3Scale;
 
-	DirectX::XMFLOAT3 RotateObjectCenter(DirectX::XMFLOAT3 oldFloat);
+	DirectX::XMFLOAT3 up;
+	DirectX::XMFLOAT3 right;
+	DirectX::XMFLOAT3 forward;
+
+	void UpdateAxis();
 };
 

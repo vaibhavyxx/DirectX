@@ -8,6 +8,7 @@
 #include <vector>
 #include <DirectXMath.h>
 #include <iostream>
+#include "Camera.h"
 
 // Needed for a helper function to load pre-compiled shader files
 #pragma comment(lib, "d3dcompiler.lib")
@@ -64,6 +65,16 @@ void Game::Initialize() {
 	if (FAILED(hr)) {
 		OutputDebugStringA("Failed to create a constant buffer!");
 	}
+
+	//float aspectRatio, DirectX::XMFLOAT3 initialPosition, 
+	// float fieldOfView, float nearClip, float farClip, float movementSpeed, float mouseLookSpeed
+	//Setting up a camera
+	/*camera = std::make_shared<Camera>(
+		Window::AspectRatio(), 
+		DirectX::XMFLOAT3(0.0f, 0.0f, -5.0f), 
+		DirectX::XM_PIDIV2, 
+		0.01, 1000, 0.05f, 0.02f, false
+	);*/
 }
 // --------------------------------------------------------
 // Clean up memory or objects created by this class
@@ -315,7 +326,8 @@ void Game::CreateGeometry()
 // --------------------------------------------------------
 void Game::OnResize()
 {
-	
+	//Get window size
+	camera->UpdateProjectionMatrix(Window::AspectRatio());
 }
 
 float color[4] = { 0.4f, 0.6f, 0.75f, 1.0f };//might have to delete it
@@ -324,10 +336,6 @@ float color[4] = { 0.4f, 0.6f, 0.75f, 1.0f };//might have to delete it
 // --------------------------------------------------------
 void Game::Update(float deltaTime, float totalTime)
 {
-	for (int i = 0; i < entities.size(); i++) {
-		entities[i].GetTransform()->GetWorldMatrix();
-	}
-
 	FrameReset(deltaTime);
 	BuildUI();
 	// Example input checking: Quit if the escape key is pressed
@@ -341,6 +349,7 @@ void Game::Update(float deltaTime, float totalTime)
 	entities[0].GetTransform()->SetPosition((float)cos(totalTime * speed), (float)sin(totalTime * speed), 0);
 	entities[4].GetTransform()->SetRotation(DirectX::XMFLOAT3(sin(totalTime) * speed, sin(totalTime) * speed, 0));
 	
+	//camera->Update(deltaTime);
 }
 
 // --------------------------------------------------------
@@ -357,20 +366,11 @@ void Game::Draw(float deltaTime, float totalTime)
 	for(GameEntity& entity: entities)
 	{
 		//ConstantBufferData cbData = {};
-		cbData.worldMatrix = entity.GetTransform()->GetWorldMatrix();
-
-		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
-		Graphics::Context->Map(constBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
-		memcpy(mappedBuffer.pData, &cbData, sizeof(cbData));
-		Graphics::Context->Unmap(constBuffer.Get(), 0);
-
-		//Binds it in order to draw the mesh with cb data
-		Graphics::Context->VSSetConstantBuffers(
-			0,
-			1,
-			constBuffer.GetAddressOf());
-
+		//cbData.worldMatrix = entity.GetTransform()->GetWorldMatrix();
 		entity.GetMesh()->Draw();
+		auto pos = entity.GetTransform()->GetPosition();
+		std::cout << "mesh: (" << pos.x << ", " << pos.y << ", " << pos.z << ")\n";
+
 	}
 	
 	// Frame END
@@ -423,7 +423,6 @@ void Game::BuildUI() {
 		std::shared_ptr<Transform> transform = entities[i].GetTransform();
 		EntityValues(transform, i);
 	}
-	ConstantBufferUI();
 	ImGui::End();
 }
 void Game::AppDetails() {
@@ -497,9 +496,5 @@ void Game::EntityValues(std::shared_ptr<Transform> entity, unsigned int i)
 }
 
 
-void Game::ConstantBufferUI() {
-	if(ImGui::CollapsingHeader("CB Data")) {
-		ImGui::ColorEdit4("Color Tint", &cbData.colorTint.x);
-	}
-}
+
 

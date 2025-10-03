@@ -9,6 +9,7 @@
 #include <vector>
 #include "Transform.h"
 #include "GameEntity.h"
+#include "Camera.h"
 
 class Game
 {
@@ -59,5 +60,7 @@ private:
 	std::vector<GameEntity> entities;
 	std::vector<std::shared_ptr<Mesh>> meshes;
 	ConstantBufferData cbData = {};
+
+	std::shared_ptr<Camera> camera;
 };
 

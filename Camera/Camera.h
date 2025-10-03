@@ -12,7 +12,8 @@ public:
 		float nearClip,
 		float farClip,
 		float movementSpeed,
-		float mouseLookSpeed);
+		float mouseLookSpeed,
+		bool orthographic);
 
 	//Getters
 	DirectX::XMFLOAT4X4 GetView();

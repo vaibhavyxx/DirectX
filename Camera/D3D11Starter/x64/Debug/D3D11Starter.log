@@ -1,18 +1,2 @@
-﻿  Game.cpp
-C:\Users\vaibh\Documents\git\ggp-hws\Camera\Game.cpp(292,35): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\vaibh\Documents\git\ggp-hws\Camera\Game.cpp(292,22): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
-C:\Users\vaibh\Documents\git\ggp-hws\Camera\Game.cpp(304,47): warning C4305: 'argument': truncation from 'double' to 'float'
-C:\Users\vaibh\Documents\git\ggp-hws\Camera\Game.cpp(304,42): warning C4305: 'argument': truncation from 'double' to 'float'
-C:\Users\vaibh\Documents\git\ggp-hws\Camera\Game.cpp(304,37): warning C4305: 'argument': truncation from 'double' to 'float'
-C:\Users\vaibh\Documents\git\ggp-hws\Camera\Game.cpp(306,48): warning C4305: 'argument': truncation from 'double' to 'float'
-C:\Users\vaibh\Documents\git\ggp-hws\Camera\Game.cpp(451,22): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-  GameEntity.cpp
-  Input.cpp
-  Main.cpp
-  Mesh.cpp
-  PathHelpers.cpp
-  Window.cpp
-  Generating Code...
-  LINK : C:\Users\vaibh\Documents\git\ggp-hws\Camera\x64\Debug\D3D11Starter.exe not found or not built by the last incremental link; performing full link
-     Creating library C:\Users\vaibh\Documents\git\ggp-hws\Camera\x64\Debug\D3D11Starter.lib and object C:\Users\vaibh\Documents\git\ggp-hws\Camera\x64\Debug\D3D11Starter.exp
+﻿  Transform.cpp
   D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\Camera\x64\Debug\D3D11Starter.exe
