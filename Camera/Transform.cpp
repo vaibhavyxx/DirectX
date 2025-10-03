@@ -176,6 +176,7 @@ void Transform::Rotate(float pitch, float yaw, float roll)
 	f3Rotation.x += pitch;
 	f3Rotation.y += yaw;
 	f3Rotation.z += roll;
+	updateMatrices = true;
 }
 
 void Transform::Rotate(DirectX::XMFLOAT3 rotation)
@@ -184,6 +185,7 @@ void Transform::Rotate(DirectX::XMFLOAT3 rotation)
 	DirectX::XMVECTOR tOffset = DirectX::XMLoadFloat3(&rotation);
 	tRot = DirectX::XMVectorAdd(tRot, tOffset);
 	DirectX::XMStoreFloat3(&f3Rotation, tRot);
+	updateMatrices = true;
 }
 
 void Transform::Scale(float x, float y, float z)
@@ -191,6 +193,7 @@ void Transform::Scale(float x, float y, float z)
 	f3Scale.x *= x;
 	f3Scale.y *= y;
 	f3Scale.z *= z;
+	updateMatrices = true;
 }
 
 void Transform::Scale(DirectX::XMFLOAT3 scale)
@@ -199,6 +202,7 @@ void Transform::Scale(DirectX::XMFLOAT3 scale)
 	DirectX::XMVECTOR tOffset = DirectX::XMLoadFloat3(&scale);
 	tScale = DirectX::XMVectorMultiply(tScale, tOffset);
 	DirectX::XMStoreFloat3(&f3Scale, tScale);
+	updateMatrices = true;
 }
 
 DirectX::XMMATRIX Transform::XMMatrixTranslation()
