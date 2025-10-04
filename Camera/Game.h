@@ -58,9 +58,10 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout;
 
 	std::vector<GameEntity> entities;
+	std::vector<std::shared_ptr<Camera>> cameras;
 	std::vector<std::shared_ptr<Mesh>> meshes;
 	ConstantBufferData cbData = {};
 
-	std::shared_ptr<Camera> camera;
+	int currentCamera = 0;
 };
 

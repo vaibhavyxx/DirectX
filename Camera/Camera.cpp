@@ -38,10 +38,10 @@ void Camera::UpdateProjectionMatrix(float aspectRatio)
     this->aspectRatio = aspectRatio;    //For window resizing
     DirectX::XMMATRIX projection;
     if (!orthographic) {
-        projection = DirectX::XMMatrixPerspectiveFovLH(fov, this->aspectRatio, nearClip, farClip);
+        projection = DirectX::XMMatrixPerspectiveFovLH(fov, aspectRatio, nearClip, farClip);
     }
     else {
-        projection = DirectX::XMMatrixOrthographicLH(100, 100, nearClip, farClip);
+        projection = DirectX::XMMatrixOrthographicLH(this->orthographic, this->orthographic/aspectRatio, nearClip, farClip);
     }
     DirectX::XMStoreFloat4x4(&projectionMatrix, projection);
 }
@@ -98,8 +98,8 @@ void Camera::Update(float dt)
         //std::cout << "mouse: " << cursorMovementX << ", " << cursorMovementY <<"\n";
         transform->SetRotation(pitchYawRoll);
         DirectX::XMFLOAT3 pyr = transform->GetPitchYawRoll();
-        if(pyr.x > 0 || pyr.y >0 || pyr.z >0)
-            std::cout << "rotation: " << pyr.x << ", " << pyr.y <<", "<< pyr.z << "\n";
+        //  if(pyr.x > 0 || pyr.y >0 || pyr.z >0)
+        //      std::cout << "rotation: " << pyr.x << ", " << pyr.y <<", "<< pyr.z << "\n";
     }
     UpdateViewMatrix();
 }

@@ -44,6 +44,7 @@ Game::Game()
 }
 
 void Game::Initialize() {
+	currentCamera = 0;
 	// Initialize ImGui itself & platform/renderer backends
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -74,12 +75,30 @@ void Game::Initialize() {
 	//float aspectRatio, DirectX::XMFLOAT3 initialPosition, 
 	// float fieldOfView, float nearClip, float farClip, float movementSpeed, float mouseLookSpeed
 	//Setting up a camera
-	camera = std::make_shared<Camera>(
+	std::shared_ptr<Camera> cam1 = std::make_shared<Camera>(
 		Window::AspectRatio(), 
 		DirectX::XMFLOAT3(0.0f, 0.0f, -5.0f), 
 		DirectX::XM_PIDIV4, 
 		0.01, 1000, 1.0f, 0.01f, false
 	);
+
+	std::shared_ptr<Camera> cam2 = std::make_shared<Camera>(
+		Window::AspectRatio(),
+		DirectX::XMFLOAT3(0.0f,35.0f, -3.0f),
+		DirectX::XM_PIDIV4,
+		0.01, 1000, 5.0f, 0.5f, true
+	);
+
+	std::shared_ptr<Camera> cam3 = std::make_shared<Camera>(
+		Window::AspectRatio(),
+		DirectX::XMFLOAT3(3.0f, -5.0f, -5.0f),
+		DirectX::XM_PIDIV2,
+		0.01, 1000, 1.0f, 0.01f, true
+	);
+
+	cameras.push_back(cam1);
+	cameras.push_back(cam2);
+	cameras.push_back(cam3);
 }
 // --------------------------------------------------------
 // Clean up memory or objects created by this class
@@ -332,7 +351,7 @@ void Game::CreateGeometry()
 void Game::OnResize()
 {
 	//Get window size
-	camera->UpdateProjectionMatrix(Window::AspectRatio());
+	cameras[currentCamera]->UpdateProjectionMatrix(Window::AspectRatio());
 }
 
 // --------------------------------------------------------
@@ -353,7 +372,7 @@ void Game::Update(float deltaTime, float totalTime)
 	entities[0].GetTransform()->SetPosition((float)cos(totalTime * speed), (float)sin(totalTime * speed), 0);
 	entities[4].GetTransform()->SetRotation(DirectX::XMFLOAT3(sin(totalTime) * speed, sin(totalTime) * speed, 0));
 	
-	camera->Update(deltaTime);
+	cameras[currentCamera]->Update(deltaTime);
 }
 
 float color[4] = { 0.4f, 0.6f, 0.75f, 1.0f };//might have to delete it
@@ -370,7 +389,7 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	for(GameEntity& entity: entities)
 	{
-		entity.Draw(constBuffer, camera);
+		entity.Draw(constBuffer, cameras[currentCamera]);
 	}
 	
 	// Frame END
@@ -422,11 +441,11 @@ void Game::BuildUI() {
 
 	if (ImGui::CollapsingHeader("Camera"))
 	{
-		DirectX::XMFLOAT4X4 view = camera->GetView();
-		DirectX::XMFLOAT4X4 proj = camera->GetProjection();
+		DirectX::XMFLOAT4X4 view = cameras[currentCamera]->GetView();
+		DirectX::XMFLOAT4X4 proj = cameras[currentCamera]->GetProjection();
 
 		// Display view matrix
-		ImGui::Text("View Matrix:");
+		/*ImGui::Text("View Matrix:");
 		for (int i = 0; i < 4; i++)
 		{
 			ImGui::Text("%.2f %.2f %.2f %.2f",
@@ -439,7 +458,11 @@ void Game::BuildUI() {
 		{
 			ImGui::Text("%.2f %.2f %.2f %.2f",
 				proj.m[i][0], proj.m[i][1], proj.m[i][2], proj.m[i][3]);
-		}
+		}*/
+
+		if (ImGui::Button("Camera 1")) currentCamera = 0;
+		if (ImGui::Button("Camera 2")) currentCamera = 1;
+		if (ImGui::Button("Camera 3")) currentCamera = 2;
 	}
 
 	ImGui::End();

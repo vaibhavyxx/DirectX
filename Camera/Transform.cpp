@@ -143,6 +143,7 @@ void Transform::MoveAbsolute(float x, float y, float z)
 	f3Position.y += y;
 	f3Position.z += z;
 
+	updateMatrices = true;
 	updateVectors = true;
 }
 
@@ -170,7 +171,6 @@ void Transform::MoveRelative(float x, float y, float z)
 
 void Transform::MoveRelative(DirectX::XMFLOAT3 offset)
 {
-	//Testing
 	MoveRelative(offset.x, offset.y, offset.z);
 	updateMatrices = true;
 	updateVectors = true;
