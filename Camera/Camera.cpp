@@ -62,6 +62,10 @@ void Camera::UpdateViewMatrix()
     DirectX::XMStoreFloat4x4(&viewMatrix, view);
 }
 
+std::shared_ptr<Transform> Camera::GetTransform() { return transform; }
+float Camera::GetFOV() { return this->fov; }
+bool Camera::IsOrthographic() { return this->orthographic; }
+
 void Camera::Update(float dt)
 {
     float distance = moveSpeed * dt;

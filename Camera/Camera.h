@@ -18,6 +18,9 @@ public:
 	//Getters
 	DirectX::XMFLOAT4X4 GetView();
 	DirectX::XMFLOAT4X4 GetProjection();
+	std::shared_ptr<Transform> GetTransform();
+	float GetFOV();
+	bool IsOrthographic();
 
 	void UpdateProjectionMatrix(float aspectRatio);
 	void UpdateViewMatrix();

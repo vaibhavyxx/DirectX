@@ -62,6 +62,7 @@ private:
 	std::vector<std::shared_ptr<Mesh>> meshes;
 	ConstantBufferData cbData = {};
 
+	float color[4] = { 0.4f, 0.6f, 0.75f, 1.0f };
 	int currentCamera = 0;
 };
 

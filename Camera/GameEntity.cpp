@@ -22,6 +22,7 @@ std::shared_ptr<Transform> GameEntity::GetTransform() {
 	return transform;
 }
 
+
 void GameEntity::Draw(Microsoft::WRL::ComPtr<ID3D11Buffer> vsConstantBuffer, std::shared_ptr<Camera> cam) {
 	
 	ConstantBufferData vsData = {};

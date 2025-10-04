@@ -85,7 +85,7 @@ void Game::Initialize() {
 	std::shared_ptr<Camera> cam2 = std::make_shared<Camera>(
 		Window::AspectRatio(),
 		DirectX::XMFLOAT3(0.0f,35.0f, -3.0f),
-		DirectX::XM_PIDIV4,
+		1.0472f,	//60 degrees
 		0.01, 1000, 5.0f, 0.5f, true
 	);
 
@@ -351,7 +351,8 @@ void Game::CreateGeometry()
 void Game::OnResize()
 {
 	//Get window size
-	cameras[currentCamera]->UpdateProjectionMatrix(Window::AspectRatio());
+	for(int i =0; i < cameras.size(); i++)
+		cameras[i]->UpdateProjectionMatrix(Window::AspectRatio());
 }
 
 // --------------------------------------------------------
@@ -375,7 +376,6 @@ void Game::Update(float deltaTime, float totalTime)
 	cameras[currentCamera]->Update(deltaTime);
 }
 
-float color[4] = { 0.4f, 0.6f, 0.75f, 1.0f };//might have to delete it
 // --------------------------------------------------------
 // Clear the screen, redraw everything, present to the user
 // --------------------------------------------------------
@@ -445,7 +445,7 @@ void Game::BuildUI() {
 		DirectX::XMFLOAT4X4 proj = cameras[currentCamera]->GetProjection();
 
 		// Display view matrix
-		/*ImGui::Text("View Matrix:");
+		ImGui::Text("View Matrix:");
 		for (int i = 0; i < 4; i++)
 		{
 			ImGui::Text("%.2f %.2f %.2f %.2f",
@@ -458,7 +458,14 @@ void Game::BuildUI() {
 		{
 			ImGui::Text("%.2f %.2f %.2f %.2f",
 				proj.m[i][0], proj.m[i][1], proj.m[i][2], proj.m[i][3]);
-		}*/
+		}
+		DirectX::XMFLOAT3 pos = cameras[currentCamera]->GetTransform()->GetPosition();
+		float fov = cameras[currentCamera]->GetFOV();
+		bool orthographic = cameras[currentCamera]->IsOrthographic();
+
+		ImGui::Text("FOV %.2f", fov);
+		if (orthographic) ImGui::Text("Orthographic Camera");
+		else ImGui::Text("Perspective Camera");
 
 		if (ImGui::Button("Camera 1")) currentCamera = 0;
 		if (ImGui::Button("Camera 2")) currentCamera = 1;
