@@ -324,7 +324,7 @@ void Game::CreateGeometry()
 #pragma endregion
 
 
-	const int meshCount = meshes.size();
+	const int meshCount = static_cast<int>(meshes.size());
 	//Setting it up 5 entities
 	for (int i = 0; i < 7; i++) {
 		if (i < meshCount) {
@@ -336,9 +336,9 @@ void Game::CreateGeometry()
 	}
 	
 	//Setting values
-	entities[0].GetTransform()->Rotate(0.3, 0.3, 0.1);
-	entities[1].GetTransform()->MoveAbsolute(0.45f, 0.5f, 1.0);
-	entities[2].GetTransform()->MoveAbsolute(0.0, 0.01, 1.0f);
+	entities[0].GetTransform()->Rotate(0.3f, 0.3f, 0.1f);
+	entities[1].GetTransform()->MoveAbsolute(0.45f, 0.5f, 1.0f);
+	entities[2].GetTransform()->MoveAbsolute(0.0f, 0.01f, 1.0f);
 	entities[3].GetTransform()->Scale(1.5f, 1.3f, 1.0f);
 	//entities[4].GetTransform()->Rotate(0.45f, 0.5f, 1.3f);*/
 }
@@ -496,7 +496,7 @@ void Game::AppDetails() {
 		//2: graph
 		float graph[100];
 		for (int i = 0; i < 100; i++) {
-			graph[i] = tanf(i + ImGui::GetTime() * 0.5f);
+			graph[i] = static_cast<int>(tanf(i + ImGui::GetTime() * 0.5f));
 		}
 		ImGui::PlotLines("Tan", graph, 100);
 		//3: slide values

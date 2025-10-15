@@ -28,8 +28,8 @@ void GameEntity::Draw(Microsoft::WRL::ComPtr<ID3D11Buffer> vsConstantBuffer, std
 	ConstantBufferData vsData = {};
 	vsData.worldMatrix = transform->GetWorldMatrix();
 	vsData.viewMatrix = cam->GetView();
-	//vsData.projectionMatrix = cam->GetProjection();
-	DirectX::XMStoreFloat4x4(&vsData.projectionMatrix, DirectX::XMMatrixIdentity());
+	vsData.projectionMatrix = cam->GetProjection();
+	//DirectX::XMStoreFloat4x4(&vsData.projectionMatrix, DirectX::XMMatrixIdentity());
 
 	// Copy this data to the constant buffer we intend to use
 	D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
