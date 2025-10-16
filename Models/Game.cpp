@@ -9,6 +9,7 @@
 #include <DirectXMath.h>
 #include <iostream>
 #include "Camera.h"
+#include "Shader.h"
 
 // Needed for a helper function to load pre-compiled shader files
 #pragma comment(lib, "d3dcompiler.lib")
@@ -32,14 +33,15 @@ using namespace DirectX;
 // --------------------------------------------------------
 Game::Game()
 {
+	shader = std::make_shared<Shader>();
 	Initialize();
 	LoadShaders();
 	CreateGeometry();
-
+	shader->Setup();
 	//Has to be called at the end of the constructor to work
 	{
-		Graphics::Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		Graphics::Context->IASetInputLayout(inputLayout.Get());
+		//Graphics::Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		//Graphics::Context->IASetInputLayout(inputLayout.Get());
 		//Graphics::Context->VSSetShader(vertexShader.Get(), 0, 0);
 		//Graphics::Context->PSSetShader(pixelShader.Get(), 0, 0);
 	}	
@@ -126,7 +128,8 @@ void Game::LoadShaders()
 	// - Literally just a big array of bytes read from a file
 	//ID3DBlob* pixelShaderBlob;
 	//ID3DBlob* vertexShaderBlob;
-
+	shader->LoadShaders();
+	shader->SetInputLayout();
 	// Loading shaders
 	//  - Visual Studio will compile our shaders at build time
 	//  - They are saved as .cso (Compiled Shader Object) files
