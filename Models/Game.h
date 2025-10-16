@@ -10,6 +10,7 @@
 #include "Transform.h"
 #include "GameEntity.h"
 #include "Camera.h"
+#include "Material.h"
 
 class Game
 {
@@ -53,13 +54,14 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> constBuffer;
 
 	// Shaders and shader-related constructs
-	//Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader;
-	//Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader;
+	Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader;
+	Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader;
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout;
 
 	std::vector<GameEntity> entities;
 	std::vector<std::shared_ptr<Camera>> cameras;
 	std::vector<std::shared_ptr<Mesh>> meshes;
+	std::vector<std::shared_ptr<Material>> materials;
 	ConstantBufferData cbData = {};
 
 	float color[4] = { 0.4f, 0.6f, 0.75f, 1.0f };

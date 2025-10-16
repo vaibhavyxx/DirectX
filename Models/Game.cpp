@@ -35,11 +35,13 @@ Game::Game()
 	Initialize();
 	LoadShaders();
 	CreateGeometry();
+
+	//Has to be called at the end of the constructor to work
 	{
 		Graphics::Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		Graphics::Context->IASetInputLayout(inputLayout.Get());
-		//Graphics::Context->VSSetShader(vertexShader.Get(), 0, 0);
-		//Graphics::Context->PSSetShader(pixelShader.Get(), 0, 0);
+		Graphics::Context->VSSetShader(vertexShader.Get(), 0, 0);
+		Graphics::Context->PSSetShader(pixelShader.Get(), 0, 0);
 	}	
 }
 
@@ -52,13 +54,6 @@ void Game::Initialize() {
 	ImGui_ImplDX11_Init(Graphics::Device.Get(), Graphics::Context.Get());
 	// Pick a style (uncomment one of these 3)
 	ImGui::StyleColorsDark();
-
-	{
-		Graphics::Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		Graphics::Context->IASetInputLayout(inputLayout.Get());
-		//Graphics::Context->VSSetShader(vertexShader.Get(), 0, 0);
-		//Graphics::Context->PSSetShader(pixelShader.Get(), 0, 0);
-	}
 
 	{
 		unsigned int size = sizeof(ConstantBufferData);
@@ -128,8 +123,8 @@ void Game::LoadShaders()
 	// BLOBs (or Binary Large OBjects) for reading raw data from external files
 	// - This is a simplified way of handling big chunks of external data
 	// - Literally just a big array of bytes read from a file
-	//ID3DBlob* pixelShaderBlob;
-	//ID3DBlob* vertexShaderBlob;
+	ID3DBlob* pixelShaderBlob;
+	ID3DBlob* vertexShaderBlob;
 
 	// Loading shaders
 	//  - Visual Studio will compile our shaders at build time
@@ -140,7 +135,7 @@ void Game::LoadShaders()
 		// - Essentially just "open the file and plop its contents here"
 		// - Uses the custom FixPath() helper from Helpers.h to ensure relative paths
 		// - Note the "L" before the string - this tells the compiler the string uses wide characters
-		/*D3DReadFileToBlob(FixPath(L"PixelShader.cso").c_str(), &pixelShaderBlob);
+		D3DReadFileToBlob(FixPath(L"PixelShader.cso").c_str(), &pixelShaderBlob);
 		D3DReadFileToBlob(FixPath(L"VertexShader.cso").c_str(), &vertexShaderBlob);
 
 		// Create the actual Direct3D shaders on the GPU
@@ -154,7 +149,7 @@ void Game::LoadShaders()
 			vertexShaderBlob->GetBufferPointer(),	// Get a pointer to the blob's contents
 			vertexShaderBlob->GetBufferSize(),		// How big is that data?
 			0,										// No classes in this shader
-			vertexShader.GetAddressOf());*/			// The address of the ID3D11VertexShader pointer
+			vertexShader.GetAddressOf());			// The address of the ID3D11VertexShader pointer
 	}
 
 	// Create an input layout 
@@ -176,7 +171,7 @@ void Game::LoadShaders()
 		inputElements[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;	// After the previous element
 
 		// Create the input layout, verifying our description against actual shader code
-		/*Graphics::Device->CreateInputLayout(
+		Graphics::Device->CreateInputLayout(
 			inputElements,							// An array of descriptions
 			2,										// How many elements in that array?
 			vertexShaderBlob->GetBufferPointer(),	// Pointer to the code of a shader that uses this layout
@@ -235,6 +230,9 @@ void Game::CreateGeometry()
 	XMFLOAT4 red = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
 	XMFLOAT4 green = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
 	XMFLOAT4 blue = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+
+	//std::shared_ptr<Material> testMaterial = std::make_shared<Material>(inputLayout);
+	//testMaterial->SetColorTint(red);
 
 #pragma region Triangle
 	{
@@ -341,6 +339,10 @@ void Game::CreateGeometry()
 	entities[2].GetTransform()->MoveAbsolute(0.0f, 0.01f, 1.0f);
 	entities[3].GetTransform()->Scale(1.5f, 1.3f, 1.0f);
 	//entities[4].GetTransform()->Rotate(0.45f, 0.5f, 1.3f);*/
+
+	/*for (int i = 0; i < entities.size(); i++) {
+		entities[i].SetMaterial(testMaterial);
+	}*/
 }
 
 

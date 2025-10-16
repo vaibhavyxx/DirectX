@@ -9,7 +9,7 @@
 
 void Material::LoadPixelShader()
 {
-	ID3DBlob* pixelShaderBlob;
+	//ID3DBlob* pixelShaderBlob;
 	D3DReadFileToBlob(FixPath(L"PixelShader.cso").c_str(), &pixelShaderBlob);
 	Graphics::Device->CreatePixelShader(
 		pixelShaderBlob->GetBufferPointer(),
@@ -21,7 +21,7 @@ void Material::LoadPixelShader()
 
 void Material::LoadVertexShader()
 {
-	ID3DBlob* vertexShaderBlob;
+	//ID3DBlob* vertexShaderBlob;
 	D3DReadFileToBlob(FixPath(L"VertexShader.cso").c_str(), &vertexShaderBlob);
 	Graphics::Device->CreateVertexShader(
 		vertexShaderBlob->GetBufferPointer(),
@@ -31,27 +31,44 @@ void Material::LoadVertexShader()
 	);
 }
 
+ID3DBlob* Material::GetVertexShaderBlob()
+{
+	return vertexShaderBlob;
+}
+
+ID3DBlob* Material::GetPixelShaderBlob()
+{
+	return pixelShaderBlob;
+}
+
 Material::Material()
 {
+	//this->inputLayout = inputLayout;
 	Graphics::Context->VSSetShader(vertexShader.Get(), 0, 0);
 	Graphics::Context->PSSetShader(pixelShader.Get(), 0, 0);
 
-	Graphics::Context->VSSetShader(vertexShader.Get(), 0, 0);
-	Graphics::Context->PSSetShader(pixelShader.Get(), 0, 0);
+	LoadPixelShader();
+	LoadVertexShader();
 }
 
 void Material::SetColorTint(int r, int g, int b, int a)
 {
+	SetColorTint(XMFLOAT4(r,g,b,a));
 }
 
 void Material::SetColorTint(XMFLOAT4 color)
 {
+	this->colorTint = color;
 }
 
 void Material::SetVertexBuffer(Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader)
 {
+	this->vertexShader = vertexShader;
+	LoadVertexShader();
 }
 
 void Material::SetPixelBuffer(Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader)
 {
+	this->pixelShader = pixelShader;
+	LoadPixelShader();
 }

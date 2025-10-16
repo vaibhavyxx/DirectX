@@ -3,6 +3,7 @@ cbuffer ExternalData : register(b0)
     matrix world;
     matrix view;
     matrix projection;
+    float4 color;
 }
 
 // Struct representing a single vertex worth of data
@@ -51,6 +52,6 @@ VertexToPixel main( VertexShaderInput input )
     //float3 movedPos = input.localPosition + offset;
    	matrix wvp = mul(projection, mul(view, world));
     output.screenPosition = mul(wvp, float4(input.localPosition, 1.0f));
-	output.color = input.color;
+	output.color = input.color * color;
 	return output;
 }

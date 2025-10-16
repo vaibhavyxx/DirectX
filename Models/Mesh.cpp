@@ -76,6 +76,7 @@ int Mesh::GetVertexCount() {
 
 void Mesh::Draw() {
 	{
+
 		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
 		Graphics::Context->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), &stride, &offset);

@@ -1,0 +1,22 @@
+﻿  Game.cpp
+C:\Users\vaibh\Documents\git\ggp-hws\model-2\Game.cpp(502,39): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\vaibh\Documents\git\ggp-hws\model-2\Game.cpp(502,36): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\winrt\wrl\client.h(235,25): error C2039: 'Release': is not a member of 'Materials'
+  (compiling source file 'Game.cpp')
+      C:\Users\vaibh\Documents\git\ggp-hws\model-2\Materials.h(11,7):
+      see declaration of 'Materials'
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\winrt\wrl\client.h(235,25):
+      the template instantiation context (the oldest one first) is
+          C:\Users\vaibh\Documents\git\ggp-hws\model-2\Game.h(59,36):
+          see reference to class template instantiation 'Microsoft::WRL::ComPtr<Materials>' being compiled
+          C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\winrt\wrl\client.h(227,19):
+          while compiling class template member function 'unsigned long Microsoft::WRL::ComPtr<Materials>::InternalRelease(void) noexcept'
+              C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\winrt\wrl\client.h(290,24):
+              see the first reference to 'Microsoft::WRL::ComPtr<Materials>::InternalRelease' in 'Microsoft::WRL::ComPtr<Materials>::~ComPtr'
+              C:\Users\vaibh\Documents\git\ggp-hws\model-2\Game.cpp(34,1):
+              see the first reference to 'Microsoft::WRL::ComPtr<Materials>::~ComPtr' in 'Game::Game'
+  
+  Main.cpp
+  Materials.cpp
+  Mesh.cpp
+  Generating Code...
