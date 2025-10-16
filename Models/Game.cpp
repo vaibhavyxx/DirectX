@@ -40,12 +40,13 @@ Game::Game()
 	{
 		Graphics::Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		Graphics::Context->IASetInputLayout(inputLayout.Get());
-		Graphics::Context->VSSetShader(vertexShader.Get(), 0, 0);
-		Graphics::Context->PSSetShader(pixelShader.Get(), 0, 0);
+		//Graphics::Context->VSSetShader(vertexShader.Get(), 0, 0);
+		//Graphics::Context->PSSetShader(pixelShader.Get(), 0, 0);
 	}	
 }
 
 void Game::Initialize() {
+
 	currentCamera = 0;
 	// Initialize ImGui itself & platform/renderer backends
 	IMGUI_CHECKVERSION();
@@ -123,8 +124,8 @@ void Game::LoadShaders()
 	// BLOBs (or Binary Large OBjects) for reading raw data from external files
 	// - This is a simplified way of handling big chunks of external data
 	// - Literally just a big array of bytes read from a file
-	ID3DBlob* pixelShaderBlob;
-	ID3DBlob* vertexShaderBlob;
+	//ID3DBlob* pixelShaderBlob;
+	//ID3DBlob* vertexShaderBlob;
 
 	// Loading shaders
 	//  - Visual Studio will compile our shaders at build time
@@ -135,7 +136,7 @@ void Game::LoadShaders()
 		// - Essentially just "open the file and plop its contents here"
 		// - Uses the custom FixPath() helper from Helpers.h to ensure relative paths
 		// - Note the "L" before the string - this tells the compiler the string uses wide characters
-		D3DReadFileToBlob(FixPath(L"PixelShader.cso").c_str(), &pixelShaderBlob);
+		/*D3DReadFileToBlob(FixPath(L"PixelShader.cso").c_str(), &pixelShaderBlob);
 		D3DReadFileToBlob(FixPath(L"VertexShader.cso").c_str(), &vertexShaderBlob);
 
 		// Create the actual Direct3D shaders on the GPU
@@ -149,7 +150,7 @@ void Game::LoadShaders()
 			vertexShaderBlob->GetBufferPointer(),	// Get a pointer to the blob's contents
 			vertexShaderBlob->GetBufferSize(),		// How big is that data?
 			0,										// No classes in this shader
-			vertexShader.GetAddressOf());			// The address of the ID3D11VertexShader pointer
+			vertexShader.GetAddressOf());			// The address of the ID3D11VertexShader pointer*/
 	}
 
 	// Create an input layout 
@@ -157,7 +158,7 @@ void Game::LoadShaders()
 	//  - In other words, it describes how to interpret data (numbers) in a vertex buffer
 	//  - Doing this NOW because it requires a vertex shader's byte code to verify against!
 	//  - Luckily, we already have that loaded (the vertex shader blob above)
-	{
+	/* {
 		D3D11_INPUT_ELEMENT_DESC inputElements[2] = {};
 
 		// Set up the first element - a position, which is 3 float values
@@ -177,7 +178,7 @@ void Game::LoadShaders()
 			vertexShaderBlob->GetBufferPointer(),	// Pointer to the code of a shader that uses this layout
 			vertexShaderBlob->GetBufferSize(),		// Size of the shader code that uses this layout
 			inputLayout.GetAddressOf());			// Address of the resulting ID3D11InputLayout pointer*/
-	}
+	//}
 }
 
 //--------------------------------------------------------

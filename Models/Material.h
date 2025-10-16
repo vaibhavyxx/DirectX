@@ -10,12 +10,11 @@ private:
 	XMFLOAT4 colorTint;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader;
-	Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout;
-
-	ID3DBlob* pixelShaderBlob;
 	ID3DBlob* vertexShaderBlob;
+	ID3DBlob* pixelShaderBlob;
 public:
-	Material();
+	Material(Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader,
+		Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader, DirectX::XMFLOAT4 color);
 
 	//Setters 
 	void SetColorTint(int r, int g, int b, int a);
@@ -27,9 +26,7 @@ public:
 	void LoadPixelShader();
 	void LoadVertexShader();
 
-	ID3DBlob* GetVertexShaderBlob();
-	ID3DBlob* GetPixelShaderBlob();
-
+	void SetInputLayout(Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout);
 	//Getters
 	XMFLOAT4 GetColorTint;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> GetVertexShader;
