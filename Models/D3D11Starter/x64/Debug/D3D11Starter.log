@@ -1,6 +1,6 @@
 ﻿  Game.cpp
-C:\Users\vaibh\Documents\git\ggp-hws\Models\Game.cpp(335,39): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\vaibh\Documents\git\ggp-hws\Models\Game.cpp(335,36): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\vaibh\Documents\git\ggp-hws\Models\Game.cpp(342,39): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\vaibh\Documents\git\ggp-hws\Models\Game.cpp(342,36): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xutility(462,85): warning C4244: 'argument': conversion from '_Ty' to 'float', possible loss of data
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xutility(462,85): warning C4244:         with
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xutility(462,85): warning C4244:         [
@@ -79,7 +79,4 @@ C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.3520
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xutility(463,90): warning C4244:         ]
   (compiling source file 'Game.cpp')
   
-  Shader.cpp
-  Generating Code...
-     Creating library C:\Users\vaibh\Documents\git\ggp-hws\Models\x64\Debug\D3D11Starter.lib and object C:\Users\vaibh\Documents\git\ggp-hws\Models\x64\Debug\D3D11Starter.exp
   D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\Models\x64\Debug\D3D11Starter.exe

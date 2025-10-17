@@ -172,11 +172,18 @@ void Game::CreateGeometry()
 	std::shared_ptr<Material> red = std::make_shared<Material>(shader->GetVertexShader(), shader->GetPixelShader(), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f));
 	std::shared_ptr<Material> blueGreen = std::make_shared<Material>(shader->GetVertexShader(), shader->GetPixelShader(), DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f));
 	std::shared_ptr<Material> purple = std::make_shared<Material>(shader->GetVertexShader(), shader->GetPixelShader(), DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f));
-	//testMaterial->SetColorTint(red);
+
 	materials.push_back(red);
 	materials.push_back(blueGreen);
 	materials.push_back(purple);
 
+	std::shared_ptr<Mesh> sphereModel = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/sphere.obj").c_str());
+	std::shared_ptr<Mesh> cubeModel = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/cube.obj").c_str());
+	entities.push_back(std::make_shared<GameEntity>(sphereModel,red));
+	entities.push_back(std::make_shared<GameEntity>(cubeModel, blueGreen));
+	entities[1]->GetTransform()->SetPosition(0.5f, 0.5f, 0.0f);
+	shader->LoadShaders();
+	shader->SetInputLayout();
 }
 
 
@@ -223,10 +230,10 @@ void Game::Draw(float deltaTime, float totalTime)
 		Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
 
-	/*for (std::shared_ptr<GameEntity> entity : entities)
+	for (std::shared_ptr<GameEntity> entity : entities)
 	{
 		entity->Draw(constBuffer, cameras[currentCamera]);
-	}*/
+	}
 	
 	// Frame END
 	// - These should happen exactly ONCE PER FRAME

@@ -4,6 +4,7 @@
 #include <locale>
 
 #include "PathHelpers.h"
+#include <iostream>
 
 // --------------------------------------------------------------------------
 // Gets the actual path to this executable
@@ -57,7 +58,8 @@ std::string GetExePath()
 // ----------------------------------------------------
 std::string FixPath(const std::string& relativeFilePath)
 {
-	return GetExePath() + "\\" + relativeFilePath;
+	std::string path = GetExePath() + "\\" + relativeFilePath;
+	return path;
 }
 
 

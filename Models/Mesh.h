@@ -9,6 +9,7 @@ class Mesh
 public:
 	//Basics of OOP
 	Mesh(Vertex vertices[], int vertexCount, unsigned int indices[], int indexCount);
+	Mesh(const char* fileName);
 	Mesh(const Mesh&) = delete;					//Removes copy constructor
 	Mesh& operator = (const Mesh&) = delete;	//Removes copy assignment constructor
 
@@ -26,5 +27,6 @@ public:
 	int verticesCount;
 	static void ConstBuffUI();
 	~Mesh();
+	void CreateBuffers(Vertex* vertArray, size_t numVerts, unsigned int* indexArray, size_t numIndices);
 };
 
