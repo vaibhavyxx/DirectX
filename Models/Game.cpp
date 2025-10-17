@@ -205,10 +205,10 @@ void Game::Update(float deltaTime, float totalTime)
 	//Animation
 	float speed = 0.707f;
 	float scale = (float)cos(totalTime) * 0.5f ;
-	entities[3]->GetTransform()->SetScale(scale, scale, scale);
+	/*entities[3]->GetTransform()->SetScale(scale, scale, scale);
 	entities[0]->GetTransform()->SetPosition((float)cos(totalTime * speed), (float)sin(totalTime * speed), 0);
 	entities[4]->GetTransform()->SetRotation(DirectX::XMFLOAT3(sin(totalTime) * speed, sin(totalTime) * speed, 0));
-	
+	*/
 	cameras[currentCamera]->Update(deltaTime);
 }
 
@@ -223,10 +223,10 @@ void Game::Draw(float deltaTime, float totalTime)
 		Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
 
-	for(std::shared_ptr<GameEntity> entity: entities)
+	/*for (std::shared_ptr<GameEntity> entity : entities)
 	{
 		entity->Draw(constBuffer, cameras[currentCamera]);
-	}
+	}*/
 	
 	// Frame END
 	// - These should happen exactly ONCE PER FRAME

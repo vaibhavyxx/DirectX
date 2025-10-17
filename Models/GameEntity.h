@@ -20,7 +20,7 @@ public:
 	std::shared_ptr<Transform> GetTransform();
 	std::shared_ptr<Material> GetMaterial();
 
-	void SetMaterial(std::shared_ptr<Material> newMaterial);
+	//void SetMaterial(std::shared_ptr<Material> newMaterial);
 	void Draw(Microsoft::WRL::ComPtr<ID3D11Buffer> vsConstantBuffer, std::shared_ptr<Camera> cam);	//do not set up cb here as it will cumbersome in the future
 
 private:

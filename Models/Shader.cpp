@@ -37,7 +37,7 @@ void Shader::LoadPixelShader() {
 void Shader::LoadVertexShader() {
 	//ID3DBlob* vertexShaderBlob;
 	D3DReadFileToBlob(FixPath(L"VertexShader.cso").c_str(), &vertexShaderBlob);
-
+	
 	Graphics::Device->CreateVertexShader(
 		vertexShaderBlob->GetBufferPointer(),	// Get a pointer to the blob's contents
 		vertexShaderBlob->GetBufferSize(),		// How big is that data?
@@ -62,11 +62,11 @@ void Shader::SetInputLayout() {
 		inputElements[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;				// 3x 32-bit floats
 		inputElements[2].SemanticName = "NORMAL";							// Match our vertex shader input!
 		inputElements[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;	// After the previous element
-
+		
 		// Create the input layout, verifying our description against actual shader code
 		Graphics::Device->CreateInputLayout(
 			inputElements,							// An array of descriptions
-			2,										// How many elements in that array?
+			3,										// How many elements in that array?
 			vertexShaderBlob->GetBufferPointer(),	// Pointer to the code of a shader that uses this layout
 			vertexShaderBlob->GetBufferSize(),		// Size of the shader code that uses this layout
 			inputLayout.GetAddressOf());			// Address of the resulting ID3D11InputLayout pointer*/

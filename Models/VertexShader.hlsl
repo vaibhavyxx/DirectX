@@ -54,7 +54,9 @@ VertexToPixel main( VertexShaderInput input )
     //float3 movedPos = input.localPosition + offset;
    	matrix wvp = mul(projection, mul(view, world));
     output.screenPosition = mul(wvp, float4(input.localPosition, 1.0f));
-    output.uv = input.uv;
+    
+	output.uv = input.uv;
     output.normal = input.normal;
+	
 	return output;
 }
