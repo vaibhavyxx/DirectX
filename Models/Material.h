@@ -2,6 +2,9 @@
 #include <DirectXMath.h>
 #include <d3d11.h>
 #include <wrl/client.h>
+#include "Transform.h"
+#include <memory>
+#include "Camera.h"
 
 using namespace DirectX;
 class Material
@@ -12,6 +15,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader;
 	ID3DBlob* vertexShaderBlob;
 	ID3DBlob* pixelShaderBlob;
+
 public:
 	Material(Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader,
 		Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader, DirectX::XMFLOAT4 color);
@@ -23,10 +27,10 @@ public:
 	void SetVertexBuffer(Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader);
 	void SetPixelBuffer(Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader);
 
-	void LoadPixelShader();
-	void LoadVertexShader();
-
-	void SetInputLayout(Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout);
+	void MaterialSetup(Microsoft::WRL::ComPtr<ID3D11Buffer> vsConstantBuffer,
+		std::shared_ptr<Transform> transform, std::shared_ptr<Camera> cam);
+	void SetConstantBuffer();
+	
 	//Getters
 	XMFLOAT4 GetColorTint;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> GetVertexShader;

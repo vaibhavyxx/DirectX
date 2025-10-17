@@ -11,6 +11,9 @@ private:
 	ID3DBlob* pixelShaderBlob;
 
 public:
+	Microsoft::WRL::ComPtr<ID3D11VertexShader> GetVertexShader();
+	Microsoft::WRL::ComPtr<ID3D11PixelShader> GetPixelShader();
+
 	void Setup();
 	void LoadShaders();
 

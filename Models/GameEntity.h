@@ -12,7 +12,7 @@
 class GameEntity
 {
 public:
-	GameEntity(std::shared_ptr<Mesh> mesh);
+	GameEntity(std::shared_ptr<Mesh> mesh, std::shared_ptr <Material> material);
 	//~GameEntity();
 	//GameEntity(const GameEntity&) = delete; // Remove copy constructor
 	//GameEntity& operator=(const GameEntity&) = delete; // Remove copy-assignment operator

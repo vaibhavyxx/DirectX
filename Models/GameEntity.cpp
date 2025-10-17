@@ -10,8 +10,11 @@
 #include "Camera.h"
 #include "Graphics.h"
 
-GameEntity::GameEntity(std::shared_ptr<Mesh> mesh) : mesh(mesh)
+GameEntity::GameEntity(std::shared_ptr<Mesh> mesh,
+	std::shared_ptr <Material> material) 
 {
+	this->mesh = mesh;
+	this->material = material;
 	transform = std::make_shared<Transform>();
 }
 
@@ -25,7 +28,8 @@ std::shared_ptr<Transform> GameEntity::GetTransform() {
 
 void GameEntity::Draw(Microsoft::WRL::ComPtr<ID3D11Buffer> vsConstantBuffer, std::shared_ptr<Camera> cam) {
 
-	ConstantBufferData vsData = {};
+	
+	/*ConstantBufferData vsData = {};
 	vsData.worldMatrix = transform->GetWorldMatrix();
 	vsData.viewMatrix = cam->GetView();
 	vsData.projectionMatrix = cam->GetProjection();
@@ -41,5 +45,7 @@ void GameEntity::Draw(Microsoft::WRL::ComPtr<ID3D11Buffer> vsConstantBuffer, std
 	// Unmap so the GPU can once again use the buffer
 	Graphics::Context->Unmap(vsConstantBuffer.Get(), 0);
 	Graphics::Context->VSSetConstantBuffers(0, 1, vsConstantBuffer.GetAddressOf());
+	*/
+	material->MaterialSetup(vsConstantBuffer,transform, cam);
 	mesh->Draw();
 }

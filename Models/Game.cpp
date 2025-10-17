@@ -38,13 +38,6 @@ Game::Game()
 	LoadShaders();
 	CreateGeometry();
 	shader->Setup();
-	//Has to be called at the end of the constructor to work
-	{
-		//Graphics::Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		//Graphics::Context->IASetInputLayout(inputLayout.Get());
-		//Graphics::Context->VSSetShader(vertexShader.Get(), 0, 0);
-		//Graphics::Context->PSSetShader(pixelShader.Get(), 0, 0);
-	}	
 }
 
 void Game::Initialize() {
@@ -123,65 +116,8 @@ Game::~Game()
 // --------------------------------------------------------
 void Game::LoadShaders()
 {
-	// BLOBs (or Binary Large OBjects) for reading raw data from external files
-	// - This is a simplified way of handling big chunks of external data
-	// - Literally just a big array of bytes read from a file
-	//ID3DBlob* pixelShaderBlob;
-	//ID3DBlob* vertexShaderBlob;
 	shader->LoadShaders();
 	shader->SetInputLayout();
-	// Loading shaders
-	//  - Visual Studio will compile our shaders at build time
-	//  - They are saved as .cso (Compiled Shader Object) files
-	//  - We need to load them when the application starts
-	{
-		// Read our compiled shader code files into blobs
-		// - Essentially just "open the file and plop its contents here"
-		// - Uses the custom FixPath() helper from Helpers.h to ensure relative paths
-		// - Note the "L" before the string - this tells the compiler the string uses wide characters
-		/*D3DReadFileToBlob(FixPath(L"PixelShader.cso").c_str(), &pixelShaderBlob);
-		D3DReadFileToBlob(FixPath(L"VertexShader.cso").c_str(), &vertexShaderBlob);
-
-		// Create the actual Direct3D shaders on the GPU
-		Graphics::Device->CreatePixelShader(
-			pixelShaderBlob->GetBufferPointer(),	// Pointer to blob's contents
-			pixelShaderBlob->GetBufferSize(),		// How big is that data?
-			0,										// No classes in this shader
-			pixelShader.GetAddressOf());			// Address of the ID3D11PixelShader pointer
-
-		Graphics::Device->CreateVertexShader(
-			vertexShaderBlob->GetBufferPointer(),	// Get a pointer to the blob's contents
-			vertexShaderBlob->GetBufferSize(),		// How big is that data?
-			0,										// No classes in this shader
-			vertexShader.GetAddressOf());			// The address of the ID3D11VertexShader pointer*/
-	}
-
-	// Create an input layout 
-	//  - This describes the layout of data sent to a vertex shader
-	//  - In other words, it describes how to interpret data (numbers) in a vertex buffer
-	//  - Doing this NOW because it requires a vertex shader's byte code to verify against!
-	//  - Luckily, we already have that loaded (the vertex shader blob above)
-	/* {
-		D3D11_INPUT_ELEMENT_DESC inputElements[2] = {};
-
-		// Set up the first element - a position, which is 3 float values
-		inputElements[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;				// Most formats are described as color channels; really it just means "Three 32-bit floats"
-		inputElements[0].SemanticName = "POSITION";							// This is "POSITION" - needs to match the semantics in our vertex shader input!
-		inputElements[0].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;	// How far into the vertex is this?  Assume it's after the previous element
-
-		// Set up the second element - a color, which is 4 more float values
-		inputElements[1].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;			// 4x 32-bit floats
-		inputElements[1].SemanticName = "COLOR";							// Match our vertex shader input!
-		inputElements[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;	// After the previous element
-
-		// Create the input layout, verifying our description against actual shader code
-		Graphics::Device->CreateInputLayout(
-			inputElements,							// An array of descriptions
-			2,										// How many elements in that array?
-			vertexShaderBlob->GetBufferPointer(),	// Pointer to the code of a shader that uses this layout
-			vertexShaderBlob->GetBufferSize(),		// Size of the shader code that uses this layout
-			inputLayout.GetAddressOf());			// Address of the resulting ID3D11InputLayout pointer*/
-	//}
 }
 
 //--------------------------------------------------------
@@ -235,8 +171,10 @@ void Game::CreateGeometry()
 	XMFLOAT4 green = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
 	XMFLOAT4 blue = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
 
-	//std::shared_ptr<Material> testMaterial = std::make_shared<Material>(inputLayout);
+
+	std::shared_ptr<Material> testMaterial = std::make_shared<Material>(shader->GetVertexShader(), shader->GetPixelShader(), red);
 	//testMaterial->SetColorTint(red);
+	materials.push_back(testMaterial);
 
 #pragma region Triangle
 	{
@@ -330,23 +268,14 @@ void Game::CreateGeometry()
 	//Setting it up 5 entities
 	for (int i = 0; i < 7; i++) {
 		if (i < meshCount) {
-			entities.push_back(meshes[i]);
-		}
-		else {
-			entities.push_back(entities[(meshCount - 1)]);
+			entities.push_back(std::make_shared<GameEntity>(meshes[i], testMaterial));
 		}
 	}
-	
 	//Setting values
-	entities[0].GetTransform()->Rotate(0.3f, 0.3f, 0.1f);
-	entities[1].GetTransform()->MoveAbsolute(0.45f, 0.5f, 1.0f);
-	entities[2].GetTransform()->MoveAbsolute(0.0f, 0.01f, 1.0f);
-	entities[3].GetTransform()->Scale(1.5f, 1.3f, 1.0f);
-	//entities[4].GetTransform()->Rotate(0.45f, 0.5f, 1.3f);*/
-
-	/*for (int i = 0; i < entities.size(); i++) {
-		entities[i].SetMaterial(testMaterial);
-	}*/
+	entities[0]->GetTransform()->Rotate(0.3f, 0.3f, 0.1f);
+	entities[1]->GetTransform()->MoveAbsolute(0.45f, 0.5f, 1.0f);
+	entities[2]->GetTransform()->MoveAbsolute(0.0f, 0.01f, 1.0f);
+	entities[3]->GetTransform()->Scale(1.5f, 1.3f, 1.0f);
 }
 
 
@@ -375,9 +304,9 @@ void Game::Update(float deltaTime, float totalTime)
 	//Animation
 	float speed = 0.707f;
 	float scale = (float)cos(totalTime) * 0.5f ;
-	entities[3].GetTransform()->SetScale(scale, scale, scale);
-	entities[0].GetTransform()->SetPosition((float)cos(totalTime * speed), (float)sin(totalTime * speed), 0);
-	entities[4].GetTransform()->SetRotation(DirectX::XMFLOAT3(sin(totalTime) * speed, sin(totalTime) * speed, 0));
+	entities[3]->GetTransform()->SetScale(scale, scale, scale);
+	entities[0]->GetTransform()->SetPosition((float)cos(totalTime * speed), (float)sin(totalTime * speed), 0);
+	entities[4]->GetTransform()->SetRotation(DirectX::XMFLOAT3(sin(totalTime) * speed, sin(totalTime) * speed, 0));
 	
 	cameras[currentCamera]->Update(deltaTime);
 }
@@ -393,9 +322,9 @@ void Game::Draw(float deltaTime, float totalTime)
 		Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
 
-	for(GameEntity& entity: entities)
+	for(std::shared_ptr<GameEntity> entity: entities)
 	{
-		entity.Draw(constBuffer, cameras[currentCamera]);
+		entity->Draw(constBuffer, cameras[currentCamera]);
 	}
 	
 	// Frame END
@@ -441,7 +370,7 @@ void Game::BuildUI() {
 
 	for (unsigned int i = 0; i < entities.size(); i++)
 	{
-		std::shared_ptr<Transform> transform = entities[i].GetTransform();
+		std::shared_ptr<Transform> transform = entities[i]->GetTransform();
 		EntityValues(transform, i);
 	}
 

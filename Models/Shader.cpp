@@ -2,7 +2,17 @@
 #include "Graphics.h"
 #include <d3dcompiler.h>
 #include "PathHelpers.h"
+#include <memory>
 
+Microsoft::WRL::ComPtr<ID3D11VertexShader> Shader::GetVertexShader()
+{
+	return vertexShader;
+}
+
+Microsoft::WRL::ComPtr<ID3D11PixelShader> Shader::GetPixelShader()
+{
+	return pixelShader;
+}
 void Shader::Setup() {
 	Graphics::Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	Graphics::Context->IASetInputLayout(inputLayout.Get());
