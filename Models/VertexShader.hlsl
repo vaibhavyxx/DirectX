@@ -3,7 +3,6 @@ cbuffer ExternalData : register(b0)
     matrix world;
     matrix view;
     matrix projection;
-    float4 color;
 }
 
 // Struct representing a single vertex worth of data
@@ -19,7 +18,8 @@ struct VertexShaderInput
 	//  |    |                |
 	//  v    v                v
 	float3 localPosition	: POSITION;     // XYZ position
-	float4 color			: COLOR;        // RGBA color
+    float2 uv				: TEXCOORD;
+    float3 normal			: NORMAL;
 };
 
 // Struct representing the data we're sending down the pipeline
@@ -35,7 +35,9 @@ struct VertexToPixel
 	//  |    |                |
 	//  v    v                v
 	float4 screenPosition	: SV_POSITION;	// XYZW position (System Value Position)
-	float4 color			: COLOR;        // RGBA color
+    float2 uv				: TEXCOORD;
+    float3 normal			: NORMAL;
+	
 };
 
 // --------------------------------------------------------
@@ -52,6 +54,7 @@ VertexToPixel main( VertexShaderInput input )
     //float3 movedPos = input.localPosition + offset;
    	matrix wvp = mul(projection, mul(view, world));
     output.screenPosition = mul(wvp, float4(input.localPosition, 1.0f));
-	output.color = input.color * color;
+    output.uv = input.uv;
+    output.normal = input.normal;
 	return output;
 }

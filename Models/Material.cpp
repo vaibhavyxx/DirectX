@@ -47,7 +47,7 @@ void Material::MaterialSetup(Microsoft::WRL::ComPtr<ID3D11Buffer> vsConstantBuff
 	vsData.worldMatrix = transform->GetWorldMatrix();
 	vsData.viewMatrix = cam->GetView();
 	vsData.projectionMatrix = cam->GetProjection();
-	vsData.colorTint = colorTint;
+	//vsData.colorTint = colorTint;
 
 	// Copy this data to the constant buffer we intend to use
 	D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
