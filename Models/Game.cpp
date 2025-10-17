@@ -167,26 +167,23 @@ std::vector<unsigned int> Game::GenerateIndices(int sides) {
 // --------------------------------------------------------
 void Game::CreateGeometry()
 {
-	XMFLOAT4 red = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
-	XMFLOAT4 green = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
-	XMFLOAT4 blue = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+	XMFLOAT4 white = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 
-
-	std::shared_ptr<Material> testMaterial = std::make_shared<Material>(shader->GetVertexShader(), shader->GetPixelShader(), red);
+	std::shared_ptr<Material> red = std::make_shared<Material>(shader->GetVertexShader(), shader->GetPixelShader(), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f));
 	std::shared_ptr<Material> blueGreen = std::make_shared<Material>(shader->GetVertexShader(), shader->GetPixelShader(), DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f));
-	std::shared_ptr<Material> white = std::make_shared<Material>(shader->GetVertexShader(), shader->GetPixelShader(), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
+	std::shared_ptr<Material> purple = std::make_shared<Material>(shader->GetVertexShader(), shader->GetPixelShader(), DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f));
 	//testMaterial->SetColorTint(red);
-	materials.push_back(testMaterial);
+	materials.push_back(red);
 	materials.push_back(blueGreen);
-	materials.push_back(white);
+	materials.push_back(purple);
 
 #pragma region Triangle
 	{
 		Vertex vertices[] =
 		{
-			{ XMFLOAT3(+0.0f, +0.5f, +0.0f), red },
-			{ XMFLOAT3(+0.5f, -0.5f, +0.0f), blue },
-			{ XMFLOAT3(-0.5f, -0.5f, +0.0f), green },
+			{ XMFLOAT3(+0.0f, +0.5f, +0.0f), white },
+			{ XMFLOAT3(+0.5f, -0.5f, +0.0f), white },
+			{ XMFLOAT3(-0.5f, -0.5f, +0.0f), white },
 		};
 		unsigned int indices[] = { 0, 1, 2 };
 		int vCount = ArrayCount(vertices);
@@ -199,10 +196,10 @@ void Game::CreateGeometry()
 	{
 		//Square
 		Vertex vertices[] = {
-			{XMFLOAT3(+0.50f, +0.50f, +0.0f), blue},
-			{XMFLOAT3(+0.75f, +0.50f, +0.0f), red},
-			{XMFLOAT3(+0.50f, -0.50f, +0.0f), red},
-			{XMFLOAT3(+0.75f, -0.50f, +0.0f), blue}
+			{XMFLOAT3(+0.50f, +0.50f, +0.0f), white},
+			{XMFLOAT3(+0.75f, +0.50f, +0.0f), white},
+			{XMFLOAT3(+0.50f, -0.50f, +0.0f), white},
+			{XMFLOAT3(+0.75f, -0.50f, +0.0f), white}
 		};
 		unsigned int indices[] = { 0, 1, 2, 2,1,3 };
 		int vCount = ArrayCount(vertices);
@@ -220,7 +217,7 @@ void Game::CreateGeometry()
 		std::vector<DirectX::XMFLOAT3> pentagonVertices = GenerateVertices(-0.5f, 0.5f, sides, 0.25f);
 		std::vector<unsigned int> pentagonIndices = GenerateIndices(sides);
 		for (int i = 0; i < totalVertex; i++) {
-			vertices[i] = { pentagonVertices[i], red };
+			vertices[i] = { pentagonVertices[i], white };
 		}
 		for (int i = 0; i < (sides * 3); i++) {
 			indices[i] = pentagonIndices[i];
@@ -238,7 +235,7 @@ void Game::CreateGeometry()
 		std::vector<DirectX::XMFLOAT3> hexagonVerts = GenerateVertices(0.25f, 0.8f, sides, 0.15f);
 		std::vector<unsigned int> hexIndices = GenerateIndices(sides);
 		for (int i = 0; i < totalVertex; i++) {
-			vertices[i] = { hexagonVerts[i], green };
+			vertices[i] = { hexagonVerts[i], white };
 		}
 		for (int i = 0; i < (sides * 3); i++) {
 			indices[i] = hexIndices[i];
@@ -257,7 +254,7 @@ void Game::CreateGeometry()
 		std::vector<DirectX::XMFLOAT3> hexagonVerts = GenerateVertices(-0.25f, 0.5f, sides, 0.15f);
 		std::vector<unsigned int> hexIndices = GenerateIndices(sides);
 		for (int i = 0; i < totalVertex; i++) {
-			vertices[i] = { hexagonVerts[i], green };
+			vertices[i] = { hexagonVerts[i], white };
 		}
 		for (int i = 0; i < (sides * 3); i++) {
 			indices[i] = hexIndices[i];
