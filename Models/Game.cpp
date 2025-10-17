@@ -173,8 +173,12 @@ void Game::CreateGeometry()
 
 
 	std::shared_ptr<Material> testMaterial = std::make_shared<Material>(shader->GetVertexShader(), shader->GetPixelShader(), red);
+	std::shared_ptr<Material> blueGreen = std::make_shared<Material>(shader->GetVertexShader(), shader->GetPixelShader(), DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f));
+	std::shared_ptr<Material> white = std::make_shared<Material>(shader->GetVertexShader(), shader->GetPixelShader(), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
 	//testMaterial->SetColorTint(red);
 	materials.push_back(testMaterial);
+	materials.push_back(blueGreen);
+	materials.push_back(white);
 
 #pragma region Triangle
 	{
@@ -265,10 +269,11 @@ void Game::CreateGeometry()
 
 
 	const int meshCount = static_cast<int>(meshes.size());
+	const int totalMaterials = static_cast<int>(materials.size());
 	//Setting it up 5 entities
 	for (int i = 0; i < 7; i++) {
 		if (i < meshCount) {
-			entities.push_back(std::make_shared<GameEntity>(meshes[i], testMaterial));
+			entities.push_back(std::make_shared<GameEntity>(meshes[i], materials[i % totalMaterials]));
 		}
 	}
 	//Setting values
