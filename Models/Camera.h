@@ -13,6 +13,7 @@ public:
 		float farClip,
 		float movementSpeed,
 		float mouseLookSpeed,
+		float windowSize,
 		bool orthographic);
 
 	//Getters
@@ -37,6 +38,7 @@ private:
 	float nearClip;
 	float farClip;
 	float aspectRatio;
+	float windowSize;
 
 	//Camera type
 	bool orthographic;

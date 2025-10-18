@@ -1,4 +1,7 @@
-﻿  GameEntity.cpp
-  Shader.cpp
+﻿  Game.cpp
+  GameEntity.cpp
+  Main.cpp
+  Material.cpp
+  Mesh.cpp
   Generating Code...
   D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\Models\x64\Debug\D3D11Starter.exe

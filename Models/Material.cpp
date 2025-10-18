@@ -19,11 +19,12 @@ Material::Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color)
 	this->vertexShader = shader->GetVertexShader();
 	this->pixelShader = shader->GetPixelShader();
 	this->colorTint = color;
+	this->time = 0.0f;
 }
 
 void Material::SetColorTint(int r, int g, int b, int a)
 {
-	SetColorTint(XMFLOAT4(r,g,b,a));
+	SetColorTint(XMFLOAT4(static_cast<float>(r), static_cast<float>(g), static_cast<float>(b), static_cast<float>(a)));
 }
 
 void Material::SetColorTint(XMFLOAT4 color)
@@ -78,12 +79,12 @@ void Material::MaterialSetup(std::shared_ptr<Transform> transform, std::shared_p
 	}
 }
 
-void Material::SetConstantBuffer()
-{
-	
-}
-
 void Material::SetTime(float value)
 {
 	this->time = value;
+}
+
+XMFLOAT4 Material::GetColorTint()
+{
+	return colorTint;
 }

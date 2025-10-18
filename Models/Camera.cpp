@@ -5,7 +5,9 @@
 #include <algorithm>
 #include <iostream>
 
-Camera::Camera(float aspectRatio, DirectX::XMFLOAT3 initialPosition, float fieldOfView, float nearClip, float farClip, float movementSpeed, float mouseLookSpeed, bool orthographic)
+Camera::Camera(float aspectRatio, DirectX::XMFLOAT3 initialPosition, 
+    float fieldOfView, float nearClip, float farClip, float movementSpeed, float mouseLookSpeed,
+    float windowSize,bool orthographic)
 {
     this->aspectRatio = aspectRatio;
     this->fov = fieldOfView;
@@ -14,6 +16,7 @@ Camera::Camera(float aspectRatio, DirectX::XMFLOAT3 initialPosition, float field
     this->orthographic = orthographic;
     this->moveSpeed = movementSpeed;
     this->mouseLookSpeed = mouseLookSpeed;
+    this->windowSize = windowSize;
     transform = std::make_shared<Transform>();
     transform->SetPosition(initialPosition);
 
@@ -41,7 +44,7 @@ void Camera::UpdateProjectionMatrix(float aspectRatio)
         projection = DirectX::XMMatrixPerspectiveFovLH(fov, aspectRatio, nearClip, farClip);
     }
     else {
-        projection = DirectX::XMMatrixOrthographicLH(this->orthographic, this->orthographic/aspectRatio, nearClip, farClip);
+        projection = DirectX::XMMatrixOrthographicLH(this->orthographic, this->windowSize/aspectRatio, nearClip, farClip);
     }
     DirectX::XMStoreFloat4x4(&projectionMatrix, projection);
 }

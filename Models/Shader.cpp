@@ -31,7 +31,7 @@ void Shader::Setup() {
 
 void Shader::LoadPixelShader(std::string fileName) {
 	std::wstring wideFileName(fileName.begin(), fileName.end());
-	//ID3DBlob* pixelShaderBlob;
+	ID3DBlob* pixelShaderBlob;
 	D3DReadFileToBlob(FixPath(wideFileName).c_str(), &pixelShaderBlob);
 
 	Graphics::Device->CreatePixelShader(
@@ -41,7 +41,7 @@ void Shader::LoadPixelShader(std::string fileName) {
 		pixelShader.GetAddressOf());			// Address of the ID3D11PixelShader pointer
 }
 void Shader::LoadVertexShader() {
-	//ID3DBlob* vertexShaderBlob;
+	ID3DBlob* vertexShaderBlob;
 	D3DReadFileToBlob(FixPath(L"VertexShader.cso").c_str(), &vertexShaderBlob);
 
 	Graphics::Device->CreateVertexShader(
@@ -50,9 +50,9 @@ void Shader::LoadVertexShader() {
 		0,										// No classes in this shader
 		vertexShader.GetAddressOf());			// The address of the ID3D11VertexShader pointer
 
-	SetInputLayout();
+	SetInputLayout(vertexShaderBlob);
 }
-void Shader::SetInputLayout() {
+void Shader::SetInputLayout(ID3DBlob* vertexShaderBlob) {
 
 	D3D11_INPUT_ELEMENT_DESC inputElements[3] = {};
 

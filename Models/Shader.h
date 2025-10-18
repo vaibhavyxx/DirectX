@@ -12,8 +12,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> pixelBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> cb;
 
-	ID3DBlob* vertexShaderBlob;
-	ID3DBlob* pixelShaderBlob;
+	//ID3DBlob* vertexShaderBlob;
+	//ID3DBlob* pixelShaderBlob;
 
 public:
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> GetVertexShader();
@@ -26,7 +26,7 @@ public:
 
 	void LoadPixelShader(std::string fileName);
 	void LoadVertexShader();
-	void SetInputLayout();
+	void SetInputLayout(ID3DBlob* vertexShaderBlob);
 	void CreatePixelBuffer();
 	void CreateCB();
 

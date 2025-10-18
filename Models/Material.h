@@ -14,8 +14,8 @@ private:
 	XMFLOAT4 colorTint;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader;
-	ID3DBlob* vertexShaderBlob;
-	ID3DBlob* pixelShaderBlob;
+	//ID3DBlob* vertexShaderBlob;
+	//ID3DBlob* pixelShaderBlob;
 	std::shared_ptr<Shader> shader;
 	float time;
 
@@ -31,11 +31,10 @@ public:
 
 	void MaterialSetup(
 		std::shared_ptr<Transform> transform, std::shared_ptr<Camera> cam);
-	void SetConstantBuffer();
 	void SetTime(float value);
 
 	//Getters
-	XMFLOAT4 GetColorTint;
+	XMFLOAT4 GetColorTint();
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> GetVertexShader;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> GetPixelShader;
 };

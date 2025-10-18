@@ -79,21 +79,21 @@ void Game::Initialize() {
 		Window::AspectRatio(), 
 		DirectX::XMFLOAT3(0.0f, 0.0f, -5.0f), 
 		DirectX::XM_PIDIV4, 
-		0.01, 1000, 1.0f, 0.01f, false
+		0.01f, 1000.0f, 1.0f, 0.01f, 200.0f, false
 	);
 
 	std::shared_ptr<Camera> cam2 = std::make_shared<Camera>(
 		Window::AspectRatio(),
-		DirectX::XMFLOAT3(0.0f,35.0f, -3.0f),
-		1.0472f,	//60 degrees
-		0.01, 1000, 5.0f, 0.5f, true
+		DirectX::XMFLOAT3(0.0f,0.0f, -5.0f),
+		DirectX::XM_PIDIV4,	//60 degrees
+		0.01f, 1000.0f, 5.0f, 0.5f, 100.0f, true
 	);
 
 	std::shared_ptr<Camera> cam3 = std::make_shared<Camera>(
 		Window::AspectRatio(),
 		DirectX::XMFLOAT3(3.0f, -5.0f, -5.0f),
 		DirectX::XM_PIDIV2,
-		0.01, 1000, 1.0f, 0.01f, true
+		0.01f, 1000.0f, 1.0f, 0.01f, 200.0f, false
 	);
 
 	cameras.push_back(cam1);
@@ -382,7 +382,7 @@ void Game::AppDetails() {
 		//2: graph
 		float graph[100];
 		for (int i = 0; i < 100; i++) {
-			graph[i] = static_cast<int>(tanf(i + ImGui::GetTime() * 0.5f));
+			graph[i] = (tanf(i + static_cast<float>(ImGui::GetTime()) * 0.5f));
 		}
 		ImGui::PlotLines("Tan", graph, 100);
 		//3: slide values
