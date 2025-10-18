@@ -39,12 +39,18 @@ Game::Game()
 
 	pixelShader->LoadVertexShader();
 	pixelShader->LoadPixelShader("PixelShader.cso");
+	pixelShader->CreatePixelBuffer();
+	pixelShader->CreateCB();
 
 	uvShader->LoadVertexShader();
 	uvShader->LoadPixelShader("DebugUVPS.cso");
+	uvShader->CreatePixelBuffer();
+	uvShader->CreateCB();
 
 	normalShader->LoadVertexShader();
 	normalShader->LoadPixelShader("DebugNormalsPS.cso");
+	normalShader->CreatePixelBuffer();
+	normalShader->CreateCB();
 
 	Initialize();
 	CreateGeometry();
@@ -63,34 +69,19 @@ void Game::Initialize() {
 	ImGui::StyleColorsDark();
 
 	//Constant Buffer
-	{
+	/* {
 		unsigned int size = sizeof(ConstantBufferData);
 		size = (size + 15) / 16 * 16;
 	
-		D3D11_BUFFER_DESC pixelDesc = {};
-		pixelDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		pixelDesc.ByteWidth = size;
-		pixelDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		pixelDesc.Usage = D3D11_USAGE_DYNAMIC;
-
-		Graphics::Device->CreateBuffer(&pixelDesc, 0, constBuffer.GetAddressOf());
-	}
-
-	//Pixel Buffer
-	{
-		unsigned int size = sizeof(PixelStruct);
-		size = (size + 15) / 16 * 16;
-
 		D3D11_BUFFER_DESC cbDesc = {};
 		cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		cbDesc.ByteWidth = size;
 		cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		cbDesc.Usage = D3D11_USAGE_DYNAMIC;
 
-		Graphics::Device->CreateBuffer(&cbDesc, 0, pixelBuffer.GetAddressOf());
-	}
-	//float aspectRatio, DirectX::XMFLOAT3 initialPosition, 
-	// float fieldOfView, float nearClip, float farClip, float movementSpeed, float mouseLookSpeed
+		Graphics::Device->CreateBuffer(&cbDesc, 0, constBuffer.GetAddressOf());
+	}*/
+
 	//Setting up a camera
 	std::shared_ptr<Camera> cam1 = std::make_shared<Camera>(
 		Window::AspectRatio(), 
@@ -201,12 +192,20 @@ void Game::CreateGeometry()
 
 	std::shared_ptr<Mesh> sphereModel = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/sphere.obj").c_str());
 	std::shared_ptr<Mesh> cubeModel = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/cube.obj").c_str());
-	pixelEntities.push_back(std::make_shared<GameEntity>(sphereModel, red, pixelShader));
-	pixelEntities.push_back(std::make_shared<GameEntity>(cubeModel, purple, pixelShader));
-	pixelEntities[0]->GetTransform()->SetPosition(-1.0f, 0.0f, -1.0f);
-	pixelEntities[1]->GetTransform()->SetPosition(1.0f, 0.5f, 0.0f);
+	meshes.push_back(sphereModel);
+	meshes.push_back(cubeModel);
+
+	float offset = 3.0f;
+	for (int i = 0; i < meshes.size(); i++) {
+		pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], purple, pixelShader));
+		pixelEntities[i]->GetTransform()->SetPosition(offset * i, 0.0f, 0.0f);
+	}
 	
 	//UV --------------------------------------------------
+	for (int i = 0; i < meshes.size(); i++) {
+		UVEntities.push_back(std::make_shared<GameEntity>(meshes[i], red, uvShader));
+		UVEntities[i]->GetTransform()->MoveAbsolute(offset * i, 5.0f, 0.0f);
+	}
 	//UVEntities.push_back(std::make_shared<GameEntity>(cubeModel, red,uvShader));
 
 	//Normals ---------------------------------------------
@@ -255,9 +254,13 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	for (std::shared_ptr<GameEntity> entity : pixelEntities)
 	{
-		entity->Draw(constBuffer, pixelBuffer, cameras[currentCamera]);
+		
+		entity->Draw(pixelShader->GetCB(), pixelShader->GetPixelBuffer(), cameras[currentCamera]);
 	}
-	//normalEntities[0]->Draw(constBuffer, pixelBuffer, cameras[currentCamera]);
+	for (std::shared_ptr<GameEntity> entity : UVEntities)
+	{
+		entity->Draw(uvShader->GetCB(), uvShader->GetPixelBuffer(), cameras[currentCamera]);
+	}
 	
 	// Frame END
 	// - These should happen exactly ONCE PER FRAME

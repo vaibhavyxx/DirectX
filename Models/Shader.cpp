@@ -3,6 +3,7 @@
 #include <d3dcompiler.h>
 #include "PathHelpers.h"
 #include <memory>
+#include "BufferStructs.h"
 
 Microsoft::WRL::ComPtr<ID3D11VertexShader> Shader::GetVertexShader()
 {
@@ -12,6 +13,14 @@ Microsoft::WRL::ComPtr<ID3D11VertexShader> Shader::GetVertexShader()
 Microsoft::WRL::ComPtr<ID3D11PixelShader> Shader::GetPixelShader()
 {
 	return pixelShader;
+}
+Microsoft::WRL::ComPtr<ID3D11Buffer> Shader::GetPixelBuffer()
+{
+	return pixelBuffer;
+}
+Microsoft::WRL::ComPtr<ID3D11Buffer> Shader::GetCB()
+{
+	return cb;
 }
 void Shader::Setup() {
 	Graphics::Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -73,7 +82,37 @@ void Shader::SetInputLayout() {
 		inputLayout.GetAddressOf());			// Address of the resulting ID3D11InputLayout pointer*/
 }
 
-void Shader::CopyBuffers(Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer, const void* srcData, size_t dataSize)
+void Shader::CreatePixelBuffer()
+{
+	{
+		unsigned int size = sizeof(PixelStruct);
+		size = (size + 15) / 16 * 16;
+
+		D3D11_BUFFER_DESC cbDesc = {};
+		cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		cbDesc.ByteWidth = size;
+		cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		cbDesc.Usage = D3D11_USAGE_DYNAMIC;
+
+		Graphics::Device->CreateBuffer(&cbDesc, 0, pixelBuffer.GetAddressOf());
+	}
+}
+
+void Shader::CreateCB()
+{
+	unsigned int size = sizeof(ConstantBufferData);
+	size = (size + 15) / 16 * 16;
+
+	D3D11_BUFFER_DESC cbDesc = {};
+	cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cbDesc.ByteWidth = size;
+	cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cbDesc.Usage = D3D11_USAGE_DYNAMIC;
+
+	Graphics::Device->CreateBuffer(&cbDesc, 0, cb.GetAddressOf());
+}
+
+/**void Shader::CopyBuffers(Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer, const void* srcData, size_t dataSize)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
 	Graphics::Context->Map(constantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
@@ -84,4 +123,4 @@ void Shader::CopyBuffers(Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer, co
 	// Unmap so the GPU can once again use the buffer
 	Graphics::Context->Unmap(constantBuffer.Get(), 0);
 	Graphics::Context->VSSetConstantBuffers(0, 1, constantBuffer.GetAddressOf());
-}
+}*/

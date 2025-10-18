@@ -45,8 +45,8 @@ private:
 	std::vector<DirectX::XMFLOAT3> GenerateVertices(float centerX, float centerY, int sides, float radius);
 	std::vector<unsigned int> GenerateIndices(int sides);
 	
-	Microsoft::WRL::ComPtr<ID3D11Buffer> constBuffer;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> pixelBuffer;
+	//Microsoft::WRL::ComPtr<ID3D11Buffer> constBuffer;
+	//Microsoft::WRL::ComPtr<ID3D11Buffer> pixelBuffer;
 
 	std::shared_ptr<Shader> pixelShader;
 	std::shared_ptr<Shader> uvShader;
