@@ -37,13 +37,21 @@ Game::Game()
 	uvShader = std::make_shared<Shader>();
 	normalShader = std::make_shared<Shader>();
 
+	pixelShader->LoadVertexShader();
+	pixelShader->LoadPixelShader("PixelShader.cso");
+
+	uvShader->LoadVertexShader();
+	uvShader->LoadPixelShader("DebugUVPS.cso");
+
+	normalShader->LoadVertexShader();
+	normalShader->LoadPixelShader("DebugNormalsPS.cso");
+
 	Initialize();
-	LoadShaders();
 	
 	CreateGeometry();
-	pixelShader->Setup();
+	/*pixelShader->Setup();
 	uvShader->Setup();
-	normalShader->Setup();
+	normalShader->Setup();*/
 	
 }
 
@@ -138,7 +146,7 @@ Game::~Game()
 // --------------------------------------------------------
 void Game::LoadShaders()
 {
-	pixelShader->LoadVertexShader();
+	/*pixelShader->LoadVertexShader();
 	pixelShader->LoadPixelShader("PixelShader.cso");
 	pixelShader->SetInputLayout();
 
@@ -148,7 +156,7 @@ void Game::LoadShaders()
 
 	normalShader->LoadVertexShader();
 	normalShader->LoadPixelShader("DebugNormalsPS.cso");
-	normalShader->SetInputLayout();
+	normalShader->SetInputLayout();*/
 }
 
 //--------------------------------------------------------
@@ -210,16 +218,16 @@ void Game::CreateGeometry()
 
 	std::shared_ptr<Mesh> sphereModel = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/sphere.obj").c_str());
 	std::shared_ptr<Mesh> cubeModel = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/cube.obj").c_str());
-	entities.push_back(std::make_shared<GameEntity>(sphereModel,red));
-	entities.push_back(std::make_shared<GameEntity>(cubeModel, purple));
+	entities.push_back(std::make_shared<GameEntity>(sphereModel,red, normalShader));
+	entities.push_back(std::make_shared<GameEntity>(cubeModel, purple, normalShader));
 	entities[0]->GetTransform()->SetPosition(-1.0f, 0.0f, -1.0f);
 	entities[1]->GetTransform()->SetPosition(1.0f, 0.5f, 0.0f);
 
-	//pixelShader->LoadShaders();
-	//pixelShader->SetInputLayout();
+	pixelShader->LoadShaders();
+	pixelShader->SetInputLayout();
 
-	uvShader->LoadShaders();
-	uvShader->SetInputLayout();
+	/*uvShader->LoadShaders();
+	uvShader->SetInputLayout();*/
 }
 
 

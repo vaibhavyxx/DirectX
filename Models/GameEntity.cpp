@@ -9,13 +9,20 @@
 #include <iostream>
 #include "Camera.h"
 #include "Graphics.h"
+#include "Shader.h"
 
 GameEntity::GameEntity(std::shared_ptr<Mesh> mesh,
-	std::shared_ptr <Material> material) 
+	std::shared_ptr <Material> material, std::shared_ptr<Shader> shader)
 {
 	this->mesh = mesh;
 	this->material = material;
+	this->shader = shader;
 	transform = std::make_shared<Transform>();
+
+	shader->Setup();
+	shader->SetInputLayout();
+	//shader->LoadShaders();
+	//shader->SetInputLayout();
 }
 
 std::shared_ptr<Mesh> GameEntity::GetMesh() {
@@ -31,4 +38,5 @@ void GameEntity::Draw(Microsoft::WRL::ComPtr<ID3D11Buffer> vsConstantBuffer, Mic
 {
 	material->MaterialSetup(vsConstantBuffer, pixelBuffer,transform, cam);
 	mesh->Draw();
+	shader->SetInputLayout();
 }
