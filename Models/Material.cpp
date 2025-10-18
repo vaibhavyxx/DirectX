@@ -41,8 +41,7 @@ void Material::SetPixelBuffer(Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelSha
 	this->pixelShader = pixelShader;
 }
 
-void Material::MaterialSetup(
-	std::shared_ptr<Transform> transform, std::shared_ptr<Camera> cam)
+void Material::MaterialSetup(std::shared_ptr<Transform> transform, std::shared_ptr<Camera> cam)
 {
 	ConstantBufferData vsData = {};
 	vsData.worldMatrix = transform->GetWorldMatrix();
@@ -52,7 +51,7 @@ void Material::MaterialSetup(
 	//if (hasColor) 
 	PixelStruct pixelData = {};
 	pixelData.colorTint = colorTint;
-
+	pixelData.time = time;
 	{
 		// Copy this data to the constant buffer we intend to use
 		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
@@ -82,4 +81,9 @@ void Material::MaterialSetup(
 void Material::SetConstantBuffer()
 {
 	
+}
+
+void Material::SetTime(float value)
+{
+	this->time = value;
 }

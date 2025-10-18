@@ -235,10 +235,21 @@ void Game::OnResize()
 // --------------------------------------------------------
 // Update your game here - user input, move objects, AI, etc.
 // --------------------------------------------------------
+float angleOffset = 0.707f;
 void Game::Update(float deltaTime, float totalTime)
 {
 	FrameReset(deltaTime);
 	BuildUI();
+
+	for (int i = 0; i < pixelEntities.size(); i++) {
+		pixelEntities[i]->Update(deltaTime, totalTime);
+		normalEntities[i]->Update(deltaTime, totalTime);
+		UVEntities[i]->Update(deltaTime, totalTime);
+
+		pixelEntities[i]->GetTransform()->SetRotation(0.0f, angleOffset * totalTime, 0.0f);
+		normalEntities[i]->GetTransform()->SetRotation(0.0f, angleOffset * totalTime, 0.0f);
+		UVEntities[i]->GetTransform()->SetRotation(0.0f, angleOffset * totalTime, 0.0f);
+	}
 	// Example input checking: Quit if the escape key is pressed
 	if (Input::KeyDown(VK_ESCAPE))
 		Window::Quit();

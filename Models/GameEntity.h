@@ -14,20 +14,17 @@ class GameEntity
 {
 public:
 	GameEntity(std::shared_ptr<Mesh> mesh, std::shared_ptr <Material> material, std::shared_ptr<Shader> shader);
-	//~GameEntity();
-	//GameEntity(const GameEntity&) = delete; // Remove copy constructor
-	//GameEntity& operator=(const GameEntity&) = delete; // Remove copy-assignment operator
 	std::shared_ptr<Mesh> GetMesh();
 	std::shared_ptr<Transform> GetTransform();
 	std::shared_ptr<Material> GetMaterial();
-
-	//void SetMaterial(std::shared_ptr<Material> newMaterial);
-	void Draw(std::shared_ptr<Camera> cam);	//do not set up cb here as it will cumbersome in the future
-
+	void Draw(std::shared_ptr<Camera> cam);	
+	void Update(float deltaTime, float totalTime);
+	
 private:
 	std::shared_ptr<Mesh> mesh;
 	std::shared_ptr<Transform> transform;
 	std::shared_ptr<Material> material;
 	std::shared_ptr<Shader> shader;
+
 };
 

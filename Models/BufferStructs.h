@@ -10,4 +10,5 @@ struct  ConstantBufferData
 
 struct PixelStruct {
 	DirectX::XMFLOAT4 colorTint;
+	FLOAT time;
 };
