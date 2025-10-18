@@ -36,6 +36,7 @@ Game::Game()
 	shader = std::make_shared<Shader>();
 	Initialize();
 	LoadShaders();
+	
 	CreateGeometry();
 	shader->Setup();
 }
@@ -131,7 +132,8 @@ Game::~Game()
 // --------------------------------------------------------
 void Game::LoadShaders()
 {
-	shader->LoadShaders();
+	shader->LoadVertexShader();
+	shader->LoadPixelShader("PixelShader.cso");
 	shader->SetInputLayout();
 }
 

@@ -1,6 +1,8 @@
 #pragma once
 #include <wrl/client.h>
 #include <d3d11.h>
+#include <string>
+
 class Shader
 {
 private:
@@ -19,7 +21,7 @@ public:
 	void Setup();
 	void LoadShaders();
 
-	void LoadPixelShader();
+	void LoadPixelShader(std::string fileName);
 	void LoadVertexShader();
 	void SetInputLayout();
 

@@ -20,13 +20,14 @@ void Shader::Setup() {
 	Graphics::Context->PSSetShader(pixelShader.Get(), 0, 0);
 }
 void Shader::LoadShaders() {
-	LoadVertexShader();
-	LoadPixelShader();
+	//LoadVertexShader();
+	//LoadPixelShader();
 }
 
-void Shader::LoadPixelShader() {
+void Shader::LoadPixelShader(std::string fileName) {
+	std::wstring wideFileName(fileName.begin(), fileName.end());
 	//ID3DBlob* pixelShaderBlob;
-	D3DReadFileToBlob(FixPath(L"DebugNormalsPS.cso").c_str(), &pixelShaderBlob);
+	D3DReadFileToBlob(FixPath(wideFileName).c_str(), &pixelShaderBlob);
 	
 	Graphics::Device->CreatePixelShader(
 		pixelShaderBlob->GetBufferPointer(),	// Pointer to blob's contents
