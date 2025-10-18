@@ -37,9 +37,9 @@ float4 main(VertexToPixel input) : SV_TARGET
 	//   interpolated for each pixel between the corresponding vertices 
 	//   of the triangle we're rendering
     float4 colorA = colorTint;
-    float4 colorB = float4(1.0f, 1.0f, 1.0f, 1.0f);
-    float blendFactor = 0.5f;
-	
-    float4 blendedColor = colorA * (1 - blendFactor) + colorB * blendFactor;
+    float4 colorB = 1.0f - (float4(input.normal, 1.0f));
+    float blendFactor = (sin(time) + 1.0f) * 0.5f;
+    float4 blendedColor = lerp(colorA, colorB, blendFactor);
+    
     return blendedColor;
 }
