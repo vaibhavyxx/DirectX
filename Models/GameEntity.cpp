@@ -18,10 +18,6 @@ GameEntity::GameEntity(std::shared_ptr<Mesh> mesh,
 	this->material = material;
 	this->shader = shader;
 	transform = std::make_shared<Transform>();
-	//shader->Setup();
-	//shader->SetInputLayout();
-	//shader->LoadShaders();
-	//shader->SetInputLayout();
 }
 
 std::shared_ptr<Mesh> GameEntity::GetMesh() {
@@ -37,8 +33,6 @@ void GameEntity::Update(float deltaTime, float time) {
 void GameEntity::Draw(std::shared_ptr<Camera> cam) 
 {
 	shader->Setup();
-
 	material->MaterialSetup(transform, cam);
-	shader->SetInputLayout();
 	mesh->Draw();
 }

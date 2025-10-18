@@ -49,6 +49,8 @@ void Shader::LoadVertexShader() {
 		vertexShaderBlob->GetBufferSize(),		// How big is that data?
 		0,										// No classes in this shader
 		vertexShader.GetAddressOf());			// The address of the ID3D11VertexShader pointer
+
+	SetInputLayout();
 }
 void Shader::SetInputLayout() {
 
