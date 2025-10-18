@@ -33,12 +33,18 @@ using namespace DirectX;
 // --------------------------------------------------------
 Game::Game()
 {
-	shader = std::make_shared<Shader>();
+	pixelShader = std::make_shared<Shader>();
+	uvShader = std::make_shared<Shader>();
+	normalShader = std::make_shared<Shader>();
+
 	Initialize();
 	LoadShaders();
 	
 	CreateGeometry();
-	shader->Setup();
+	pixelShader->Setup();
+	uvShader->Setup();
+	normalShader->Setup();
+	
 }
 
 void Game::Initialize() {
@@ -132,9 +138,17 @@ Game::~Game()
 // --------------------------------------------------------
 void Game::LoadShaders()
 {
-	shader->LoadVertexShader();
-	shader->LoadPixelShader("PixelShader.cso");
-	shader->SetInputLayout();
+	pixelShader->LoadVertexShader();
+	pixelShader->LoadPixelShader("PixelShader.cso");
+	pixelShader->SetInputLayout();
+
+	uvShader->LoadVertexShader();
+	uvShader->LoadPixelShader("DebugUVPS.cso");
+	uvShader->SetInputLayout();
+
+	normalShader->LoadVertexShader();
+	normalShader->LoadPixelShader("DebugNormalsPS.cso");
+	normalShader->SetInputLayout();
 }
 
 //--------------------------------------------------------
@@ -186,9 +200,9 @@ void Game::CreateGeometry()
 {
 	XMFLOAT4 white = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 
-	std::shared_ptr<Material> red = std::make_shared<Material>(shader->GetVertexShader(), shader->GetPixelShader(), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f));
-	std::shared_ptr<Material> blueGreen = std::make_shared<Material>(shader->GetVertexShader(), shader->GetPixelShader(), DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f));
-	std::shared_ptr<Material> purple = std::make_shared<Material>(shader->GetVertexShader(), shader->GetPixelShader(), DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f));
+	std::shared_ptr<Material> red = std::make_shared<Material>(pixelShader->GetVertexShader(), pixelShader->GetPixelShader(), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f));
+	std::shared_ptr<Material> blueGreen = std::make_shared<Material>(pixelShader->GetVertexShader(), pixelShader->GetPixelShader(), DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f));
+	std::shared_ptr<Material> purple = std::make_shared<Material>(pixelShader->GetVertexShader(), pixelShader->GetPixelShader(), DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f));
 
 	materials.push_back(red);
 	materials.push_back(blueGreen);
@@ -200,8 +214,12 @@ void Game::CreateGeometry()
 	entities.push_back(std::make_shared<GameEntity>(cubeModel, purple));
 	entities[0]->GetTransform()->SetPosition(-1.0f, 0.0f, -1.0f);
 	entities[1]->GetTransform()->SetPosition(1.0f, 0.5f, 0.0f);
-	shader->LoadShaders();
-	shader->SetInputLayout();
+
+	//pixelShader->LoadShaders();
+	//pixelShader->SetInputLayout();
+
+	uvShader->LoadShaders();
+	uvShader->SetInputLayout();
 }
 
 

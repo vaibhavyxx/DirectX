@@ -1,6 +1,6 @@
 ﻿  Game.cpp
-C:\Users\vaibh\Documents\git\ggp-hws\Models\Game.cpp(356,39): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\vaibh\Documents\git\ggp-hws\Models\Game.cpp(356,36): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\vaibh\Documents\git\ggp-hws\Models\Game.cpp(374,39): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\vaibh\Documents\git\ggp-hws\Models\Game.cpp(374,36): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xutility(462,85): warning C4244: 'argument': conversion from '_Ty' to 'float', possible loss of data
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xutility(462,85): warning C4244:         with
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xutility(462,85): warning C4244:         [
@@ -9,7 +9,7 @@ C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.3520
   (compiling source file 'Game.cpp')
       C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xutility(462,85):
       the template instantiation context (the oldest one first) is
-          C:\Users\vaibh\Documents\git\ggp-hws\Models\Game.cpp(85,38):
+          C:\Users\vaibh\Documents\git\ggp-hws\Models\Game.cpp(91,38):
           see reference to function template instantiation 'std::shared_ptr<Camera> std::make_shared<Camera,float,DirectX::XMFLOAT3,const float&,double,int,float,float,bool>(float &&,DirectX::XMFLOAT3 &&,const float &,double &&,int &&,float &&,float &&,bool &&)' being compiled
           C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\memory(2913,46):
           see reference to function template instantiation 'std::_Ref_count_obj2<Camera>::_Ref_count_obj2<_Ty,DirectX::XMFLOAT3,const float&,double,int,_Ty,_Ty,bool>(_Ty &&,DirectX::XMFLOAT3 &&,const float &,double &&,int &&,_Ty &&,_Ty &&,bool &&)' being compiled
@@ -79,6 +79,7 @@ C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.3520
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xutility(463,90): warning C4244:         ]
   (compiling source file 'Game.cpp')
   
-  Shader.cpp
+  Main.cpp
+  Mesh.cpp
   Generating Code...
   D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\Models\x64\Debug\D3D11Starter.exe
