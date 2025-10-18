@@ -47,11 +47,7 @@ Game::Game()
 	normalShader->LoadPixelShader("DebugNormalsPS.cso");
 
 	Initialize();
-	
 	CreateGeometry();
-	/*pixelShader->Setup();
-	uvShader->Setup();
-	normalShader->Setup();*/
 	
 }
 
@@ -144,20 +140,6 @@ Game::~Game()
 //    be verified against vertex shader byte code
 // - We'll have that byte code already loaded below
 // --------------------------------------------------------
-void Game::LoadShaders()
-{
-	/*pixelShader->LoadVertexShader();
-	pixelShader->LoadPixelShader("PixelShader.cso");
-	pixelShader->SetInputLayout();
-
-	uvShader->LoadVertexShader();
-	uvShader->LoadPixelShader("DebugUVPS.cso");
-	uvShader->SetInputLayout();
-
-	normalShader->LoadVertexShader();
-	normalShader->LoadPixelShader("DebugNormalsPS.cso");
-	normalShader->SetInputLayout();*/
-}
 
 //--------------------------------------------------------
 //Helper function for count
@@ -206,6 +188,7 @@ std::vector<unsigned int> Game::GenerateIndices(int sides) {
 // --------------------------------------------------------
 void Game::CreateGeometry()
 {
+	//Pixel -----------------------------------------------
 	XMFLOAT4 white = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 
 	std::shared_ptr<Material> red = std::make_shared<Material>(pixelShader->GetVertexShader(), pixelShader->GetPixelShader(), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f));
@@ -218,16 +201,16 @@ void Game::CreateGeometry()
 
 	std::shared_ptr<Mesh> sphereModel = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/sphere.obj").c_str());
 	std::shared_ptr<Mesh> cubeModel = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/cube.obj").c_str());
-	entities.push_back(std::make_shared<GameEntity>(sphereModel,red, normalShader));
-	entities.push_back(std::make_shared<GameEntity>(cubeModel, purple, normalShader));
-	entities[0]->GetTransform()->SetPosition(-1.0f, 0.0f, -1.0f);
-	entities[1]->GetTransform()->SetPosition(1.0f, 0.5f, 0.0f);
+	pixelEntities.push_back(std::make_shared<GameEntity>(sphereModel, red, pixelShader));
+	pixelEntities.push_back(std::make_shared<GameEntity>(cubeModel, purple, pixelShader));
+	pixelEntities[0]->GetTransform()->SetPosition(-1.0f, 0.0f, -1.0f);
+	pixelEntities[1]->GetTransform()->SetPosition(1.0f, 0.5f, 0.0f);
+	
+	//UV --------------------------------------------------
+	//UVEntities.push_back(std::make_shared<GameEntity>(cubeModel, red,uvShader));
 
-	pixelShader->LoadShaders();
-	pixelShader->SetInputLayout();
-
-	/*uvShader->LoadShaders();
-	uvShader->SetInputLayout();*/
+	//Normals ---------------------------------------------
+	//normalEntities.push_back(std::make_shared<GameEntity>(sphereModel, red, normalShader));
 }
 
 
@@ -270,10 +253,11 @@ void Game::Draw(float deltaTime, float totalTime)
 		Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
 
-	for (std::shared_ptr<GameEntity> entity : entities)
+	for (std::shared_ptr<GameEntity> entity : pixelEntities)
 	{
 		entity->Draw(constBuffer, pixelBuffer, cameras[currentCamera]);
 	}
+	//normalEntities[0]->Draw(constBuffer, pixelBuffer, cameras[currentCamera]);
 	
 	// Frame END
 	// - These should happen exactly ONCE PER FRAME
@@ -316,9 +300,9 @@ int count = 0;
 void Game::BuildUI() {
 	ImGui::Begin("Inspector");
 
-	for (unsigned int i = 0; i < entities.size(); i++)
+	for (unsigned int i = 0; i < pixelEntities.size(); i++)
 	{
-		std::shared_ptr<Transform> transform = entities[i]->GetTransform();
+		std::shared_ptr<Transform> transform = pixelEntities[i]->GetTransform();
 		EntityValues(transform, i);
 	}
 

@@ -44,14 +44,7 @@ private:
 	int ArrayCount(const T (&array)[N]);
 	std::vector<DirectX::XMFLOAT3> GenerateVertices(float centerX, float centerY, int sides, float radius);
 	std::vector<unsigned int> GenerateIndices(int sides);
-	// Note the usage of ComPtr below
-	//  - This is a smart pointer for objects that abide by the
-	//     Component Object Model, which DirectX objects do
-	//  - More info here: https://github.com/Microsoft/DirectXTK/wiki/ComPtr
-
-	// Buffers to hold actual geometry data
-	//Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer;
-	//Microsoft::WRL::ComPtr<ID3D11Buffer> indexBuffer;
+	
 	Microsoft::WRL::ComPtr<ID3D11Buffer> constBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> pixelBuffer;
 
@@ -59,12 +52,10 @@ private:
 	std::shared_ptr<Shader> uvShader;
 	std::shared_ptr<Shader> normalShader;
 
-	// Shaders and shader-related constructs
-	//Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader;
-	//Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader;
-	//Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout;
+	std::vector<std::shared_ptr<GameEntity>> pixelEntities;
+	std::vector<std::shared_ptr<GameEntity>> UVEntities;
+	std::vector<std::shared_ptr<GameEntity>> normalEntities;
 
-	std::vector<std::shared_ptr<GameEntity>> entities;
 	std::vector<std::shared_ptr<Camera>> cameras;
 	std::vector<std::shared_ptr<Mesh>> meshes;
 	std::vector<std::shared_ptr<Material>> materials;

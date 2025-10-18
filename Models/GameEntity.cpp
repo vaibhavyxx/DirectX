@@ -38,5 +38,7 @@ void GameEntity::Draw(Microsoft::WRL::ComPtr<ID3D11Buffer> vsConstantBuffer, Mic
 {
 	material->MaterialSetup(vsConstantBuffer, pixelBuffer,transform, cam);
 	mesh->Draw();
+
+	//shader->LoadVertexShader();
 	shader->SetInputLayout();
 }
