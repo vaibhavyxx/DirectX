@@ -19,8 +19,8 @@ GameEntity::GameEntity(std::shared_ptr<Mesh> mesh,
 	this->shader = shader;
 	transform = std::make_shared<Transform>();
 
-	shader->Setup();
-	shader->SetInputLayout();
+	//shader->Setup();
+	//shader->SetInputLayout();
 	//shader->LoadShaders();
 	//shader->SetInputLayout();
 }
@@ -35,6 +35,9 @@ std::shared_ptr<Transform> GameEntity::GetTransform() {
 
 void GameEntity::Draw(std::shared_ptr<Camera> cam) 
 {
+	shader->Setup();
+	//shader->SetInputLayout();
+
 	material->MaterialSetup(transform, cam);
 	mesh->Draw();
 
