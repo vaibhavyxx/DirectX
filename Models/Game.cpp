@@ -199,17 +199,23 @@ void Game::CreateGeometry()
 	for (int i = 0; i < meshes.size(); i++) {
 		pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], purple, pixelShader));
 		pixelEntities[i]->GetTransform()->SetPosition(offset * i, 0.0f, 0.0f);
+
+		UVEntities.push_back(std::make_shared<GameEntity>(meshes[i], red, uvShader));
+		UVEntities[i]->GetTransform()->MoveAbsolute(offset * i, 5.0f, 0.0f);
+
+		normalEntities.push_back(std::make_shared<GameEntity>(meshes[i], red, normalShader));
+		normalEntities[i]->GetTransform()->MoveAbsolute(offset * i, -5.0f, 0.0f);
 	}
 	
 	//UV --------------------------------------------------
-	for (int i = 0; i < meshes.size(); i++) {
+	/*for (int i = 0; i < meshes.size(); i++) {
 		UVEntities.push_back(std::make_shared<GameEntity>(meshes[i], red, uvShader));
 		UVEntities[i]->GetTransform()->MoveAbsolute(offset * i, 5.0f, 0.0f);
 	}
 	//UVEntities.push_back(std::make_shared<GameEntity>(cubeModel, red,uvShader));
 
 	//Normals ---------------------------------------------
-	//normalEntities.push_back(std::make_shared<GameEntity>(sphereModel, red, normalShader));
+	//normalEntities.push_back(std::make_shared<GameEntity>(sphereModel, red, normalShader));*/
 }
 
 
@@ -259,6 +265,10 @@ void Game::Draw(float deltaTime, float totalTime)
 		entity->Draw(cameras[currentCamera]);
 	}
 	for (std::shared_ptr<GameEntity> entity : UVEntities)
+	{
+		entity->Draw(cameras[currentCamera]);
+	}
+	for (std::shared_ptr<GameEntity> entity : normalEntities)
 	{
 		entity->Draw(cameras[currentCamera]);
 	}
