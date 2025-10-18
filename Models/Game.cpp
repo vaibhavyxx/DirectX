@@ -36,6 +36,7 @@ Game::Game()
 	pixelShader = std::make_shared<Shader>();
 	uvShader = std::make_shared<Shader>();
 	normalShader = std::make_shared<Shader>();
+	fancyShader = std::make_shared<Shader>();
 
 	pixelShader->LoadVertexShader();
 	pixelShader->LoadPixelShader("PixelShader.cso");
@@ -52,6 +53,11 @@ Game::Game()
 	normalShader->CreatePixelBuffer();
 	normalShader->CreateCB();
 
+	fancyShader->LoadVertexShader();
+	fancyShader->LoadPixelShader("CustomPS.cso");
+	fancyShader->CreatePixelBuffer();
+	fancyShader->CreateCB();
+
 	Initialize();
 	CreateGeometry();
 	
@@ -67,20 +73,6 @@ void Game::Initialize() {
 	ImGui_ImplDX11_Init(Graphics::Device.Get(), Graphics::Context.Get());
 	// Pick a style (uncomment one of these 3)
 	ImGui::StyleColorsDark();
-
-	//Constant Buffer
-	/* {
-		unsigned int size = sizeof(ConstantBufferData);
-		size = (size + 15) / 16 * 16;
-	
-		D3D11_BUFFER_DESC cbDesc = {};
-		cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		cbDesc.ByteWidth = size;
-		cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		cbDesc.Usage = D3D11_USAGE_DYNAMIC;
-
-		Graphics::Device->CreateBuffer(&cbDesc, 0, constBuffer.GetAddressOf());
-	}*/
 
 	//Setting up a camera
 	std::shared_ptr<Camera> cam1 = std::make_shared<Camera>(
@@ -187,10 +179,6 @@ void Game::CreateGeometry()
 	std::shared_ptr<Material> blueGreen = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f));
 	std::shared_ptr<Material> purple = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f));
 
-	materials.push_back(red);
-	materials.push_back(blueGreen);
-	materials.push_back(purple);
-
 	std::shared_ptr<Mesh> sphere = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/sphere.obj").c_str());
 	std::shared_ptr<Mesh> cube = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/cube.obj").c_str());
 	std::shared_ptr<Mesh> helix = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/helix.obj").c_str());
@@ -219,16 +207,16 @@ void Game::CreateGeometry()
 			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], purple, pixelShader));
 		}
 		else {
-			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], blueGreen, pixelShader));
+			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], blueGreen, fancyShader));
 		}
 		
-		pixelEntities[i]->GetTransform()->SetPosition(offset * i, -5.0f, 0.0f);
+		pixelEntities[i]->GetTransform()->SetPosition(offset * i, -10.0f, 0.0f);
 
-		UVEntities.push_back(std::make_shared<GameEntity>(meshes[i], red, uvShader));
-		UVEntities[i]->GetTransform()->MoveAbsolute(offset * i, 0.0f, 0.0f);
+		UVEntities.push_back(std::make_shared<GameEntity>(meshes[i], white, uvShader));
+		UVEntities[i]->GetTransform()->MoveAbsolute(offset * i, -5.0f, 0.0f);
 
-		normalEntities.push_back(std::make_shared<GameEntity>(meshes[i], red, normalShader));
-		normalEntities[i]->GetTransform()->MoveAbsolute(offset * i, 5.0f, 0.0f);
+		normalEntities.push_back(std::make_shared<GameEntity>(meshes[i], white, normalShader));
+		normalEntities[i]->GetTransform()->MoveAbsolute(offset * i, 0.0f, 0.0f);
 	}
 }
 

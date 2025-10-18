@@ -51,6 +51,7 @@ private:
 	std::shared_ptr<Shader> pixelShader;
 	std::shared_ptr<Shader> uvShader;
 	std::shared_ptr<Shader> normalShader;
+	std::shared_ptr<Shader> fancyShader;
 
 	std::vector<std::shared_ptr<GameEntity>> pixelEntities;
 	std::vector<std::shared_ptr<GameEntity>> UVEntities;
