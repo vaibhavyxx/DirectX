@@ -11,12 +11,13 @@
 #include "BufferStructs.h"
 #include <memory>
 #include "Transform.h"
+#include "Shader.h"
 
-Material::Material(Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader,
-Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader, DirectX::XMFLOAT4 color)
+Material::Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color)
 {
-	this->vertexShader = vertexShader;
-	this->pixelShader = pixelShader;
+	this->shader = shader;
+	this->vertexShader = shader->GetVertexShader();
+	this->pixelShader = shader->GetPixelShader();
 	this->colorTint = color;
 }
 
@@ -40,8 +41,7 @@ void Material::SetPixelBuffer(Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelSha
 	this->pixelShader = pixelShader;
 }
 
-void Material::MaterialSetup(Microsoft::WRL::ComPtr<ID3D11Buffer> vsConstantBuffer, 
-	Microsoft::WRL::ComPtr<ID3D11Buffer> pixelBuffer,
+void Material::MaterialSetup(
 	std::shared_ptr<Transform> transform, std::shared_ptr<Camera> cam)
 {
 	ConstantBufferData vsData = {};
@@ -52,35 +52,31 @@ void Material::MaterialSetup(Microsoft::WRL::ComPtr<ID3D11Buffer> vsConstantBuff
 	//if (hasColor) 
 	PixelStruct pixelData = {};
 	pixelData.colorTint = colorTint;
-	
+
 	{
 		// Copy this data to the constant buffer we intend to use
 		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
-		Graphics::Context->Map(vsConstantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
+		Graphics::Context->Map(this->shader->GetCB().Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
 
 		// Straight memcpy() into the resource
 		memcpy(mappedBuffer.pData, &vsData, sizeof(vsData));
 
 		// Unmap so the GPU can once again use the buffer
-		Graphics::Context->Unmap(vsConstantBuffer.Get(), 0);
-		Graphics::Context->VSSetConstantBuffers(0, 1, vsConstantBuffer.GetAddressOf());
+		Graphics::Context->Unmap(this->shader->GetCB().Get(), 0);
+		Graphics::Context->VSSetConstantBuffers(0, 1, this->shader->GetCB().GetAddressOf());
 	}
 	{
 		//Copying to pixel buffer
 		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
-		Graphics::Context->Map(pixelBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
+		Graphics::Context->Map(this->shader->GetPixelBuffer().Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
 
 		// Straight memcpy() into the resource
-		memcpy(mappedBuffer.pData, &pixelData, sizeof(vsData));
+		memcpy(mappedBuffer.pData, &pixelData, sizeof(pixelData));
 
 		// Unmap so the GPU can once again use the buffer
-		Graphics::Context->Unmap(pixelBuffer.Get(), 0);
-		Graphics::Context->PSSetConstantBuffers(0, 1, pixelBuffer.GetAddressOf());
+		Graphics::Context->Unmap(this->shader->GetPixelBuffer().Get(), 0);
+		Graphics::Context->PSSetConstantBuffers(0, 1, this->shader->GetPixelBuffer().GetAddressOf());
 	}
-
-	//Breaks the code of using another class
-	//shader.CopyBuffers(vsConstantBuffer, &vsData, sizeof(vsData));
-	//shader.CopyBuffers(pixelBuffer, &pixelData, sizeof(pixelData));
 }
 
 void Material::SetConstantBuffer()

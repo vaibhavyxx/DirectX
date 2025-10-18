@@ -182,9 +182,9 @@ void Game::CreateGeometry()
 	//Pixel -----------------------------------------------
 	XMFLOAT4 white = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 
-	std::shared_ptr<Material> red = std::make_shared<Material>(pixelShader->GetVertexShader(), pixelShader->GetPixelShader(), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f));
-	std::shared_ptr<Material> blueGreen = std::make_shared<Material>(pixelShader->GetVertexShader(), pixelShader->GetPixelShader(), DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f));
-	std::shared_ptr<Material> purple = std::make_shared<Material>(pixelShader->GetVertexShader(), pixelShader->GetPixelShader(), DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f));
+	std::shared_ptr<Material> red = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f));
+	std::shared_ptr<Material> blueGreen = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f));
+	std::shared_ptr<Material> purple = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f));
 
 	materials.push_back(red);
 	materials.push_back(blueGreen);
@@ -255,11 +255,11 @@ void Game::Draw(float deltaTime, float totalTime)
 	for (std::shared_ptr<GameEntity> entity : pixelEntities)
 	{
 		
-		entity->Draw(pixelShader->GetCB(), pixelShader->GetPixelBuffer(), cameras[currentCamera]);
+		entity->Draw(cameras[currentCamera]);
 	}
 	for (std::shared_ptr<GameEntity> entity : UVEntities)
 	{
-		entity->Draw(uvShader->GetCB(), uvShader->GetPixelBuffer(), cameras[currentCamera]);
+		entity->Draw(cameras[currentCamera]);
 	}
 	
 	// Frame END

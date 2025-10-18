@@ -16,11 +16,10 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader;
 	ID3DBlob* vertexShaderBlob;
 	ID3DBlob* pixelShaderBlob;
-	Shader shader;
+	std::shared_ptr<Shader> shader;
 
 public:
-	Material(Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader,
-		Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader, DirectX::XMFLOAT4 color);
+	Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color);
 
 	//Setters 
 	void SetColorTint(int r, int g, int b, int a);
@@ -29,7 +28,7 @@ public:
 	void SetVertexBuffer(Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader);
 	void SetPixelBuffer(Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader);
 
-	void MaterialSetup(Microsoft::WRL::ComPtr<ID3D11Buffer> vsConstantBuffer, Microsoft::WRL::ComPtr<ID3D11Buffer> pixelBuffer,
+	void MaterialSetup(
 		std::shared_ptr<Transform> transform, std::shared_ptr<Camera> cam);
 	void SetConstantBuffer();
 	

@@ -33,10 +33,9 @@ std::shared_ptr<Transform> GameEntity::GetTransform() {
 }
 
 
-void GameEntity::Draw(Microsoft::WRL::ComPtr<ID3D11Buffer> vsConstantBuffer, Microsoft::WRL::ComPtr<ID3D11Buffer> pixelBuffer,
-	std::shared_ptr<Camera> cam) 
+void GameEntity::Draw(std::shared_ptr<Camera> cam) 
 {
-	material->MaterialSetup(vsConstantBuffer, pixelBuffer,transform, cam);
+	material->MaterialSetup(transform, cam);
 	mesh->Draw();
 
 	//shader->LoadVertexShader();
