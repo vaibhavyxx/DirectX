@@ -57,6 +57,5 @@ VertexToPixel main( VertexShaderInput input )
     
 	output.uv = input.uv;
     output.normal = input.normal;
-	
 	return output;
 }
