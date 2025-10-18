@@ -5,6 +5,7 @@
 #include "Transform.h"
 #include <memory>
 #include "Camera.h"
+#include "Shader.h"
 
 using namespace DirectX;
 class Material
@@ -15,6 +16,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader;
 	ID3DBlob* vertexShaderBlob;
 	ID3DBlob* pixelShaderBlob;
+	Shader shader;
 
 public:
 	Material(Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader,
@@ -27,7 +29,7 @@ public:
 	void SetVertexBuffer(Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader);
 	void SetPixelBuffer(Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader);
 
-	void MaterialSetup(Microsoft::WRL::ComPtr<ID3D11Buffer> vsConstantBuffer,
+	void MaterialSetup(Microsoft::WRL::ComPtr<ID3D11Buffer> vsConstantBuffer, Microsoft::WRL::ComPtr<ID3D11Buffer> pixelBuffer,
 		std::shared_ptr<Transform> transform, std::shared_ptr<Camera> cam);
 	void SetConstantBuffer();
 	

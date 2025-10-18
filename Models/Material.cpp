@@ -41,24 +41,44 @@ void Material::SetPixelBuffer(Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelSha
 }
 
 void Material::MaterialSetup(Microsoft::WRL::ComPtr<ID3D11Buffer> vsConstantBuffer, 
+	Microsoft::WRL::ComPtr<ID3D11Buffer> pixelBuffer,
 	std::shared_ptr<Transform> transform, std::shared_ptr<Camera> cam)
 {
 	ConstantBufferData vsData = {};
 	vsData.worldMatrix = transform->GetWorldMatrix();
 	vsData.viewMatrix = cam->GetView();
 	vsData.projectionMatrix = cam->GetProjection();
-	//vsData.colorTint = colorTint;
+	
+	PixelStruct pixelData = {};
+	pixelData.colorTint = colorTint;
+	{
+		// Copy this data to the constant buffer we intend to use
+		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
+		Graphics::Context->Map(vsConstantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
 
-	// Copy this data to the constant buffer we intend to use
-	D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
-	Graphics::Context->Map(vsConstantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
+		// Straight memcpy() into the resource
+		memcpy(mappedBuffer.pData, &vsData, sizeof(vsData));
 
-	// Straight memcpy() into the resource
-	memcpy(mappedBuffer.pData, &vsData, sizeof(vsData));
+		// Unmap so the GPU can once again use the buffer
+		Graphics::Context->Unmap(vsConstantBuffer.Get(), 0);
+		Graphics::Context->VSSetConstantBuffers(0, 1, vsConstantBuffer.GetAddressOf());
+	}
+	{
+		//Copying to pixel buffer
+		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
+		Graphics::Context->Map(pixelBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
 
-	// Unmap so the GPU can once again use the buffer
-	Graphics::Context->Unmap(vsConstantBuffer.Get(), 0);
-	Graphics::Context->VSSetConstantBuffers(0, 1, vsConstantBuffer.GetAddressOf());
+		// Straight memcpy() into the resource
+		memcpy(mappedBuffer.pData, &pixelData, sizeof(vsData));
+
+		// Unmap so the GPU can once again use the buffer
+		Graphics::Context->Unmap(pixelBuffer.Get(), 0);
+		Graphics::Context->PSSetConstantBuffers(0, 1, pixelBuffer.GetAddressOf());
+	}
+
+	//Breaks the code of using another class
+	//shader.CopyBuffers(vsConstantBuffer, &vsData, sizeof(vsData));
+	//shader.CopyBuffers(pixelBuffer, &pixelData, sizeof(pixelData));
 }
 
 void Material::SetConstantBuffer()

@@ -7,6 +7,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader;
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout;
+	//Microsoft::WRL::ComPtr<ID3D11Buffer> pixelShaderBuffer;
+
 	ID3DBlob* vertexShaderBlob;
 	ID3DBlob* pixelShaderBlob;
 
@@ -20,5 +22,7 @@ public:
 	void LoadPixelShader();
 	void LoadVertexShader();
 	void SetInputLayout();
+
+	void CopyBuffers(Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer, const void* srcData, size_t dataSize);
 };
 

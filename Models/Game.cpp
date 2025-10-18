@@ -51,17 +51,32 @@ void Game::Initialize() {
 	// Pick a style (uncomment one of these 3)
 	ImGui::StyleColorsDark();
 
+	//Constant Buffer
 	{
 		unsigned int size = sizeof(ConstantBufferData);
 		size = (size + 15) / 16 * 16;
 	
+		D3D11_BUFFER_DESC pixelDesc = {};
+		pixelDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		pixelDesc.ByteWidth = size;
+		pixelDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		pixelDesc.Usage = D3D11_USAGE_DYNAMIC;
+
+		Graphics::Device->CreateBuffer(&pixelDesc, 0, constBuffer.GetAddressOf());
+	}
+
+	//Pixel Buffer
+	{
+		unsigned int size = sizeof(PixelStruct);
+		size = (size + 15) / 16 * 16;
+
 		D3D11_BUFFER_DESC cbDesc = {};
 		cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		cbDesc.ByteWidth = size;
 		cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		cbDesc.Usage = D3D11_USAGE_DYNAMIC;
 
-		Graphics::Device->CreateBuffer(&cbDesc, 0, constBuffer.GetAddressOf());
+		Graphics::Device->CreateBuffer(&cbDesc, 0, pixelBuffer.GetAddressOf());
 	}
 	//float aspectRatio, DirectX::XMFLOAT3 initialPosition, 
 	// float fieldOfView, float nearClip, float farClip, float movementSpeed, float mouseLookSpeed
@@ -180,8 +195,9 @@ void Game::CreateGeometry()
 	std::shared_ptr<Mesh> sphereModel = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/sphere.obj").c_str());
 	std::shared_ptr<Mesh> cubeModel = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/cube.obj").c_str());
 	entities.push_back(std::make_shared<GameEntity>(sphereModel,red));
-	entities.push_back(std::make_shared<GameEntity>(cubeModel, blueGreen));
-	entities[1]->GetTransform()->SetPosition(0.5f, 0.5f, 0.0f);
+	entities.push_back(std::make_shared<GameEntity>(cubeModel, purple));
+	entities[0]->GetTransform()->SetPosition(-1.0f, 0.0f, -1.0f);
+	entities[1]->GetTransform()->SetPosition(1.0f, 0.5f, 0.0f);
 	shader->LoadShaders();
 	shader->SetInputLayout();
 }
@@ -212,10 +228,6 @@ void Game::Update(float deltaTime, float totalTime)
 	//Animation
 	float speed = 0.707f;
 	float scale = (float)cos(totalTime) * 0.5f ;
-	/*entities[3]->GetTransform()->SetScale(scale, scale, scale);
-	entities[0]->GetTransform()->SetPosition((float)cos(totalTime * speed), (float)sin(totalTime * speed), 0);
-	entities[4]->GetTransform()->SetRotation(DirectX::XMFLOAT3(sin(totalTime) * speed, sin(totalTime) * speed, 0));
-	*/
 	cameras[currentCamera]->Update(deltaTime);
 }
 
@@ -232,7 +244,7 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	for (std::shared_ptr<GameEntity> entity : entities)
 	{
-		entity->Draw(constBuffer, cameras[currentCamera]);
+		entity->Draw(constBuffer, pixelBuffer, cameras[currentCamera]);
 	}
 	
 	// Frame END

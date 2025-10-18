@@ -53,6 +53,8 @@ private:
 	//Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer;
 	//Microsoft::WRL::ComPtr<ID3D11Buffer> indexBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> constBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> pixelBuffer;
+
 	std::shared_ptr<Shader> shader;
 	// Shaders and shader-related constructs
 	//Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader;
