@@ -180,8 +180,9 @@ std::vector<unsigned int> Game::GenerateIndices(int sides) {
 void Game::CreateGeometry()
 {
 	//Pixel -----------------------------------------------
-	XMFLOAT4 white = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	//XMFLOAT4 white = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 
+	std::shared_ptr<Material> white = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
 	std::shared_ptr<Material> red = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f));
 	std::shared_ptr<Material> blueGreen = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f));
 	std::shared_ptr<Material> purple = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f));
@@ -190,32 +191,45 @@ void Game::CreateGeometry()
 	materials.push_back(blueGreen);
 	materials.push_back(purple);
 
-	std::shared_ptr<Mesh> sphereModel = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/sphere.obj").c_str());
-	std::shared_ptr<Mesh> cubeModel = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/cube.obj").c_str());
-	meshes.push_back(sphereModel);
-	meshes.push_back(cubeModel);
+	std::shared_ptr<Mesh> sphere = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/sphere.obj").c_str());
+	std::shared_ptr<Mesh> cube = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/cube.obj").c_str());
+	std::shared_ptr<Mesh> helix = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/helix.obj").c_str());
+	std::shared_ptr<Mesh> cylinder = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/cylinder.obj").c_str());
+	std::shared_ptr<Mesh> quad = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/quad.obj").c_str());
+	std::shared_ptr<Mesh> quadDoubleSided = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/quad_double_sided.obj").c_str());
+	std::shared_ptr<Mesh> torus = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/torus.obj").c_str());
+
+	meshes.push_back(sphere);
+	meshes.push_back(cube);
+	meshes.push_back(helix);
+	meshes.push_back(cylinder);
+	meshes.push_back(quad);
+	meshes.push_back(quadDoubleSided);
+	meshes.push_back(torus);
 
 	float offset = 3.0f;
 	for (int i = 0; i < meshes.size(); i++) {
-		pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], purple, pixelShader));
-		pixelEntities[i]->GetTransform()->SetPosition(offset * i, 0.0f, 0.0f);
+		if (i == 0 || i == 6) {
+			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], white, pixelShader));
+		}
+		else if (i == 1 || i == 5) {
+			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], red, pixelShader));
+		}
+		else if (i == 2 || i == 4) {
+			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], purple, pixelShader));
+		}
+		else {
+			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], blueGreen, pixelShader));
+		}
+		
+		pixelEntities[i]->GetTransform()->SetPosition(offset * i, -5.0f, 0.0f);
 
 		UVEntities.push_back(std::make_shared<GameEntity>(meshes[i], red, uvShader));
-		UVEntities[i]->GetTransform()->MoveAbsolute(offset * i, 5.0f, 0.0f);
+		UVEntities[i]->GetTransform()->MoveAbsolute(offset * i, 0.0f, 0.0f);
 
 		normalEntities.push_back(std::make_shared<GameEntity>(meshes[i], red, normalShader));
-		normalEntities[i]->GetTransform()->MoveAbsolute(offset * i, -5.0f, 0.0f);
+		normalEntities[i]->GetTransform()->MoveAbsolute(offset * i, 5.0f, 0.0f);
 	}
-	
-	//UV --------------------------------------------------
-	/*for (int i = 0; i < meshes.size(); i++) {
-		UVEntities.push_back(std::make_shared<GameEntity>(meshes[i], red, uvShader));
-		UVEntities[i]->GetTransform()->MoveAbsolute(offset * i, 5.0f, 0.0f);
-	}
-	//UVEntities.push_back(std::make_shared<GameEntity>(cubeModel, red,uvShader));
-
-	//Normals ---------------------------------------------
-	//normalEntities.push_back(std::make_shared<GameEntity>(sphereModel, red, normalShader));*/
 }
 
 
@@ -259,20 +273,12 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	}
 
-	for (std::shared_ptr<GameEntity> entity : pixelEntities)
-	{
-		
-		entity->Draw(cameras[currentCamera]);
+	for (int i = 0; i < pixelEntities.size(); i++) {
+		pixelEntities[i]->Draw(cameras[currentCamera]);
+		UVEntities[i]->Draw(cameras[currentCamera]);
+		normalEntities[i]->Draw(cameras[currentCamera]);
 	}
-	for (std::shared_ptr<GameEntity> entity : UVEntities)
-	{
-		entity->Draw(cameras[currentCamera]);
-	}
-	for (std::shared_ptr<GameEntity> entity : normalEntities)
-	{
-		entity->Draw(cameras[currentCamera]);
-	}
-	
+
 	// Frame END
 	// - These should happen exactly ONCE PER FRAME
 	// - At the very end of the frame (after drawing *everything*)
