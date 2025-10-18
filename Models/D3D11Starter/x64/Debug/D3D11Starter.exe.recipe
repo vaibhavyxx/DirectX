@@ -7,6 +7,12 @@
   </ProjectOutputs>
   <ContentFiles>
     <ContentFile>
+      <FullPath>C:\Users\vaibh\Documents\git\ggp-hws\Models\x64\Debug\DebugNormalsPS.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\vaibh\Documents\git\ggp-hws\Models\x64\Debug\DebugUVPS.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
       <FullPath>C:\Users\vaibh\Documents\git\ggp-hws\Models\x64\Debug\PixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>

@@ -26,7 +26,7 @@ void Shader::LoadShaders() {
 
 void Shader::LoadPixelShader() {
 	//ID3DBlob* pixelShaderBlob;
-	D3DReadFileToBlob(FixPath(L"PixelShader.cso").c_str(), &pixelShaderBlob);
+	D3DReadFileToBlob(FixPath(L"DebugNormalsPS.cso").c_str(), &pixelShaderBlob);
 	
 	Graphics::Device->CreatePixelShader(
 		pixelShaderBlob->GetBufferPointer(),	// Pointer to blob's contents
