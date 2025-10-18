@@ -28,10 +28,6 @@ void Shader::Setup() {
 	Graphics::Context->VSSetShader(vertexShader.Get(), 0, 0);
 	Graphics::Context->PSSetShader(pixelShader.Get(), 0, 0);
 }
-void Shader::LoadShaders() {
-	//LoadVertexShader();
-	//LoadPixelShader();
-}
 
 void Shader::LoadPixelShader(std::string fileName) {
 	std::wstring wideFileName(fileName.begin(), fileName.end());
@@ -111,16 +107,3 @@ void Shader::CreateCB()
 
 	Graphics::Device->CreateBuffer(&cbDesc, 0, cb.GetAddressOf());
 }
-
-/**void Shader::CopyBuffers(Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer, const void* srcData, size_t dataSize)
-{
-	D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
-	Graphics::Context->Map(constantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
-
-	// Straight memcpy() into the resource
-	memcpy(mappedBuffer.pData, srcData, sizeof(dataSize));
-
-	// Unmap so the GPU can once again use the buffer
-	Graphics::Context->Unmap(constantBuffer.Get(), 0);
-	Graphics::Context->VSSetConstantBuffers(0, 1, constantBuffer.GetAddressOf());
-}*/

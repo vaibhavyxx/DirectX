@@ -36,11 +36,8 @@ std::shared_ptr<Transform> GameEntity::GetTransform() {
 void GameEntity::Draw(std::shared_ptr<Camera> cam) 
 {
 	shader->Setup();
-	//shader->SetInputLayout();
 
 	material->MaterialSetup(transform, cam);
-	mesh->Draw();
-
-	//shader->LoadVertexShader();
 	shader->SetInputLayout();
+	mesh->Draw();
 }
