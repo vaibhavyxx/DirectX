@@ -12,6 +12,8 @@
 #include <memory>
 #include "Transform.h"
 #include "Shader.h"
+#include <d3d11shadertracing.h>
+
 
 Material::Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color)
 {
@@ -42,18 +44,8 @@ void Material::SetPixelBuffer(Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelSha
 	this->pixelShader = pixelShader;
 }
 
-void Material::MaterialSetup(std::shared_ptr<Transform> transform, std::shared_ptr<Camera> cam)
-{
-	ConstantBufferData vsData = {};
-	vsData.worldMatrix = transform->GetWorldMatrix();
-	vsData.viewMatrix = cam->GetView();
-	vsData.projectionMatrix = cam->GetProjection();
-	
-	PixelStruct pixelData = {};
-	pixelData.colorTint = colorTint;
-	pixelData.time = time;
-	this->shader->FillAndBindCB(this->shader->GetCB(), &vsData, sizeof(vsData), 0, true);
-	this->shader->FillAndBindCB(this->shader->GetPixelBuffer(), &pixelData, sizeof(pixelData), 0, false);
+float Material::GetTime() {
+	return time;
 }
 
 void Material::SetTime(float value)

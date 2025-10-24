@@ -161,7 +161,19 @@ HRESULT Graphics::Initialize(unsigned int windowWidth, unsigned int windowHeight
 	Device->QueryInterface(IID_PPV_ARGS(debug.GetAddressOf()));
 	debug->QueryInterface(IID_PPV_ARGS(InfoQueue.GetAddressOf()));
 #endif
+	Context->QueryInterface<ID3D11DeviceContext1>(Context1.GetAddressOf());
+	cbHeapOffsetInBytes = 0;
+	cbHeapSizeInBytes = 256 * 1000;
+	cbHeapSizeInBytes = (cbHeapSizeInBytes + 255) / 256 * 256;
 
+	//Creating the actual cb buffer
+	D3D11_BUFFER_DESC cbDesc = {};
+	cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cbDesc.ByteWidth = cbHeapSizeInBytes;
+	cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cbDesc.Usage = D3D11_USAGE_DYNAMIC;
+
+	Graphics::Device->CreateBuffer(&cbDesc, 0, ConstantBufferHeap.GetAddressOf());
 	return S_OK;
 }
 
@@ -319,4 +331,34 @@ void Graphics::PrintDebugMessages()
 
 	// Clear any messages we've printed
 	InfoQueue->ClearStoredMessages();
+}
+
+void Graphics::FillAndBindNextCB(void* data, unsigned int dataSizeInBytes, D3D11_SHADER_TYPE shaderType, unsigned int registerSlot)
+{
+	unsigned int reservationSize = (dataSizeInBytes + 255) / 256 * 256;
+	if (cbHeapOffsetInBytes + reservationSize >= cbHeapSizeInBytes)
+		cbHeapOffsetInBytes = 0;
+
+	// Copy this data to the constant buffer we intend to use
+	D3D11_MAPPED_SUBRESOURCE map = {};
+	Graphics::Context->Map(ConstantBufferHeap.Get(), 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &map);
+
+	// Straight memcpy() into the resource
+	void* uploadAddress = reinterpret_cast<void*>((UINT64)map.pData + cbHeapOffsetInBytes);
+	memcpy(uploadAddress, data, dataSizeInBytes);
+	Graphics::Context->Unmap(ConstantBufferHeap.Get(), 0);
+
+	//Binding calculations = measured in 16 byte constants
+	unsigned int firstConstant = cbHeapOffsetInBytes / 16;
+	unsigned int numConstants = reservationSize / 16;
+
+	switch (shaderType) {
+	case D3D11_VERTEX_SHADER:
+		Graphics::Context1->VSSetConstantBuffers1(registerSlot, 1, ConstantBufferHeap.GetAddressOf(), &firstConstant, &numConstants);
+		break;
+	case D3D11_PIXEL_SHADER:
+		Graphics::Context1->PSSetConstantBuffers1(registerSlot, 1, ConstantBufferHeap.GetAddressOf(),&firstConstant, &numConstants);
+		break;
+	}
+	cbHeapOffsetInBytes += reservationSize;	//offset for the next call
 }

@@ -1,5 +1,2 @@
-﻿  Game.cpp
-C:\Users\vaibh\Documents\git\ggp-hws\Textures\Game.cpp(38,1): warning C4102: 'DirectX': unreferenced label
-  Mesh.cpp
-  Generating Code...
+﻿  GameEntity.cpp
   D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\Textures\x64\Debug\D3D11Starter.exe

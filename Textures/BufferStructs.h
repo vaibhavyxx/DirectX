@@ -1,7 +1,7 @@
 #pragma once
 #include <DirectXMath.h>
 
-struct  ConstantBufferData
+struct  VertexStruct
 {
 	DirectX::XMFLOAT4X4 worldMatrix;
 	DirectX::XMFLOAT4X4 viewMatrix;

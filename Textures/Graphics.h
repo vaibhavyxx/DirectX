@@ -2,8 +2,10 @@
 
 #include <Windows.h>
 #include <d3d11.h>
+#include <d3d11_1.h>
 #include <string>
 #include <wrl/client.h>
+#include <d3d11shadertracing.h>
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -15,6 +17,7 @@ namespace Graphics
 	// Primary D3D11 API objects
 	inline Microsoft::WRL::ComPtr<ID3D11Device> Device;
 	inline Microsoft::WRL::ComPtr<ID3D11DeviceContext> Context;
+	inline Microsoft::WRL::ComPtr<ID3D11DeviceContext1> Context1;
 	inline Microsoft::WRL::ComPtr<IDXGISwapChain> SwapChain;
 
 	// Rendering buffers
@@ -23,6 +26,11 @@ namespace Graphics
 
 	// Debug Layer
 	inline Microsoft::WRL::ComPtr<ID3D11InfoQueue> InfoQueue;
+	
+	//Ring Buffer
+	inline Microsoft::WRL::ComPtr<ID3D11Buffer> ConstantBufferHeap;
+	inline unsigned int cbHeapSizeInBytes;		//Size
+	inline unsigned int cbHeapOffsetInBytes;	//Position
 
 	// --- FUNCTIONS ---
 
@@ -37,4 +45,11 @@ namespace Graphics
 
 	// Debug Layer
 	void PrintDebugMessages();
+
+	//Binding Buffers
+	void FillAndBindNextCB(
+		void* data,
+		unsigned int dataSizeInBytes,
+		D3D11_SHADER_TYPE shaderType,
+		unsigned int registerSlot);
 }

@@ -47,6 +47,7 @@ private:
 	
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srvRock;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srvWater;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
 
 	std::shared_ptr<Shader> pixelShader;
 	std::shared_ptr<Shader> uvShader;

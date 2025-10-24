@@ -29,8 +29,7 @@ public:
 	void SetVertexBuffer(Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader);
 	void SetPixelBuffer(Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader);
 
-	void MaterialSetup(
-		std::shared_ptr<Transform> transform, std::shared_ptr<Camera> cam);
+	float GetTime();
 	void SetTime(float value);
 
 	//Getters

@@ -48,6 +48,9 @@ CreateWICTextureFromFile(
 	FixPath(L"../../Assets/Materials/water.jpg").c_str(), 
 	0, 
 	srvWater.GetAddressOf()); 
+//Calls PS Set Shader Resources
+
+//Graphics::Device->CreateSamplerState(samplerState);
 
 pixelShader = std::make_shared<Shader>();
 uvShader = std::make_shared<Shader>();
@@ -57,22 +60,22 @@ fancyShader = std::make_shared<Shader>();
 pixelShader->LoadVertexShader();
 pixelShader->LoadPixelShader("PixelShader.cso");
 pixelShader->CreatePixelBuffer();
-pixelShader->CreateCB();
+//pixelShader->CreateCB();
 
 uvShader->LoadVertexShader();
 uvShader->LoadPixelShader("DebugUVPS.cso");
 uvShader->CreatePixelBuffer();
-uvShader->CreateCB();
+//uvShader->CreateCB();
 
 normalShader->LoadVertexShader();
 normalShader->LoadPixelShader("DebugNormalsPS.cso");
 normalShader->CreatePixelBuffer();
-normalShader->CreateCB();
+//normalShader->CreateCB();
 
 fancyShader->LoadVertexShader();
 fancyShader->LoadPixelShader("CustomPS.cso");
 fancyShader->CreatePixelBuffer();
-fancyShader->CreateCB();
+//fancyShader->CreateCB();
 
 Initialize();
 CreateGeometry();
