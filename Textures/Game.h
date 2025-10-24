@@ -45,8 +45,8 @@ private:
 	std::vector<DirectX::XMFLOAT3> GenerateVertices(float centerX, float centerY, int sides, float radius);
 	std::vector<unsigned int> GenerateIndices(int sides);
 	
-	//Microsoft::WRL::ComPtr<ID3D11Buffer> constBuffer;
-	//Microsoft::WRL::ComPtr<ID3D11Buffer> pixelBuffer;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srvRock;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srvWater;
 
 	std::shared_ptr<Shader> pixelShader;
 	std::shared_ptr<Shader> uvShader;
@@ -60,7 +60,9 @@ private:
 	std::vector<std::shared_ptr<Camera>> cameras;
 	std::vector<std::shared_ptr<Mesh>> meshes;
 	std::vector<std::shared_ptr<Material>> materials;
-	ConstantBufferData cbData = {};
+	//ConstantBufferData cbData = {};
+
+
 
 	float color[4] = { 0.4f, 0.6f, 0.75f, 1.0f };
 	int currentCamera = 0;

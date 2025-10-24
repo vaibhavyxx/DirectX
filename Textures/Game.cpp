@@ -17,6 +17,7 @@
 #include "BufferStructs.h"
 #include "Transform.h"
 #include "GameEntity.h"
+#include "WICTextureLoader.h"
 
 // This code assumes files are in "ImGui" subfolder!
 // Adjust as necessary for your own folder structure and project setup
@@ -33,34 +34,49 @@ using namespace DirectX;
 // --------------------------------------------------------
 Game::Game()
 {
-	pixelShader = std::make_shared<Shader>();
-	uvShader = std::make_shared<Shader>();
-	normalShader = std::make_shared<Shader>();
-	fancyShader = std::make_shared<Shader>();
+	//Loads textures
+DirectX:CreateWICTextureFromFile(
+	Graphics::Device.Get(), // Device for resource creation
+	Graphics::Context.Get(), // Context for mipmap creation
+	FixPath(L"../../Assets/Materials/rock.png").c_str(), // Actual image file
+	0, // ID3D11Texture2D pointer - unneeded
+	srvRock.GetAddressOf()); // SRV pointer – what we need
 
-	pixelShader->LoadVertexShader();
-	pixelShader->LoadPixelShader("PixelShader.cso");
-	pixelShader->CreatePixelBuffer();
-	pixelShader->CreateCB();
+CreateWICTextureFromFile(
+	Graphics::Device.Get(), 
+	Graphics::Context.Get(),
+	FixPath(L"../../Assets/Materials/water.jpg").c_str(), 
+	0, 
+	srvWater.GetAddressOf()); 
 
-	uvShader->LoadVertexShader();
-	uvShader->LoadPixelShader("DebugUVPS.cso");
-	uvShader->CreatePixelBuffer();
-	uvShader->CreateCB();
+pixelShader = std::make_shared<Shader>();
+uvShader = std::make_shared<Shader>();
+normalShader = std::make_shared<Shader>();
+fancyShader = std::make_shared<Shader>();
 
-	normalShader->LoadVertexShader();
-	normalShader->LoadPixelShader("DebugNormalsPS.cso");
-	normalShader->CreatePixelBuffer();
-	normalShader->CreateCB();
+pixelShader->LoadVertexShader();
+pixelShader->LoadPixelShader("PixelShader.cso");
+pixelShader->CreatePixelBuffer();
+pixelShader->CreateCB();
 
-	fancyShader->LoadVertexShader();
-	fancyShader->LoadPixelShader("CustomPS.cso");
-	fancyShader->CreatePixelBuffer();
-	fancyShader->CreateCB();
+uvShader->LoadVertexShader();
+uvShader->LoadPixelShader("DebugUVPS.cso");
+uvShader->CreatePixelBuffer();
+uvShader->CreateCB();
 
-	Initialize();
-	CreateGeometry();
-	
+normalShader->LoadVertexShader();
+normalShader->LoadPixelShader("DebugNormalsPS.cso");
+normalShader->CreatePixelBuffer();
+normalShader->CreateCB();
+
+fancyShader->LoadVertexShader();
+fancyShader->LoadPixelShader("CustomPS.cso");
+fancyShader->CreatePixelBuffer();
+fancyShader->CreateCB();
+
+Initialize();
+CreateGeometry();
+
 }
 
 void Game::Initialize() {
@@ -76,15 +92,15 @@ void Game::Initialize() {
 
 	//Setting up a camera
 	std::shared_ptr<Camera> cam1 = std::make_shared<Camera>(
-		Window::AspectRatio(), 
-		DirectX::XMFLOAT3(0.0f, 0.0f, -5.0f), 
-		DirectX::XM_PIDIV4, 
+		Window::AspectRatio(),
+		DirectX::XMFLOAT3(0.0f, 0.0f, -5.0f),
+		DirectX::XM_PIDIV4,
 		0.01f, 1000.0f, 1.0f, 0.01f, 200.0f, false
 	);
 
 	std::shared_ptr<Camera> cam2 = std::make_shared<Camera>(
 		Window::AspectRatio(),
-		DirectX::XMFLOAT3(0.0f,0.0f, -5.0f),
+		DirectX::XMFLOAT3(0.0f, 0.0f, -5.0f),
 		DirectX::XM_PIDIV4,	//60 degrees
 		0.01f, 1000.0f, 5.0f, 0.5f, 100.0f, true
 	);
@@ -113,16 +129,6 @@ Game::~Game()
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
 }
-
-
-// --------------------------------------------------------
-// Loads shaders from compiled shader object (.cso) files
-// and also created the Input Layout that describes our 
-// vertex data to the rendering pipeline. 
-// - Input Layout creation is done here because it must 
-//    be verified against vertex shader byte code
-// - We'll have that byte code already loaded below
-// --------------------------------------------------------
 
 //--------------------------------------------------------
 //Helper function for count
@@ -209,7 +215,7 @@ void Game::CreateGeometry()
 		else {
 			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], blueGreen, fancyShader));
 		}
-		
+
 		pixelEntities[i]->GetTransform()->SetPosition(offset * i, -10.0f, 0.0f);
 
 		UVEntities.push_back(std::make_shared<GameEntity>(meshes[i], white, uvShader));
@@ -228,7 +234,7 @@ void Game::CreateGeometry()
 void Game::OnResize()
 {
 	//Get window size
-	for(int i =0; i < cameras.size(); i++)
+	for (int i = 0; i < cameras.size(); i++)
 		cameras[i]->UpdateProjectionMatrix(Window::AspectRatio());
 }
 
@@ -256,7 +262,7 @@ void Game::Update(float deltaTime, float totalTime)
 
 	//Animation
 	float speed = 0.707f;
-	float scale = (float)cos(totalTime) * 0.5f ;
+	float scale = (float)cos(totalTime) * 0.5f;
 	cameras[currentCamera]->Update(deltaTime);
 }
 
