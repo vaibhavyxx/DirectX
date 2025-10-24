@@ -30,6 +30,7 @@ public:
 	void CreatePixelBuffer();
 	void CreateCB();
 
-	void CopyBuffers(Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer, const void* srcData, size_t dataSize);
+	void FillAndBindCB(Microsoft::WRL::ComPtr<ID3D11Buffer> buffer, 
+		const void* data,int size, int slot, bool isVS);
 };
 

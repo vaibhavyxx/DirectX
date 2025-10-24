@@ -3,5 +3,6 @@
   Main.cpp
   Material.cpp
   Mesh.cpp
+  Shader.cpp
   Generating Code...
-  D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\Models\x64\Debug\D3D11Starter.exe
+  D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\Textures\x64\Debug\D3D11Starter.exe

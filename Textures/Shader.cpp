@@ -109,3 +109,21 @@ void Shader::CreateCB()
 
 	Graphics::Device->CreateBuffer(&cbDesc, 0, cb.GetAddressOf());
 }
+
+void Shader::FillAndBindCB(Microsoft::WRL::ComPtr<ID3D11Buffer> buffer, const void* data, int size, int slot, bool isVS)
+{
+	// Copy this data to the constant buffer we intend to use
+	D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
+	Graphics::Context->Map(buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
+
+	// Straight memcpy() into the resource
+	memcpy(mappedBuffer.pData, data, size);
+
+	// Unmap so the GPU can once again use the buffer
+	Graphics::Context->Unmap(buffer.Get(), 0);
+
+	if(isVS)
+		Graphics::Context->VSSetConstantBuffers(slot, 1, buffer.GetAddressOf());
+	else
+		Graphics::Context->PSSetConstantBuffers(0, 1, buffer.GetAddressOf());;
+}

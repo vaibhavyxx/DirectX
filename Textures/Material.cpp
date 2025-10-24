@@ -49,34 +49,11 @@ void Material::MaterialSetup(std::shared_ptr<Transform> transform, std::shared_p
 	vsData.viewMatrix = cam->GetView();
 	vsData.projectionMatrix = cam->GetProjection();
 	
-	//if (hasColor) 
 	PixelStruct pixelData = {};
 	pixelData.colorTint = colorTint;
 	pixelData.time = time;
-	{
-		// Copy this data to the constant buffer we intend to use
-		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
-		Graphics::Context->Map(this->shader->GetCB().Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
-
-		// Straight memcpy() into the resource
-		memcpy(mappedBuffer.pData, &vsData, sizeof(vsData));
-
-		// Unmap so the GPU can once again use the buffer
-		Graphics::Context->Unmap(this->shader->GetCB().Get(), 0);
-		Graphics::Context->VSSetConstantBuffers(0, 1, this->shader->GetCB().GetAddressOf());
-	}
-	{
-		//Copying to pixel buffer
-		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
-		Graphics::Context->Map(this->shader->GetPixelBuffer().Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
-
-		// Straight memcpy() into the resource
-		memcpy(mappedBuffer.pData, &pixelData, sizeof(pixelData));
-
-		// Unmap so the GPU can once again use the buffer
-		Graphics::Context->Unmap(this->shader->GetPixelBuffer().Get(), 0);
-		Graphics::Context->PSSetConstantBuffers(0, 1, this->shader->GetPixelBuffer().GetAddressOf());
-	}
+	this->shader->FillAndBindCB(this->shader->GetCB(), &vsData, sizeof(vsData), 0, true);
+	this->shader->FillAndBindCB(this->shader->GetPixelBuffer(), &pixelData, sizeof(pixelData), 0, false);
 }
 
 void Material::SetTime(float value)
