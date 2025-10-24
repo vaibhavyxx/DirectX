@@ -2,6 +2,8 @@ cbuffer ExternalData : register(b0)
 {
     float4 colorTint;
 }
+Texture2D SurfaceColor		: register(t0);
+SamplerState BasicSampler	: register(s0);
 
 // Struct representing the data we expect to receive from earlier pipeline stages
 // - Should match the output of our corresponding vertex shader

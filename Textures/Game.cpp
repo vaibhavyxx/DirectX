@@ -49,8 +49,14 @@ CreateWICTextureFromFile(
 	0, 
 	srvWater.GetAddressOf()); 
 //Calls PS Set Shader Resources
-
-//Graphics::Device->CreateSamplerState(samplerState);
+D3D11_SAMPLER_DESC sampDesc = {};
+sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+sampDesc.MaxAnisotropy = 16;
+sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+Graphics::Device->CreateSamplerState(&sampDesc, samplerState.GetAddressOf());
 
 pixelShader = std::make_shared<Shader>();
 uvShader = std::make_shared<Shader>();
@@ -60,22 +66,18 @@ fancyShader = std::make_shared<Shader>();
 pixelShader->LoadVertexShader();
 pixelShader->LoadPixelShader("PixelShader.cso");
 pixelShader->CreatePixelBuffer();
-//pixelShader->CreateCB();
 
 uvShader->LoadVertexShader();
 uvShader->LoadPixelShader("DebugUVPS.cso");
 uvShader->CreatePixelBuffer();
-//uvShader->CreateCB();
 
 normalShader->LoadVertexShader();
 normalShader->LoadPixelShader("DebugNormalsPS.cso");
 normalShader->CreatePixelBuffer();
-//normalShader->CreateCB();
 
 fancyShader->LoadVertexShader();
 fancyShader->LoadPixelShader("CustomPS.cso");
 fancyShader->CreatePixelBuffer();
-//fancyShader->CreateCB();
 
 Initialize();
 CreateGeometry();
