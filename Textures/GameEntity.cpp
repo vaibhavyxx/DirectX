@@ -1,0 +1,38 @@
+#include "GameEntity.h"
+#include "Mesh.h"
+#include "Transform.h"
+#include <d3d11.h>
+#include <wrl/client.h>
+#include <memory>
+#include "Vertex.h"
+#include <DirectXMath.h>
+#include <iostream>
+#include "Camera.h"
+#include "Graphics.h"
+#include "Shader.h"
+
+GameEntity::GameEntity(std::shared_ptr<Mesh> mesh,
+	std::shared_ptr <Material> material, std::shared_ptr<Shader> shader)
+{
+	this->mesh = mesh;
+	this->material = material;
+	this->shader = shader;
+	transform = std::make_shared<Transform>();
+}
+
+std::shared_ptr<Mesh> GameEntity::GetMesh() {
+	return mesh;
+}
+std::shared_ptr<Transform> GameEntity::GetTransform() {
+	return transform;
+}
+void GameEntity::Update(float deltaTime, float time) {
+	material->SetTime(time);
+}
+
+void GameEntity::Draw(std::shared_ptr<Camera> cam) 
+{
+	shader->Setup();
+	material->MaterialSetup(transform, cam);
+	mesh->Draw();
+}

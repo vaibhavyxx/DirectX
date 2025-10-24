@@ -1,0 +1,8 @@
+﻿  Game.cpp
+     Creating library C:\Users\vaibh\Documents\git\ggp-hws\Models\x64\Release\D3D11Starter.lib and object C:\Users\vaibh\Documents\git\ggp-hws\Models\x64\Release\D3D11Starter.exp
+  Generating code
+  2 of 3011 functions (<0.1%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    38 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\Models\x64\Release\D3D11Starter.exe
