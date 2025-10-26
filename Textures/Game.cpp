@@ -38,7 +38,7 @@ Game::Game()
 DirectX:CreateWICTextureFromFile(
 	Graphics::Device.Get(), // Device for resource creation
 	Graphics::Context.Get(), // Context for mipmap creation
-	FixPath(L"../../Assets/Materials/rock.png").c_str(), // Actual image file
+	FixPath(L"../../Assets/Materials/crate.png").c_str(), // Actual image file
 	0, // ID3D11Texture2D pointer - unneeded
 	srvRock.GetAddressOf()); // SRV pointer – what we need
 
@@ -48,6 +48,14 @@ CreateWICTextureFromFile(
 	FixPath(L"../../Assets/Materials/water.jpg").c_str(),
 	0,
 	srvWater.GetAddressOf());
+
+CreateWICTextureFromFile(
+	Graphics::Device.Get(),
+	Graphics::Context.Get(),
+	FixPath(L"../../Assets/Materials/danger.png").c_str(),
+	0,
+	srvOverlay.GetAddressOf());
+
 //Calls PS Set Shader Resources
 D3D11_SAMPLER_DESC sampDesc = {};
 sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -57,10 +65,11 @@ sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
 sampDesc.MaxAnisotropy = 16;
 sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 Graphics::Device->CreateSamplerState(&sampDesc, samplerState.GetAddressOf());
+Graphics::Device->CreateSamplerState(&sampDesc, samplerStateOverlay.GetAddressOf());
 
 pixelShader = std::make_shared<Shader>();
 uvShader = std::make_shared<Shader>();
-normalShader = std::make_shared<Shader>();
+combineShader = std::make_shared<Shader>();
 fancyShader = std::make_shared<Shader>();
 
 pixelShader->LoadVertexShader();
@@ -68,12 +77,12 @@ pixelShader->LoadPixelShader("PixelShader.cso");
 pixelShader->CreatePixelBuffer();
 
 uvShader->LoadVertexShader();
-uvShader->LoadPixelShader("DebugUVPS.cso");
+uvShader->LoadPixelShader("PixelShader.cso");
 uvShader->CreatePixelBuffer();
 
-normalShader->LoadVertexShader();
-normalShader->LoadPixelShader("DebugNormalsPS.cso");
-normalShader->CreatePixelBuffer();
+combineShader->LoadVertexShader();
+combineShader->LoadPixelShader("CombineShader.cso");
+combineShader->CreatePixelBuffer();
 
 fancyShader->LoadVertexShader();
 fancyShader->LoadPixelShader("CustomPS.cso");
@@ -81,10 +90,6 @@ fancyShader->CreatePixelBuffer();
 
 Initialize();
 CreateGeometry();
-
-//testing
-Graphics::Context->PSSetShaderResources(0, 1, srvRock.GetAddressOf());
-Graphics::Context->PSSetSamplers(0, 1, samplerState.GetAddressOf());
 
 }
 
@@ -187,27 +192,22 @@ std::vector<unsigned int> Game::GenerateIndices(int sides) {
 void Game::CreateGeometry()
 {
 	std::shared_ptr<Material> white = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
-	std::shared_ptr<Material> red = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f));
-	std::shared_ptr<Material> blueGreen = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f));
+	std::shared_ptr<Material> red = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 0.592f, 0.588f, 0.80f));
+	std::shared_ptr<Material> blueGreen = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f));
 	std::shared_ptr<Material> purple = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f));
+	materials = { white, red, blueGreen, purple, white };
 
-	//Setting up materials SRV
-	white->AddTextureSRV(0, srvRock);
-	red->AddTextureSRV(0, srvRock);
-	blueGreen->AddTextureSRV(0, srvWater);
-	purple->AddTextureSRV(0, srvWater);
+	for (int i = 0; i < 5; i++) {
+		if (i < 2)
+			materials[i]->AddTextureSRV(0, srvWater);
+		else
+			materials[i]->AddTextureSRV(0, srvRock);
 
-	//Setting up sample shaders
-	white->AddSampler(0, samplerState);
-	red->AddSampler(0, samplerState);
-	blueGreen->AddSampler(0, samplerState);
-	purple->AddSampler(0, samplerState);
-
-	//Binding materials
-	white->BindTexturesAndSamplers();
-	red->BindTexturesAndSamplers();
-	blueGreen->BindTexturesAndSamplers();
-	purple->BindTexturesAndSamplers();
+		materials[i]->AddTextureSRV(1, srvOverlay);		//additional texture for combine.cso
+		materials[i]->AddSampler(0, samplerState);
+		materials[i]->AddSampler(1, samplerStateOverlay);
+		materials[i]->BindTexturesAndSamplers();
+	}
 
 	std::shared_ptr<Mesh> sphere = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/sphere.obj").c_str());
 	std::shared_ptr<Mesh> cube = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/cube.obj").c_str());
@@ -227,25 +227,19 @@ void Game::CreateGeometry()
 
 	float offset = 3.0f;
 	for (int i = 0; i < meshes.size(); i++) {
-		if (i == 0 || i == 6) {
-			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], white, pixelShader));
-		}
-		else if (i == 1 || i == 5) {
-			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], red, pixelShader));
-		}
-		else if (i == 2 || i == 4) {
-			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], white, pixelShader));
+		if (i < 4) {
+			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[3], pixelShader));
 		}
 		else {
-			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], blueGreen, fancyShader));
+			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[2], fancyShader));
 		}
 
 		pixelEntities[i]->GetTransform()->SetPosition(offset * i, -10.0f, 0.0f);
 
-		UVEntities.push_back(std::make_shared<GameEntity>(meshes[i], white, uvShader));
+		UVEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[1], uvShader));
 		UVEntities[i]->GetTransform()->MoveAbsolute(offset * i, -5.0f, 0.0f);
 
-		normalEntities.push_back(std::make_shared<GameEntity>(meshes[i], white, normalShader));
+		normalEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[0], combineShader));
 		normalEntities[i]->GetTransform()->MoveAbsolute(offset * i, 0.0f, 0.0f);
 	}
 }
