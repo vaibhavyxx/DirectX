@@ -1,6 +1,7 @@
 cbuffer ExternalData : register(b0)
 {
     float4 colorTint;
+	float time;
 }
 Texture2D SurfaceTexture	: register(t0);
 SamplerState BasicSampler	: register(s0);
@@ -38,6 +39,9 @@ float4 main(VertexToPixel input) : SV_TARGET
 	// - This color (like most values passing through the rasterizer) is 
 	//   interpolated for each pixel between the corresponding vertices 
 	//   of the triangle we're rendering
-    float4 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv);
-    return surfaceColor * colorTint;
+	float scale = 5;
+	float2 offset = float2(1.0f, 1.0f);
+	float2 uvScale = (input.uv * scale) + (offset * time);    
+	float4 surfaceColor = SurfaceTexture.Sample(BasicSampler, uvScale);
+	return surfaceColor * colorTint;
 }

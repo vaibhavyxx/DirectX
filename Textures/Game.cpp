@@ -234,7 +234,7 @@ void Game::CreateGeometry()
 			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], red, pixelShader));
 		}
 		else if (i == 2 || i == 4) {
-			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], purple, pixelShader));
+			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], white, pixelShader));
 		}
 		else {
 			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], blueGreen, fancyShader));
