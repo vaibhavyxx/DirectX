@@ -186,9 +186,6 @@ std::vector<unsigned int> Game::GenerateIndices(int sides) {
 // --------------------------------------------------------
 void Game::CreateGeometry()
 {
-	//Pixel -----------------------------------------------
-	//XMFLOAT4 white = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-
 	std::shared_ptr<Material> white = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
 	std::shared_ptr<Material> red = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f));
 	std::shared_ptr<Material> blueGreen = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f));
