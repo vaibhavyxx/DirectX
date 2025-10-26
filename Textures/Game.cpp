@@ -76,9 +76,9 @@ pixelShader->LoadVertexShader();
 pixelShader->LoadPixelShader("PixelShader.cso");
 pixelShader->CreatePixelBuffer();
 
-uvShader->LoadVertexShader();
+/*uvShader->LoadVertexShader();
 uvShader->LoadPixelShader("PixelShader.cso");
-uvShader->CreatePixelBuffer();
+uvShader->CreatePixelBuffer();*/
 
 combineShader->LoadVertexShader();
 combineShader->LoadPixelShader("CombineShader.cso");
@@ -216,31 +216,21 @@ void Game::CreateGeometry()
 	std::shared_ptr<Mesh> quad = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/quad.obj").c_str());
 	std::shared_ptr<Mesh> quadDoubleSided = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/quad_double_sided.obj").c_str());
 	std::shared_ptr<Mesh> torus = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/torus.obj").c_str());
-
-	meshes.push_back(sphere);
-	meshes.push_back(cube);
-	meshes.push_back(helix);
-	meshes.push_back(cylinder);
-	meshes.push_back(quad);
-	meshes.push_back(quadDoubleSided);
-	meshes.push_back(torus);
-
+	meshes = { sphere, cube, helix, cylinder, quad, quadDoubleSided, torus };
+	
 	float offset = 3.0f;
 	for (int i = 0; i < meshes.size(); i++) {
-		if (i < 4) {
-			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[3], pixelShader));
+		int materialsCount = i % 5;
+		if (i < 2) {
+			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[materialsCount], pixelShader));
 		}
+		else if(i >= 2 && i <= 4)
+			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[materialsCount], combineShader));
 		else {
-			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[2], fancyShader));
+			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[materialsCount], fancyShader));
 		}
 
-		pixelEntities[i]->GetTransform()->SetPosition(offset * i, -10.0f, 0.0f);
-
-		UVEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[1], uvShader));
-		UVEntities[i]->GetTransform()->MoveAbsolute(offset * i, -5.0f, 0.0f);
-
-		normalEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[0], combineShader));
-		normalEntities[i]->GetTransform()->MoveAbsolute(offset * i, 0.0f, 0.0f);
+		pixelEntities[i]->GetTransform()->SetPosition(offset * i, 0.0f, 0.0f);
 	}
 }
 
@@ -259,21 +249,21 @@ void Game::OnResize()
 // --------------------------------------------------------
 // Update your game here - user input, move objects, AI, etc.
 // --------------------------------------------------------
-float angleOffset = 0.707f;
+//float angleOffset = 0.707f;
 void Game::Update(float deltaTime, float totalTime)
 {
 	FrameReset(deltaTime);
 	BuildUI();
 
-	for (int i = 0; i < pixelEntities.size(); i++) {
+	/*for (int i = 0; i < pixelEntities.size(); i++) {
 		pixelEntities[i]->Update(deltaTime, totalTime);
-		normalEntities[i]->Update(deltaTime, totalTime);
-		UVEntities[i]->Update(deltaTime, totalTime);
+		/*normalEntities[i]->Update(deltaTime, totalTime);
+		UVEntities[i]->Update(deltaTime, totalTime);*/
 
-		pixelEntities[i]->GetTransform()->SetRotation(0.0f, angleOffset * totalTime, 0.0f);
-		normalEntities[i]->GetTransform()->SetRotation(0.0f, angleOffset * totalTime, 0.0f);
-		UVEntities[i]->GetTransform()->SetRotation(0.0f, angleOffset * totalTime, 0.0f);
-	}
+		//pixelEntities[i]->GetTransform()->SetRotation(0.0f, 0.707f * totalTime, 0.0f);
+		/*normalEntities[i]->GetTransform()->SetRotation(0.0f, angleOffset * totalTime, 0.0f);
+		UVEntities[i]->GetTransform()->SetRotation(0.0f, angleOffset * totalTime, 0.0f);*/
+	//}
 	// Example input checking: Quit if the escape key is pressed
 	if (Input::KeyDown(VK_ESCAPE))
 		Window::Quit();
@@ -298,8 +288,8 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	for (int i = 0; i < pixelEntities.size(); i++) {
 		pixelEntities[i]->Draw(cameras[currentCamera]);
-		UVEntities[i]->Draw(cameras[currentCamera]);
-		normalEntities[i]->Draw(cameras[currentCamera]);
+		//UVEntities[i]->Draw(cameras[currentCamera]);
+		//normalEntities[i]->Draw(cameras[currentCamera]);
 	}
 
 	// Frame END
@@ -381,6 +371,7 @@ void Game::BuildUI() {
 		if (ImGui::Button("Camera 2")) currentCamera = 1;
 		if (ImGui::Button("Camera 3")) currentCamera = 2;
 	}
+
 
 	ImGui::End();
 }
