@@ -25,7 +25,6 @@ public:
 	void Draw();
 	int indicesCount;
 	int verticesCount;
-	static void ConstBuffUI();
 	~Mesh();
 	void CreateBuffers(Vertex* vertArray, size_t numVerts, unsigned int* indexArray, size_t numIndices);
 };

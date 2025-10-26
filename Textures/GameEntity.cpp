@@ -33,6 +33,8 @@ void GameEntity::Update(float deltaTime, float time) {
 void GameEntity::Draw(std::shared_ptr<Camera> cam) 
 {
 	shader->Setup();
+	material->BindTexturesAndSamplers();
+
 	VertexStruct vsData = {};
 	vsData.worldMatrix = transform->GetWorldMatrix();
 	vsData.viewMatrix = cam->GetView();

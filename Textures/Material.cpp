@@ -53,6 +53,28 @@ void Material::SetTime(float value)
 	this->time = value;
 }
 
+void Material::AddTextureSRV(unsigned int slot, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv)
+{
+	textureSRVs[slot] = srv;
+}
+
+void Material::AddSampler(unsigned int slot, Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler)
+{
+	samplers[slot] = sampler;
+}
+
+void Material::BindTexturesAndSamplers()
+{
+	for (int i = 0; i < 128; i++) {
+		Graphics::Context->PSSetShaderResources(i, 1, textureSRVs[i].GetAddressOf());
+	}
+
+	for (int i = 0; i < 16; i++) {
+		Graphics::Context->PSSetSamplers(i, 1, samplers[i].GetAddressOf());
+	}
+}
+
+
 XMFLOAT4 Material::GetColorTint()
 {
 	return colorTint;

@@ -43,11 +43,11 @@ DirectX:CreateWICTextureFromFile(
 	srvRock.GetAddressOf()); // SRV pointer – what we need
 
 CreateWICTextureFromFile(
-	Graphics::Device.Get(), 
+	Graphics::Device.Get(),
 	Graphics::Context.Get(),
-	FixPath(L"../../Assets/Materials/water.jpg").c_str(), 
-	0, 
-	srvWater.GetAddressOf()); 
+	FixPath(L"../../Assets/Materials/water.jpg").c_str(),
+	0,
+	srvWater.GetAddressOf());
 //Calls PS Set Shader Resources
 D3D11_SAMPLER_DESC sampDesc = {};
 sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -81,6 +81,10 @@ fancyShader->CreatePixelBuffer();
 
 Initialize();
 CreateGeometry();
+
+//testing
+Graphics::Context->PSSetShaderResources(0, 1, srvRock.GetAddressOf());
+Graphics::Context->PSSetSamplers(0, 1, samplerState.GetAddressOf());
 
 }
 
@@ -189,6 +193,24 @@ void Game::CreateGeometry()
 	std::shared_ptr<Material> red = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f));
 	std::shared_ptr<Material> blueGreen = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f));
 	std::shared_ptr<Material> purple = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f));
+
+	//Setting up materials SRV
+	white->AddTextureSRV(0, srvRock);
+	red->AddTextureSRV(0, srvRock);
+	blueGreen->AddTextureSRV(0, srvWater);
+	purple->AddTextureSRV(0, srvWater);
+
+	//Setting up sample shaders
+	white->AddSampler(0, samplerState);
+	red->AddSampler(0, samplerState);
+	blueGreen->AddSampler(0, samplerState);
+	purple->AddSampler(0, samplerState);
+
+	//Binding materials
+	white->BindTexturesAndSamplers();
+	red->BindTexturesAndSamplers();
+	blueGreen->BindTexturesAndSamplers();
+	purple->BindTexturesAndSamplers();
 
 	std::shared_ptr<Mesh> sphere = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/sphere.obj").c_str());
 	std::shared_ptr<Mesh> cube = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/cube.obj").c_str());

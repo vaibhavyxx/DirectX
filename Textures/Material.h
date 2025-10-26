@@ -18,6 +18,9 @@ private:
 	//ID3DBlob* pixelShaderBlob;
 	std::shared_ptr<Shader> shader;
 	float time;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> textureSRVs[128];
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplers[16];
+
 
 public:
 	Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color);
@@ -31,6 +34,10 @@ public:
 
 	float GetTime();
 	void SetTime(float value);
+
+	void AddTextureSRV(unsigned int slot, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv);
+	void AddSampler(unsigned int slot, Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler);
+	void BindTexturesAndSamplers();
 
 	//Getters
 	XMFLOAT4 GetColorTint();

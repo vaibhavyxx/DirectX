@@ -288,8 +288,3 @@ void Mesh::Draw() {
 			0);					// Offset to add to each index when looking up vertices
 	}
 }
-
-void Mesh::ConstBuffUI() {
-	//ImGui::SliderFloat3("Offset", &cbData.offset.x, -1.0f, 1.0f);
-	//ImGui::ColorEdit4("Color Tint", &cbData.colorTint.x);
-}
