@@ -14,8 +14,6 @@ private:
 	XMFLOAT4 colorTint;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader;
-	//ID3DBlob* vertexShaderBlob;
-	//ID3DBlob* pixelShaderBlob;
 	std::shared_ptr<Shader> shader;
 	float time;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> textureSRVs[128];
@@ -43,5 +41,9 @@ public:
 	XMFLOAT4 GetColorTint();
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> GetVertexShader;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> GetPixelShader;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetShaderResourceView();
+
+	void UI();
+
 };
 

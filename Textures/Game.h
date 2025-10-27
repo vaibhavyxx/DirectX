@@ -34,7 +34,7 @@ private:
 	void BuildUI();
 	void AppDetails();
 	void MeshDetails(std::shared_ptr<Mesh> mesh, const char* name);
-	void EntityValues(std::shared_ptr<Transform> entity, unsigned int i);
+	void EntityValues(std::shared_ptr<GameEntity> entity, unsigned int i);
 
 	template<typename T, size_t N>
 	int ArrayCount(const T (&array)[N]);

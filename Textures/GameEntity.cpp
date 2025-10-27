@@ -26,6 +26,10 @@ std::shared_ptr<Mesh> GameEntity::GetMesh() {
 std::shared_ptr<Transform> GameEntity::GetTransform() {
 	return transform;
 }
+std::shared_ptr<Material> GameEntity::GetMaterial()
+{
+	return material;
+}
 void GameEntity::Update(float deltaTime, float time) {
 	material->SetTime(time);
 }

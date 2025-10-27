@@ -14,6 +14,10 @@
 #include "Shader.h"
 #include <d3d11shadertracing.h>
 
+#include "imgui.h"
+#include "imgui_impl_dx11.h"
+#include "imgui_impl_win32.h"
+
 
 Material::Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color)
 {
@@ -78,4 +82,17 @@ void Material::BindTexturesAndSamplers()
 XMFLOAT4 Material::GetColorTint()
 {
 	return colorTint;
+}
+
+Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> Material::GetShaderResourceView()
+{
+	if (textureSRVs[0] == NULL)
+		return NULL;
+
+	return textureSRVs[0];
+}
+
+void Material::UI()
+{
+	//ImGui::Image((void*)textureSRVs[0]().Get(), ImVec2(50.0f, 50.0f));
 }

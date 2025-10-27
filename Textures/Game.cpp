@@ -253,24 +253,10 @@ void Game::OnResize()
 void Game::Update(float deltaTime, float totalTime)
 {
 	FrameReset(deltaTime);
-	BuildUI();
-
-	/*for (int i = 0; i < pixelEntities.size(); i++) {
-		pixelEntities[i]->Update(deltaTime, totalTime);
-		/*normalEntities[i]->Update(deltaTime, totalTime);
-		UVEntities[i]->Update(deltaTime, totalTime);*/
-
-		//pixelEntities[i]->GetTransform()->SetRotation(0.0f, 0.707f * totalTime, 0.0f);
-		/*normalEntities[i]->GetTransform()->SetRotation(0.0f, angleOffset * totalTime, 0.0f);
-		UVEntities[i]->GetTransform()->SetRotation(0.0f, angleOffset * totalTime, 0.0f);*/
-	//}
-	// Example input checking: Quit if the escape key is pressed
+	
 	if (Input::KeyDown(VK_ESCAPE))
 		Window::Quit();
 
-	//Animation
-	float speed = 0.707f;
-	float scale = (float)cos(totalTime) * 0.5f;
 	cameras[currentCamera]->Update(deltaTime);
 }
 
@@ -285,11 +271,9 @@ void Game::Draw(float deltaTime, float totalTime)
 		Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 	}
-
+	BuildUI();
 	for (int i = 0; i < pixelEntities.size(); i++) {
 		pixelEntities[i]->Draw(cameras[currentCamera]);
-		//UVEntities[i]->Draw(cameras[currentCamera]);
-		//normalEntities[i]->Draw(cameras[currentCamera]);
 	}
 
 	// Frame END
@@ -335,8 +319,7 @@ void Game::BuildUI() {
 
 	for (unsigned int i = 0; i < pixelEntities.size(); i++)
 	{
-		std::shared_ptr<Transform> transform = pixelEntities[i]->GetTransform();
-		EntityValues(transform, i);
+		EntityValues(pixelEntities[i], i);
 	}
 
 	if (ImGui::CollapsingHeader("Camera"))
@@ -344,21 +327,6 @@ void Game::BuildUI() {
 		DirectX::XMFLOAT4X4 view = cameras[currentCamera]->GetView();
 		DirectX::XMFLOAT4X4 proj = cameras[currentCamera]->GetProjection();
 
-		// Display view matrix
-		ImGui::Text("View Matrix:");
-		for (int i = 0; i < 4; i++)
-		{
-			ImGui::Text("%.2f %.2f %.2f %.2f",
-				view.m[i][0], view.m[i][1], view.m[i][2], view.m[i][3]);
-		}
-
-		// Display projection matrix
-		ImGui::Text("Projection Matrix:");
-		for (int i = 0; i < 4; i++)
-		{
-			ImGui::Text("%.2f %.2f %.2f %.2f",
-				proj.m[i][0], proj.m[i][1], proj.m[i][2], proj.m[i][3]);
-		}
 		DirectX::XMFLOAT3 pos = cameras[currentCamera]->GetTransform()->GetPosition();
 		float fov = cameras[currentCamera]->GetFOV();
 		bool orthographic = cameras[currentCamera]->IsOrthographic();
@@ -420,28 +388,37 @@ void Game::MeshDetails(std::shared_ptr<Mesh> mesh, const char* name) {
 	}
 }
 
-void Game::EntityValues(std::shared_ptr<Transform> entity, unsigned int i)
+void Game::EntityValues(std::shared_ptr<GameEntity> entity, unsigned int i)
 {
 	std::string title = "Entity " + std::to_string(i + 1) + "##" + std::to_string(i);
 
 	if (ImGui::CollapsingHeader(title.c_str()))
 	{
-		DirectX::XMFLOAT3 pos = entity->GetPosition();
-		DirectX::XMFLOAT3 rot = entity->GetPitchYawRoll();
-		DirectX::XMFLOAT3 scale = entity->GetScale();
+		DirectX::XMFLOAT3 pos = entity->GetTransform()->GetPosition();
+		DirectX::XMFLOAT3 rot = entity->GetTransform()->GetPitchYawRoll();
+		DirectX::XMFLOAT3 scale = entity->GetTransform()->GetScale();
 
 		std::string labelPos = "Position##" + std::to_string(i);
 		std::string labelRot = "Rotation##" + std::to_string(i);
 		std::string labelScale = "Scale##" + std::to_string(i);
 
 		if (ImGui::DragFloat3(labelPos.c_str(), &pos.x, 0.01f, -1.0f, 1.0f))
-			entity->SetPosition(pos);
+			entity->GetTransform()->SetPosition(pos);
 
 		if (ImGui::DragFloat3(labelRot.c_str(), &rot.x, 0.01f, -XM_PI, XM_PI))
-			entity->SetRotation(rot);
+			entity->GetTransform()->SetRotation(rot);
 
 		if (ImGui::DragFloat3(labelScale.c_str(), &scale.x, 0.01f, 0.1f, 10.0f))
-			entity->SetScale(scale);
+			entity->GetTransform()->SetScale(scale);
+
+		std::shared_ptr<Material> mat = entity->GetMaterial();
+
+		XMFLOAT4 tint = mat->GetColorTint();
+		if (ImGui::ColorEdit4("Color Tint", &tint.x))
+			mat->SetColorTint(tint);
+
+		void* matSRV = mat->GetShaderResourceView().Get();
+		ImGui::Image(matSRV, ImVec2(50.0f, 50.0f));
 	}
 }
 
