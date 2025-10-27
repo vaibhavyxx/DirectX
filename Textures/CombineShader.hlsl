@@ -43,9 +43,9 @@ float4 main(VertexToPixel input) : SV_TARGET
 	// - This color (like most values passing through the rasterizer) is 
 	//   interpolated for each pixel between the corresponding vertices 
 	//   of the triangle we're rendering
-	
-	float2 uvScale = input.uv * scale + offset;    
-	float4 surfaceColor = SurfaceTexture.Sample(BasicSampler, uvScale);
-	float4 foregroundColor = ForegroundTexture.Sample(ForegroundSampler, uvScale);
+
+	float2 uv2 = (input.uv * offset )+ scale;    
+	float4 surfaceColor = SurfaceTexture.Sample(BasicSampler, uv2);
+	float4 foregroundColor = ForegroundTexture.Sample(ForegroundSampler, uv2);
 	return (surfaceColor + foregroundColor) * colorTint;
 }

@@ -9,10 +9,9 @@ struct  VertexStruct
 };
 
 struct PixelStruct {
-	DirectX::XMFLOAT4 colorTint;
-	float time;                  
-	float pad1[3];               
+	DirectX::XMFLOAT4 colorTint;            
 	DirectX::XMFLOAT2 offset;    
 	DirectX::XMFLOAT2 uvScale;   
-	
+	float time;
+	float pad1[3];
 };
