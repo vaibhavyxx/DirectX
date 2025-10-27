@@ -76,10 +76,6 @@ pixelShader->LoadVertexShader();
 pixelShader->LoadPixelShader("PixelShader.cso");
 pixelShader->CreatePixelBuffer();
 
-/*uvShader->LoadVertexShader();
-uvShader->LoadPixelShader("PixelShader.cso");
-uvShader->CreatePixelBuffer();*/
-
 combineShader->LoadVertexShader();
 combineShader->LoadPixelShader("CombineShader.cso");
 combineShader->CreatePixelBuffer();
@@ -217,14 +213,14 @@ void Game::CreateGeometry()
 	std::shared_ptr<Mesh> quadDoubleSided = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/quad_double_sided.obj").c_str());
 	std::shared_ptr<Mesh> torus = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/torus.obj").c_str());
 	meshes = { sphere, cube, helix, cylinder, quad, quadDoubleSided, torus };
-	
+
 	float offset = 3.0f;
 	for (int i = 0; i < meshes.size(); i++) {
 		int materialsCount = i % 5;
 		if (i < 2) {
 			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[materialsCount], pixelShader));
 		}
-		else if(i >= 2 && i <= 4)
+		else if (i >= 2 && i <= 4)
 			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[materialsCount], combineShader));
 		else {
 			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[materialsCount], fancyShader));
@@ -253,7 +249,7 @@ void Game::OnResize()
 void Game::Update(float deltaTime, float totalTime)
 {
 	FrameReset(deltaTime);
-	
+
 	if (Input::KeyDown(VK_ESCAPE))
 		Window::Quit();
 
@@ -397,10 +393,14 @@ void Game::EntityValues(std::shared_ptr<GameEntity> entity, unsigned int i)
 		DirectX::XMFLOAT3 pos = entity->GetTransform()->GetPosition();
 		DirectX::XMFLOAT3 rot = entity->GetTransform()->GetPitchYawRoll();
 		DirectX::XMFLOAT3 scale = entity->GetTransform()->GetScale();
+		DirectX::XMFLOAT2 offset = entity->GetMaterial()->GetUVOffset();
+		DirectX::XMFLOAT2 matScale = entity->GetMaterial()->GetScale();
 
 		std::string labelPos = "Position##" + std::to_string(i);
 		std::string labelRot = "Rotation##" + std::to_string(i);
 		std::string labelScale = "Scale##" + std::to_string(i);
+		std::string labelOffset = "Offset##" + std::to_string(i);
+		std::string labelMatScale = "Material Scale##" + std::to_string(i);
 
 		if (ImGui::DragFloat3(labelPos.c_str(), &pos.x, 0.01f, -1.0f, 1.0f))
 			entity->GetTransform()->SetPosition(pos);
@@ -413,12 +413,24 @@ void Game::EntityValues(std::shared_ptr<GameEntity> entity, unsigned int i)
 
 		std::shared_ptr<Material> mat = entity->GetMaterial();
 
+		std::string imageTitle = "Color Tint " + std::to_string(i + 1) + "##" + std::to_string(i);
 		XMFLOAT4 tint = mat->GetColorTint();
-		if (ImGui::ColorEdit4("Color Tint", &tint.x))
-			mat->SetColorTint(tint);
+		if (ImGui::ColorEdit4(imageTitle.c_str(), &tint.x))
+			entity->GetMaterial()->SetColorTint(tint);
 
-		void* matSRV = mat->GetShaderResourceView().Get();
+		if (ImGui::DragFloat2(labelOffset.c_str(), &offset.x, 0.01f, -1.0f, 1.0f))
+			entity->GetMaterial()->SetUVOffset(offset);
+
+		if (ImGui::DragFloat2(labelMatScale.c_str(), &matScale.x, 0.01f, 0.0f, 3.0f))
+			entity->GetMaterial()->SetScale(matScale);
+
+		void* matSRV = mat->GetShaderResourceView(0).Get();
 		ImGui::Image(matSRV, ImVec2(50.0f, 50.0f));
+
+		if (i >= 2 && i <= 4) {
+			void* matSRV2 = mat->GetShaderResourceView(1).Get();
+			ImGui::Image(matSRV2, ImVec2(50.0f, 50.0f));
+		}
 	}
 }
 

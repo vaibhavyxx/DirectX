@@ -26,6 +26,8 @@ Material::Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color)
 	this->pixelShader = shader->GetPixelShader();
 	this->colorTint = color;
 	this->time = 0.0f;
+	this->scale = XMFLOAT2(1.0f, 1.0f);
+	this->uvOffset = XMFLOAT2(0.0f, 0.0f);
 }
 
 void Material::SetColorTint(int r, int g, int b, int a)
@@ -57,14 +59,26 @@ void Material::SetTime(float value)
 	this->time = value;
 }
 
+XMFLOAT2 Material::GetUVOffset()
+{
+	return uvOffset;
+}
+
+void Material::SetUVOffset(XMFLOAT2 value)
+{
+	this->uvOffset = value;
+}
+
 void Material::AddTextureSRV(unsigned int slot, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv)
 {
 	textureSRVs[slot] = srv;
+	textureCounter++;
 }
 
 void Material::AddSampler(unsigned int slot, Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler)
 {
 	samplers[slot] = sampler;
+	samplerCounter++;
 }
 
 void Material::BindTexturesAndSamplers()
@@ -78,21 +92,38 @@ void Material::BindTexturesAndSamplers()
 	}
 }
 
-
 XMFLOAT4 Material::GetColorTint()
 {
 	return colorTint;
 }
 
-Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> Material::GetShaderResourceView()
+Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> Material::GetShaderResourceView(int slot)
 {
-	if (textureSRVs[0] == NULL)
+	if (textureSRVs[slot] == NULL)
 		return NULL;
 
-	return textureSRVs[0];
+	return textureSRVs[slot];
 }
 
-void Material::UI()
+int Material::GetTextureCounter()
 {
-	//ImGui::Image((void*)textureSRVs[0]().Get(), ImVec2(50.0f, 50.0f));
+	return textureCounter;
 }
+
+int Material::GetSamplerCounter()
+{
+	return samplerCounter;
+}
+
+XMFLOAT2 Material::GetScale() {
+	return scale;
+}
+void Material::SetScale(XMFLOAT2 value) {
+	scale = value;
+}
+
+void Material::SetScale(float x, float y)
+{
+	SetScale(XMFLOAT2(x, y));
+}
+

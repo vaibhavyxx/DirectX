@@ -1,5 +1,6 @@
 #include "Transform.h"
 #include <DirectXMath.h>
+#include "Material.h"
 using namespace DirectX;
 
 Transform::Transform(): 

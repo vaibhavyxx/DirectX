@@ -47,7 +47,10 @@ void GameEntity::Draw(std::shared_ptr<Camera> cam)
 
 	PixelStruct pixelData = {};
 	pixelData.colorTint = material->GetColorTint();
+	pixelData.uvScale = material->GetScale();
+	pixelData.offset = material->GetUVOffset();
 	pixelData.time = material->GetTime();
+
 	Graphics::FillAndBindNextCB(&pixelData, sizeof(PixelStruct), D3D11_PIXEL_SHADER, 0);
 	mesh->Draw();
 }

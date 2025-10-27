@@ -1,6 +1,8 @@
 cbuffer ExternalData : register(b0)
 {
     float4 colorTint;
+    float2 scale;
+    float2 offset;
     float time;
 }
 
