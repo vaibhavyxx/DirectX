@@ -34,8 +34,8 @@ using namespace DirectX;
 // --------------------------------------------------------
 Game::Game()
 {
-	//Loads textures
-DirectX:CreateWICTextureFromFile(
+//Loads textures
+CreateWICTextureFromFile(
 	Graphics::Device.Get(), // Device for resource creation
 	Graphics::Context.Get(), // Context for mipmap creation
 	FixPath(L"../../Assets/Materials/crate.png").c_str(), // Actual image file

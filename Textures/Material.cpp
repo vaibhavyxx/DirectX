@@ -28,6 +28,8 @@ Material::Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color)
 	this->time = 0.0f;
 	this->scale = XMFLOAT2(1.0f, 1.0f);
 	this->uvOffset = XMFLOAT2(0.0f, 0.0f);
+	this->textureCounter = 0;
+	this->samplerCounter = 0;
 }
 
 void Material::SetColorTint(int r, int g, int b, int a)
