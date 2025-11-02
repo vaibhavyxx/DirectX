@@ -53,6 +53,7 @@ public:
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> GetVertexShader;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> GetPixelShader;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetShaderResourceView(int slot);
+	std::shared_ptr<Shader> GetShader();
 
 	int GetTextureCounter();
 	int GetSamplerCounter();

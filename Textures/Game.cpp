@@ -218,12 +218,12 @@ void Game::CreateGeometry()
 	for (int i = 0; i < meshes.size(); i++) {
 		int materialsCount = i % 5;
 		if (i < 2) {
-			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[materialsCount], pixelShader));
+			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[materialsCount]));
 		}
 		else if (i >= 2 && i <= 4)
-			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[materialsCount], combineShader));
+			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[materialsCount]));
 		else {
-			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[materialsCount], fancyShader));
+			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[materialsCount]));
 		}
 
 		pixelEntities[i]->GetTransform()->SetPosition(offset * i, 0.0f, 0.0f);

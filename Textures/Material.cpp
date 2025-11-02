@@ -107,6 +107,11 @@ Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> Material::GetShaderResourceView
 	return textureSRVs[slot];
 }
 
+std::shared_ptr<Shader> Material::GetShader()
+{
+	return this->shader;
+}
+
 int Material::GetTextureCounter()
 {
 	return textureCounter;

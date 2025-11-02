@@ -12,11 +12,10 @@
 #include "Shader.h"
 
 GameEntity::GameEntity(std::shared_ptr<Mesh> mesh,
-	std::shared_ptr <Material> material, std::shared_ptr<Shader> shader)
+	std::shared_ptr <Material> material)
 {
 	this->mesh = mesh;
 	this->material = material;
-	this->shader = shader;
 	transform = std::make_shared<Transform>();
 }
 
@@ -36,7 +35,7 @@ void GameEntity::Update(float deltaTime, float time) {
 
 void GameEntity::Draw(std::shared_ptr<Camera> cam) 
 {
-	shader->Setup();
+	material->GetShader()->Setup();
 	material->BindTexturesAndSamplers();
 
 	VertexStruct vsData = {};
