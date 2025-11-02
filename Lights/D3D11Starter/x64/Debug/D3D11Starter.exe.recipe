@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ProjectOutputs>
+    <ProjectOutput>
+      <FullPath>C:\Users\vaibh\Documents\git\ggp-hws\Textures\x64\Debug\D3D11Starter.exe</FullPath>
+    </ProjectOutput>
+  </ProjectOutputs>
+  <ContentFiles>
+    <ContentFile>
+      <FullPath>C:\Users\vaibh\Documents\git\ggp-hws\Textures\x64\Debug\CombineShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\vaibh\Documents\git\ggp-hws\Textures\x64\Debug\CustomPS.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\vaibh\Documents\git\ggp-hws\Textures\x64\Debug\DebugNormalsPS.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\vaibh\Documents\git\ggp-hws\Textures\x64\Debug\DebugUVPS.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\vaibh\Documents\git\ggp-hws\Textures\x64\Debug\PixelShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\vaibh\Documents\git\ggp-hws\Textures\x64\Debug\VertexShader.cso</FullPath>
+    </ContentFile>
+  </ContentFiles>
+  <SatelliteDlls />
+  <NonRecipeFileRefs />
+</Project>
