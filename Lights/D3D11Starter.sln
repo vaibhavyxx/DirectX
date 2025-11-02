@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		CustomPS.hlsl = CustomPS.hlsl
 		DebugNormalsPS.hlsl = DebugNormalsPS.hlsl
 		DebugUVPS.hlsl = DebugUVPS.hlsl
+		ShaderData.hlsli = ShaderData.hlsli
+		ShaderInfo.hlsl = ShaderInfo.hlsl
 	EndProjectSection
 EndProject
 Global
