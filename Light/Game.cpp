@@ -236,6 +236,7 @@ void Game::OnResize()
 // --------------------------------------------------------
 // Update your game here - user input, move objects, AI, etc.
 // --------------------------------------------------------
+float d = 0;
 //float angleOffset = 0.707f;
 void Game::Update(float deltaTime, float totalTime)
 {
@@ -243,7 +244,11 @@ void Game::Update(float deltaTime, float totalTime)
 
 	if (Input::KeyDown(VK_ESCAPE))
 		Window::Quit();
-
+	float speed = 0.5f;
+	d += speed * deltaTime;
+	for (int i = 0; i < pixelEntities.size(); i++) {
+		pixelEntities[i]->GetTransform()->SetRotation(d, d, 1.0f);
+	}
 	cameras[currentCamera]->Update(deltaTime);
 }
 

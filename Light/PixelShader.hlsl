@@ -15,6 +15,7 @@ SamplerState BasicSampler	: register(s0);
 
 float4 main(VertexToPixel input) : SV_TARGET
 {
+    return float4(input.normal, 1);
     //return float4(roughness.rrr, 1);
 	float2 uv2 = (input.uv * offset )+ scale;    
 	float4 surfaceColor = SurfaceTexture.Sample(BasicSampler, uv2);

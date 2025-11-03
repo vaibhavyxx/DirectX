@@ -6,6 +6,11 @@ struct  VertexStruct
 	DirectX::XMFLOAT4X4 worldMatrix;
 	DirectX::XMFLOAT4X4 viewMatrix;
 	DirectX::XMFLOAT4X4 projectionMatrix;
+	DirectX::XMFLOAT3 normal;
+	float pad;
+	DirectX::XMFLOAT3 worldPos;
+	float pad2;
+	DirectX::XMFLOAT4X4 worldInvTranspose;
 };
 
 struct PixelStruct {

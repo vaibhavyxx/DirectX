@@ -4,6 +4,11 @@ cbuffer ExternalData : register(b0)
     matrix world;
     matrix view;
     matrix projection;
+    float3 normal;
+    float pad;
+    float3 worldPos;
+    float pad2;
+    matrix worldInvTranspose;
 }
 
 // --------------------------------------------------------
@@ -22,6 +27,7 @@ VertexToPixel main( VertexShaderInput input )
     output.screenPosition = mul(wvp, float4(input.localPosition, 1.0f));
     
 	output.uv = input.uv;
-    output.normal = input.normal;
-	return output;
+    output.normal = mul((float3x3)worldInvTranspose, input.normal);
+    output.worldPos = mul(world, float4(input.localPosition, 1)).xyz;
+    return output;
 }
