@@ -69,8 +69,6 @@ Graphics::Device->CreateSamplerState(&sampDesc, samplerStateOverlay.GetAddressOf
 
 pixelShader = std::make_shared<Shader>();
 uvShader = std::make_shared<Shader>();
-//combineShader = std::make_shared<Shader>();
-//fancyShader = std::make_shared<Shader>();
 
 pixelShader->LoadVertexShader();
 pixelShader->LoadPixelShader("PixelShader.cso");
@@ -180,9 +178,9 @@ std::vector<unsigned int> Game::GenerateIndices(int sides) {
 void Game::CreateGeometry()
 {
 	std::shared_ptr<Material> white = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f);
-	std::shared_ptr<Material> red = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 0.592f, 0.588f, 0.80f), 0.0f);
-	std::shared_ptr<Material> blueGreen = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f), 0.0f);
-	std::shared_ptr<Material> purple = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f), 0.0f);
+	std::shared_ptr<Material> red = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 0.592f, 0.588f, 0.80f), 0.5f);
+	std::shared_ptr<Material> blueGreen = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f), 1.0f);
+	std::shared_ptr<Material> purple = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f), 0.25f);
 	materials = { white, red, blueGreen, purple, white };
 
 	for (int i = 0; i < 5; i++) {
