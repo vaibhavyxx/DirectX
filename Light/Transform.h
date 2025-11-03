@@ -49,6 +49,7 @@ public:
 private:
 	bool updateMatrices;
 	bool updateVectors;
+	bool getWrldInv;
 
 	DirectX::XMFLOAT4X4 world;
 	DirectX::XMFLOAT4X4 f4WorldInverseTranspose;
