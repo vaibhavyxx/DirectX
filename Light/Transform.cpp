@@ -11,8 +11,6 @@ Transform::Transform():
 	updateVectors(true)
 {
 	//Sets world and inverse world matrix to identity matrices
-	//this->updateMatrices = true;
-	//this->updateVectors = true;
 	this->getWrldInv = true;
 	DirectX::XMStoreFloat4x4(&world, DirectX::XMMatrixIdentity());
 	DirectX::XMStoreFloat4x4(&f4WorldInverseTranspose, DirectX::XMMatrixIdentity());
