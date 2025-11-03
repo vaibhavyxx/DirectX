@@ -15,5 +15,6 @@ struct PixelStruct {
 	float time;
 	DirectX::XMFLOAT3 camPos;
 	float roughness;
-	float pad1[3];
+	DirectX::XMFLOAT3 ambient;
+	//float pad1[3];
 };

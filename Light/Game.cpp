@@ -34,48 +34,48 @@ using namespace DirectX;
 // --------------------------------------------------------
 Game::Game()
 {
-//Loads textures
-CreateWICTextureFromFile(
-	Graphics::Device.Get(), // Device for resource creation
-	Graphics::Context.Get(), // Context for mipmap creation
-	FixPath(L"../../Assets/Materials/crate.png").c_str(), // Actual image file
-	0, // ID3D11Texture2D pointer - unneeded
-	srvRock.GetAddressOf()); // SRV pointer – what we need
+	//Loads textures
+	CreateWICTextureFromFile(
+		Graphics::Device.Get(), // Device for resource creation
+		Graphics::Context.Get(), // Context for mipmap creation
+		FixPath(L"../../Assets/Materials/crate.png").c_str(), // Actual image file
+		0, // ID3D11Texture2D pointer - unneeded
+		srvRock.GetAddressOf()); // SRV pointer – what we need
 
-CreateWICTextureFromFile(
-	Graphics::Device.Get(),
-	Graphics::Context.Get(),
-	FixPath(L"../../Assets/Materials/water.jpg").c_str(),
-	0,
-	srvWater.GetAddressOf());
+	CreateWICTextureFromFile(
+		Graphics::Device.Get(),
+		Graphics::Context.Get(),
+		FixPath(L"../../Assets/Materials/water.jpg").c_str(),
+		0,
+		srvWater.GetAddressOf());
 
-CreateWICTextureFromFile(
-	Graphics::Device.Get(),
-	Graphics::Context.Get(),
-	FixPath(L"../../Assets/Materials/danger.png").c_str(),
-	0,
-	srvOverlay.GetAddressOf());
+	CreateWICTextureFromFile(
+		Graphics::Device.Get(),
+		Graphics::Context.Get(),
+		FixPath(L"../../Assets/Materials/danger.png").c_str(),
+		0,
+		srvOverlay.GetAddressOf());
 
-//Calls PS Set Shader Resources
-D3D11_SAMPLER_DESC sampDesc = {};
-sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
-sampDesc.MaxAnisotropy = 16;
-sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-Graphics::Device->CreateSamplerState(&sampDesc, samplerState.GetAddressOf());
-Graphics::Device->CreateSamplerState(&sampDesc, samplerStateOverlay.GetAddressOf());
+	//Calls PS Set Shader Resources
+	D3D11_SAMPLER_DESC sampDesc = {};
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+	sampDesc.MaxAnisotropy = 16;
+	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	Graphics::Device->CreateSamplerState(&sampDesc, samplerState.GetAddressOf());
+	Graphics::Device->CreateSamplerState(&sampDesc, samplerStateOverlay.GetAddressOf());
 
-pixelShader = std::make_shared<Shader>();
-uvShader = std::make_shared<Shader>();
+	pixelShader = std::make_shared<Shader>();
+	uvShader = std::make_shared<Shader>();
 
-pixelShader->LoadVertexShader();
-pixelShader->LoadPixelShader("PixelShader.cso");
-pixelShader->CreatePixelBuffer();
+	pixelShader->LoadVertexShader();
+	pixelShader->LoadPixelShader("PixelShader.cso");
+	pixelShader->CreatePixelBuffer();
 
-Initialize();
-CreateGeometry();
+	Initialize();
+	CreateGeometry();
 
 }
 
@@ -177,10 +177,11 @@ std::vector<unsigned int> Game::GenerateIndices(int sides) {
 // --------------------------------------------------------
 void Game::CreateGeometry()
 {
-	std::shared_ptr<Material> white = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f);
-	std::shared_ptr<Material> red = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 0.592f, 0.588f, 0.80f), 0.5f);
-	std::shared_ptr<Material> blueGreen = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f), 1.0f);
-	std::shared_ptr<Material> purple = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f), 0.25f);
+	ambientColor = DirectX::XMFLOAT3(1.0f, 0.0f, 1.0f);
+	std::shared_ptr<Material> white = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor);
+	std::shared_ptr<Material> red = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 0.592f, 0.588f, 0.80f), 0.5f, ambientColor);
+	std::shared_ptr<Material> blueGreen = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f), 1.0f, ambientColor);
+	std::shared_ptr<Material> purple = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f), 0.25f, ambientColor);
 	materials = { white, red, blueGreen, purple, white };
 
 	for (int i = 0; i < 5; i++) {

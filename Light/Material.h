@@ -24,14 +24,18 @@ private:
 	XMFLOAT2 uvOffset;
 	XMFLOAT2 scale;
 	float roughness;
+	XMFLOAT3 ambient;
 
 public:
-	Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color, float roughness);
+	Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color, float roughness, DirectX::XMFLOAT3 ambient);
 
 	//Setters 
 	void SetColorTint(int r, int g, int b, int a);
 	void SetColorTint(XMFLOAT4 color);
 	void SetRoughness(float value);
+	void SetAmbient(float x, float y, float z);
+	void SetAmbient(XMFLOAT3 value);
+	XMFLOAT3 GetAmbient();
 
 	void SetVertexBuffer(Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader);
 	void SetPixelBuffer(Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader);
