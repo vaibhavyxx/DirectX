@@ -10,6 +10,7 @@
 #include "Camera.h"
 #include "Graphics.h"
 #include "Shader.h"
+#include "Lights.h"
 
 GameEntity::GameEntity(std::shared_ptr<Mesh> mesh,
 	std::shared_ptr <Material> material)
@@ -33,7 +34,7 @@ void GameEntity::Update(float deltaTime, float time) {
 	material->SetTime(time);
 }
 
-void GameEntity::Draw(std::shared_ptr<Camera> cam) 
+void GameEntity::Draw(std::shared_ptr<Camera> cam, Light light) 
 {
 	material->GetShader()->Setup();
 	material->BindTexturesAndSamplers();
@@ -46,15 +47,6 @@ void GameEntity::Draw(std::shared_ptr<Camera> cam)
 	vsData.worldPos = transform->GetPosition();	//??
 	Graphics::FillAndBindNextCB(&vsData, sizeof(VertexStruct), D3D11_VERTEX_SHADER, 0);
 
-	PixelStruct pixelData = {};
-	pixelData.colorTint = material->GetColorTint();
-	pixelData.uvScale = material->GetScale();
-	pixelData.offset = material->GetUVOffset();
-	pixelData.time = material->GetTime();
-	pixelData.roughness = material->GetRoughness();
-	pixelData.camPos = cam->GetTransform()->GetPosition();
-	pixelData.ambient = material->GetAmbient();
-
-	Graphics::FillAndBindNextCB(&pixelData, sizeof(PixelStruct), D3D11_PIXEL_SHADER, 0);
+	material->SetupPixelStruct(cam, light);
 	mesh->Draw();
 }

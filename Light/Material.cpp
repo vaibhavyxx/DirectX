@@ -18,6 +18,7 @@
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_win32.h"
 #include <algorithm>
+#include "Lights.h"
 
 Material::Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color, float roughness, DirectX::XMFLOAT3 ambient)
 {
@@ -62,6 +63,20 @@ void Material::SetAmbient(XMFLOAT3 value)
 XMFLOAT3 Material::GetAmbient()
 {
 	return this->ambient;
+}
+
+void Material::SetupPixelStruct(std::shared_ptr<Camera> cam, Light light)
+{
+	PixelStruct pixelData = {};
+	pixelData.colorTint = GetColorTint();
+	pixelData.uvScale = GetScale();
+	pixelData.offset = GetUVOffset();
+	pixelData.time = GetTime();
+	pixelData.roughness = GetRoughness();
+	pixelData.camPos = cam->GetTransform()->GetPosition();
+	pixelData.ambient = GetAmbient();
+	pixelData.light = light;
+	Graphics::FillAndBindNextCB(&pixelData, sizeof(PixelStruct), D3D11_PIXEL_SHADER, 0);
 }
 
 void Material::SetVertexBuffer(Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader)
