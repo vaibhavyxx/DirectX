@@ -17,7 +17,7 @@
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_win32.h"
-
+#include <algorithm>
 
 Material::Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color)
 {
@@ -30,6 +30,7 @@ Material::Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color)
 	this->uvOffset = XMFLOAT2(0.0f, 0.0f);
 	this->textureCounter = 0;
 	this->samplerCounter = 0;
+	this->roughness = 0.0f;
 }
 
 void Material::SetColorTint(int r, int g, int b, int a)
@@ -40,6 +41,11 @@ void Material::SetColorTint(int r, int g, int b, int a)
 void Material::SetColorTint(XMFLOAT4 color)
 {
 	this->colorTint = color;
+}
+
+void Material::SetRoughness(float value)
+{
+	this->roughness = std::clamp(value, 0.0f, 1.0f);
 }
 
 void Material::SetVertexBuffer(Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader)
@@ -97,6 +103,11 @@ void Material::BindTexturesAndSamplers()
 XMFLOAT4 Material::GetColorTint()
 {
 	return colorTint;
+}
+
+float Material::GetRoughness()
+{
+	return this->roughness;
 }
 
 Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> Material::GetShaderResourceView(int slot)

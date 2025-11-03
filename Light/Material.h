@@ -23,6 +23,7 @@ private:
 	int samplerCounter;
 	XMFLOAT2 uvOffset;
 	XMFLOAT2 scale;
+	float roughness;
 
 public:
 	Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color);
@@ -30,6 +31,7 @@ public:
 	//Setters 
 	void SetColorTint(int r, int g, int b, int a);
 	void SetColorTint(XMFLOAT4 color);
+	void SetRoughness(float value);
 
 	void SetVertexBuffer(Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader);
 	void SetPixelBuffer(Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader);
@@ -50,6 +52,7 @@ public:
 
 	//Getters
 	XMFLOAT4 GetColorTint();
+	float GetRoughness();
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> GetVertexShader;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> GetPixelShader;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetShaderResourceView(int slot);
