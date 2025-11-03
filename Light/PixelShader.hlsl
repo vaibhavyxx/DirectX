@@ -6,6 +6,8 @@ cbuffer ExternalData : register(b0)
 	float2 scale;
     float2 offset;
 	float time;
+    float3 camPos;
+    float roughness;
 }
 Texture2D SurfaceTexture	: register(t0);
 SamplerState BasicSampler	: register(s0);

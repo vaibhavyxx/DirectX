@@ -19,7 +19,7 @@
 #include "imgui_impl_win32.h"
 #include <algorithm>
 
-Material::Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color)
+Material::Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color, float roughness)
 {
 	this->shader = shader;
 	this->vertexShader = shader->GetVertexShader();
@@ -30,7 +30,7 @@ Material::Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color)
 	this->uvOffset = XMFLOAT2(0.0f, 0.0f);
 	this->textureCounter = 0;
 	this->samplerCounter = 0;
-	this->roughness = 0.0f;
+	this->roughness = roughness;
 }
 
 void Material::SetColorTint(int r, int g, int b, int a)

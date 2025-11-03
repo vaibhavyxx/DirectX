@@ -13,5 +13,7 @@ struct PixelStruct {
 	DirectX::XMFLOAT2 offset;    
 	DirectX::XMFLOAT2 uvScale;   
 	float time;
+	DirectX::XMFLOAT3 camPos;
+	float roughness;
 	float pad1[3];
 };

@@ -26,7 +26,7 @@ private:
 	float roughness;
 
 public:
-	Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color);
+	Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color, float roughness);
 
 	//Setters 
 	void SetColorTint(int r, int g, int b, int a);
