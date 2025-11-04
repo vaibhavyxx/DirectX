@@ -12,7 +12,7 @@
 #include "Camera.h"
 #include "Material.h"
 #include "Shader.h"
-#include "Lights.h"
+#include "BufferStructs.h"
 
 class Game
 {

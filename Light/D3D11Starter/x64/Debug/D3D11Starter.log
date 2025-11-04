@@ -1,8 +1,53 @@
-﻿  Game.cpp
+﻿  compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\Light\x64\Debug\PixelShader.cso
+  Game.cpp
+C:\Users\vaibh\Documents\git\ggp-hws\Light\BufferStructs.h(24,8): error C3646: 'light': unknown override specifier
+  (compiling source file 'Game.cpp')
+  
+C:\Users\vaibh\Documents\git\ggp-hws\Light\BufferStructs.h(24,2): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'Game.cpp')
+  
   GameEntity.cpp
+C:\Users\vaibh\Documents\git\ggp-hws\Light\BufferStructs.h(24,8): error C3646: 'light': unknown override specifier
+  (compiling source file 'GameEntity.cpp')
+  
+C:\Users\vaibh\Documents\git\ggp-hws\Light\BufferStructs.h(24,2): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'GameEntity.cpp')
+  
+C:\Users\vaibh\Documents\git\ggp-hws\Light\GameEntity.cpp(13,10): error C1083: Cannot open include file: 'Lights.h': No such file or directory
   Main.cpp
+C:\Users\vaibh\Documents\git\ggp-hws\Light\BufferStructs.h(24,8): error C3646: 'light': unknown override specifier
+  (compiling source file 'Main.cpp')
+  
+C:\Users\vaibh\Documents\git\ggp-hws\Light\BufferStructs.h(24,2): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'Main.cpp')
+  
   Material.cpp
+C:\Users\vaibh\Documents\git\ggp-hws\Light\Material.h(39,53): error C2061: syntax error: identifier 'Light'
+  (compiling source file 'Material.cpp')
+  
+C:\Users\vaibh\Documents\git\ggp-hws\Light\BufferStructs.h(24,8): error C3646: 'light': unknown override specifier
+  (compiling source file 'Material.cpp')
+  
+C:\Users\vaibh\Documents\git\ggp-hws\Light\BufferStructs.h(24,2): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'Material.cpp')
+  
+C:\Users\vaibh\Documents\git\ggp-hws\Light\Material.cpp(21,10): error C1083: Cannot open include file: 'Lights.h': No such file or directory
   Mesh.cpp
+C:\Users\vaibh\Documents\git\ggp-hws\Light\BufferStructs.h(24,8): error C3646: 'light': unknown override specifier
+  (compiling source file 'Mesh.cpp')
+  
+C:\Users\vaibh\Documents\git\ggp-hws\Light\BufferStructs.h(24,2): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'Mesh.cpp')
+  
+  Shader.cpp
+C:\Users\vaibh\Documents\git\ggp-hws\Light\BufferStructs.h(24,8): error C3646: 'light': unknown override specifier
+  (compiling source file 'Shader.cpp')
+  
+C:\Users\vaibh\Documents\git\ggp-hws\Light\BufferStructs.h(24,2): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'Shader.cpp')
+  
   Transform.cpp
+C:\Users\vaibh\Documents\git\ggp-hws\Light\Material.h(39,53): error C2061: syntax error: identifier 'Light'
+  (compiling source file 'Transform.cpp')
+  
   Generating Code...
-  D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\Light\x64\Debug\D3D11Starter.exe

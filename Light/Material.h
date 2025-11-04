@@ -6,7 +6,6 @@
 #include <memory>
 #include "Camera.h"
 #include "Shader.h"
-#include "Lights.h"
 
 using namespace DirectX;
 class Material

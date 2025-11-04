@@ -18,7 +18,6 @@
 #include "Transform.h"
 #include "GameEntity.h"
 #include "WICTextureLoader.h"
-#include "Lights.h"
 
 // This code assumes files are in "ImGui" subfolder!
 // Adjust as necessary for your own folder structure and project setup
