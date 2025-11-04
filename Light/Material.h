@@ -36,7 +36,7 @@ public:
 	void SetAmbient(float x, float y, float z);
 	void SetAmbient(XMFLOAT3 value);
 	XMFLOAT3 GetAmbient();
-	void SetupPixelStruct(std::shared_ptr<Camera> cam, Light light);
+	void SetupPixelStruct(std::shared_ptr<Camera> cam);
 
 	void SetVertexBuffer(Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader);
 	void SetPixelBuffer(Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader);

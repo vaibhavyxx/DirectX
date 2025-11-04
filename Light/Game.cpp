@@ -80,12 +80,12 @@ Game::Game()
 
 void Game::Initialize() {
 
-	currentLight = {};
+	/*currentLight = {};
 	currentLight.Type = LIGHT_TYPE_DIRECTIONAL;
 	currentLight.Direction = XMFLOAT3(1.0f, -1.0f, 0.0f);
 	currentLight.Color = XMFLOAT3(1.0f, 1.0f, 1.0f);
 	currentLight.Intensity = 1.0f;
-
+	*/
 	currentCamera = 0;
 	// Initialize ImGui itself & platform/renderer backends
 	IMGUI_CHECKVERSION();
@@ -270,7 +270,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	}
 	BuildUI();
 	for (int i = 0; i < pixelEntities.size(); i++) {
-		pixelEntities[i]->Draw(cameras[currentCamera], currentLight);
+		pixelEntities[i]->Draw(cameras[currentCamera]);
 	}
 
 	// Frame END

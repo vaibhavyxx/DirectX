@@ -22,5 +22,6 @@ struct PixelStruct {
 	float roughness;
 	DirectX::XMFLOAT3 ambient;
 	//Light light;
-	int type;
+	//int type;
+	
 };

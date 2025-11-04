@@ -17,7 +17,7 @@ public:
 	std::shared_ptr<Mesh> GetMesh();
 	std::shared_ptr<Transform> GetTransform();
 	std::shared_ptr<Material> GetMaterial();
-	void Draw(std::shared_ptr<Camera> cam, Light light);	
+	void Draw(std::shared_ptr<Camera> cam);	
 	void Update(float deltaTime, float totalTime);
 	
 private:
