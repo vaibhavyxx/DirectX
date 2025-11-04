@@ -24,6 +24,7 @@
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_win32.h"
+#include "Lights.h"
 
 // For the DirectX Math library
 using namespace DirectX;
@@ -80,12 +81,12 @@ Game::Game()
 
 void Game::Initialize() {
 
-	/*currentLight = {};
+	currentLight = {};
 	currentLight.Type = LIGHT_TYPE_DIRECTIONAL;
 	currentLight.Direction = XMFLOAT3(1.0f, -1.0f, 0.0f);
 	currentLight.Color = XMFLOAT3(1.0f, 1.0f, 1.0f);
 	currentLight.Intensity = 1.0f;
-	*/
+	
 	currentCamera = 0;
 	// Initialize ImGui itself & platform/renderer backends
 	IMGUI_CHECKVERSION();

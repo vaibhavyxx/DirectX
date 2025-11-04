@@ -1,5 +1,5 @@
-﻿  Material.cpp
+﻿  Game.cpp
+  Main.cpp
   Mesh.cpp
-  Transform.cpp
   Generating Code...
   D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\Light\x64\Debug\D3D11Starter.exe
