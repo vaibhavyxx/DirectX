@@ -35,6 +35,13 @@ using namespace DirectX;
 // --------------------------------------------------------
 Game::Game()
 {
+	
+	light = {};
+	light.Type = LIGHT_TYPE_DIRECTIONAL;
+	light.Direction = XMFLOAT3(1.0f, 1.0f, 0.0f);
+	light.Color = XMFLOAT3(1.0f, 0.0f, 0.0f);
+	light.Intensity = 1.0f;
+
 	//Loads textures
 	CreateWICTextureFromFile(
 		Graphics::Device.Get(), // Device for resource creation
@@ -76,16 +83,15 @@ Game::Game()
 
 	Initialize();
 	CreateGeometry();
-
 }
 
 void Game::Initialize() {
 
-	light = {};
+	/*light = {};
 	light.Type = LIGHT_TYPE_DIRECTIONAL;
 	light.Direction = XMFLOAT3(1.0f, 1.0f, 0.0f);
 	light.Color = XMFLOAT3(1.0f, 0.0f, 0.0f);
-	light.Intensity = 1.0f;
+	light.Intensity = 1.0f;*/
 	
 	currentCamera = 0;
 	// Initialize ImGui itself & platform/renderer backends

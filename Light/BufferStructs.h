@@ -15,13 +15,15 @@ struct  VertexStruct
 };
 
 struct PixelStruct {
-	DirectX::XMFLOAT4 colorTint;            
+	Light light;
+	DirectX::XMFLOAT4 colorTint;      
+	DirectX::XMFLOAT2 uvScale;
 	DirectX::XMFLOAT2 offset;    
-	DirectX::XMFLOAT2 uvScale;   
 	float time;
 	DirectX::XMFLOAT3 camPos;
 	float roughness;
 	DirectX::XMFLOAT3 ambient;
-	Light light;
 	int type;
+	DirectX::XMFLOAT3 pad;
+	int lightCount;
 };

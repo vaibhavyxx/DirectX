@@ -8,6 +8,7 @@
 
 cbuffer ExternalData : register(b0)
 {
+    Light light;
     float4 colorTint;       //16
     float2 scale;
     float2 offset;          //32
@@ -18,7 +19,7 @@ cbuffer ExternalData : register(b0)
     int type;               //64
     float3 pad;
     int lightCount;         //80
-    Light light;
+    
 }
 
 Texture2D SurfaceTexture	: register(t0);
@@ -39,15 +40,14 @@ float4 main(VertexToPixel input) : SV_TARGET
     //float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb;
     float3 surfaceColor = colorTint;
     
-    float3 ambientTerm = ambient;// * colorTint;
-    float3 lightClr = float3(0.5f, 0.5f, 1.0f);
-    
+    float3 ambientTerm = ambient * colorTint;
+
     float3 totalLight = ambientTerm;
     float3 toLight = normalize(-light.Direction);
 
     float diffuse = saturate(dot(input.normal, -toLight));
     diffuse = clamp(diffuse, 0.0f, 1.0f);  
-    float3 diffuseTerm = (diffuse * surfaceColor) * intensity * color;
+    float3 diffuseTerm = (diffuse * surfaceColor) * light.Intensity * light.Color;
     totalLight += diffuseTerm;
     
     return float4(totalLight, 1.0f);

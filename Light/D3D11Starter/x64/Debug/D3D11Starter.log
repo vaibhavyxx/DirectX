@@ -1,4 +1,9 @@
-﻿C:\Users\vaibh\Documents\git\ggp-hws\Light\PixelShader.hlsl(40,12-35): warning X3206: implicit truncation of vector type
-  
-  compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\Light\x64\Debug\PixelShader.cso
+﻿  Game.cpp
+  GameEntity.cpp
+  Main.cpp
+  Material.cpp
+  Mesh.cpp
+  Shader.cpp
+  Transform.cpp
+  Generating Code...
   D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\Light\x64\Debug\D3D11Starter.exe
