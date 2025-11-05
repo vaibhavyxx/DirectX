@@ -34,11 +34,11 @@ float4 main(VertexToPixel input) : SV_TARGET
     
     input.normal = normalize(input.normal);
     input.uv = input.uv * scale + offset;
-    float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb;
-    surfaceColor *= colorTint;
-    
+    float3 color = float3(1.0f, 0.0f, 0.0f);
+    float intensity = 1.0f;
     //float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb;
-    //surfaceColor *= colorTint;
+    float3 surfaceColor = colorTint;
+    
     float3 ambientTerm = ambient;// * colorTint;
     float3 lightClr = float3(0.5f, 0.5f, 1.0f);
     
@@ -47,7 +47,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 
     float diffuse = saturate(dot(input.normal, -toLight));
     diffuse = clamp(diffuse, 0.0f, 1.0f);  
-    float3 diffuseTerm = (diffuse * surfaceColor) * light.Intensity * light.Color;
+    float3 diffuseTerm = (diffuse * surfaceColor) * intensity * color;
     totalLight += diffuseTerm;
     
     return float4(totalLight, 1.0f);
