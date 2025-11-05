@@ -1,5 +1,6 @@
 #pragma once
 #include <DirectXMath.h>
+#include "Lights.h"
 
 struct  VertexStruct
 {
@@ -21,7 +22,6 @@ struct PixelStruct {
 	DirectX::XMFLOAT3 camPos;
 	float roughness;
 	DirectX::XMFLOAT3 ambient;
-	//Light light;
-	//int type;
-	
+	Light light;
+	int type;
 };

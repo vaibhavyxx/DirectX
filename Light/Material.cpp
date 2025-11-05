@@ -65,7 +65,7 @@ XMFLOAT3 Material::GetAmbient()
 	return this->ambient;
 }
 
-void Material::SetupPixelStruct(std::shared_ptr<Camera> cam)
+void Material::SetupPixelStruct(std::shared_ptr<Camera> cam, Light light)
 {
 	PixelStruct pixelData = {};
 	pixelData.colorTint = GetColorTint();
@@ -75,8 +75,8 @@ void Material::SetupPixelStruct(std::shared_ptr<Camera> cam)
 	pixelData.roughness = GetRoughness();
 	pixelData.camPos = cam->GetTransform()->GetPosition();
 	pixelData.ambient = GetAmbient();
-	//pixelData.type = 0;
-	//pixelData.light = light;
+	pixelData.type = 0;
+	pixelData.light = light;
 	Graphics::FillAndBindNextCB(&pixelData, sizeof(PixelStruct), D3D11_PIXEL_SHADER, 0);
 }
 

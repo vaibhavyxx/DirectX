@@ -1,5 +1,4 @@
-﻿  Game.cpp
-  Main.cpp
-  Mesh.cpp
-  Generating Code...
+﻿C:\Users\vaibh\Documents\git\ggp-hws\Light\PixelShader.hlsl(38,5-29): warning X3206: implicit truncation of vector type
+  
+  compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\Light\x64\Debug\PixelShader.cso
   D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\Light\x64\Debug\D3D11Starter.exe

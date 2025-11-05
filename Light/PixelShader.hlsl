@@ -1,4 +1,5 @@
 #include "ShaderStruct.hlsli"
+#include "Lighting.hlsli"
 
 #define LIGHT_TYPE_DIRECTIONAL		0
 #define LIGHT_TYPE_POINT			1
@@ -7,15 +8,17 @@
 
 cbuffer ExternalData : register(b0)
 {
-    float4 colorTint;
+    float4 colorTint;       //16
     float2 scale;
-    float2 offset;
+    float2 offset;          //32
     float time;
     float3 camPos;
-    float roughness;
+    float roughness;        //48
     float3 ambient;
-    int type;
+    int type;               //64
     float3 pad;
+    int lightCount;         //80
+    Light light;
 }
 
 Texture2D SurfaceTexture	: register(t0);
@@ -23,14 +26,29 @@ SamplerState BasicSampler	: register(s0);
 
 float4 main(VertexToPixel input) : SV_TARGET
 {
-    //return float4(light.Color, 1);
+    /*Calculate the normalized direction to this light
+    • Calculate the overall diffuse color for this light using the proper vectors, surface color, light color
+    and light intensity
+    • Calculate the final pixel color as a sum of the final ambient and diffuse terms
+    • Return that result from the pixel shader, using 1 for alpha: float4(totalLight, 1)*/
     
     input.normal = normalize(input.normal);
-    return float4(input.normal, 1);
+    input.uv = input.uv * scale + offset;
+    float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb;
+    surfaceColor *= colorTint;
     
-    //return float4(roughness.rrr, 1);
-	float2 uv2 = (input.uv * offset )+ scale;    
-	float4 surfaceColor = SurfaceTexture.Sample(BasicSampler, uv2);
-    return float4(ambient, 1.0f) * surfaceColor * colorTint;
-    return surfaceColor * colorTint;
+    //float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb;
+    //surfaceColor *= colorTint;
+    float3 ambientTerm = ambient;// * colorTint;
+    float3 lightClr = float3(0.5f, 0.5f, 1.0f);
+    
+    float3 totalLight = ambientTerm;
+    float3 toLight = normalize(-light.Direction);
+
+    float diffuse = saturate(dot(input.normal, -toLight));
+    diffuse = clamp(diffuse, 0.0f, 1.0f);  
+    float3 diffuseTerm = (diffuse * surfaceColor) * light.Intensity * light.Color;
+    totalLight += diffuseTerm;
+    
+    return float4(totalLight, 1.0f);
 }

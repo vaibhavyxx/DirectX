@@ -81,11 +81,11 @@ Game::Game()
 
 void Game::Initialize() {
 
-	currentLight = {};
-	currentLight.Type = LIGHT_TYPE_DIRECTIONAL;
-	currentLight.Direction = XMFLOAT3(1.0f, -1.0f, 0.0f);
-	currentLight.Color = XMFLOAT3(1.0f, 1.0f, 1.0f);
-	currentLight.Intensity = 1.0f;
+	light = {};
+	light.Type = LIGHT_TYPE_DIRECTIONAL;
+	light.Direction = XMFLOAT3(1.0f, 1.0f, 0.0f);
+	light.Color = XMFLOAT3(1.0f, 0.0f, 0.0f);
+	light.Intensity = 1.0f;
 	
 	currentCamera = 0;
 	// Initialize ImGui itself & platform/renderer backends
@@ -183,7 +183,7 @@ std::vector<unsigned int> Game::GenerateIndices(int sides) {
 // --------------------------------------------------------
 void Game::CreateGeometry()
 {
-	ambientColor = DirectX::XMFLOAT3(1.0f, 0.0f, 1.0f);
+	ambientColor = DirectX::XMFLOAT3(0.1f, 0.1f, 0.25f);
 	std::shared_ptr<Material> white = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor);
 	std::shared_ptr<Material> red = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 0.592f, 0.588f, 0.80f), 0.5f, ambientColor);
 	std::shared_ptr<Material> blueGreen = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f), 1.0f, ambientColor);
@@ -246,6 +246,7 @@ float d = 0;
 //float angleOffset = 0.707f;
 void Game::Update(float deltaTime, float totalTime)
 {
+	//light.Color = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	FrameReset(deltaTime);
 
 	if (Input::KeyDown(VK_ESCAPE))
@@ -271,7 +272,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	}
 	BuildUI();
 	for (int i = 0; i < pixelEntities.size(); i++) {
-		pixelEntities[i]->Draw(cameras[currentCamera]);
+		pixelEntities[i]->Draw(cameras[currentCamera], light);
 	}
 
 	// Frame END
