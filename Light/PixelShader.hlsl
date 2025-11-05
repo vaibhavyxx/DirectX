@@ -37,10 +37,11 @@ float4 main(VertexToPixel input) : SV_TARGET
     input.uv = input.uv * scale + offset;
     float3 color = float3(1.0f, 0.0f, 0.0f);
     float intensity = 1.0f;
-    //float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb;
-    float3 surfaceColor = colorTint;
+    float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb;
+    surfaceColor *= colorTint;
+    //float3 surfaceColor = colorTint;
     
-    float3 ambientTerm = ambient * colorTint;
+    float3 ambientTerm = ambient * surfaceColor;
 
     float3 totalLight = ambientTerm;
     float3 toLight = normalize(-light.Direction);
@@ -50,5 +51,14 @@ float4 main(VertexToPixel input) : SV_TARGET
     float3 diffuseTerm = (diffuse * surfaceColor) * light.Intensity * light.Color;
     totalLight += diffuseTerm;
     
-    return float4(totalLight, 1.0f);
+    float3 reflectionVector = normalize(reflect(light.Direction, input.normal));
+    float3 surfaceToCamViewVector = normalize(camPos - input.worldPos);
+    
+    float specExponent = (1.0f - roughness) * MAX_SPECULAR_EXPONENT;
+    float RdotV = saturate(dot(reflectionVector, surfaceToCamViewVector)); 
+    
+    float3 specularTerm = pow(RdotV, specExponent) * light.Color * light.Intensity * surfaceColor;
+    
+    float3 result = diffuseTerm + specularTerm;     //both of them separately are multiplied by surface color
+    return float4(result, 1.0f);
 }
