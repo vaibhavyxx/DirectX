@@ -35,10 +35,10 @@ using namespace DirectX;
 // --------------------------------------------------------
 Game::Game()
 {
-	
+
 	light = {};
 	light.Type = LIGHT_TYPE_DIRECTIONAL;
-	light.Direction = XMFLOAT3(1.0f, 1.0f, 0.0f);
+	light.Direction = XMFLOAT3(1.0f, 0.0f, 0.0f);
 	light.Color = XMFLOAT3(1.0f, 0.0f, 0.0f);
 	light.Intensity = 1.0f;
 
@@ -76,7 +76,7 @@ Game::Game()
 	Graphics::Device->CreateSamplerState(&sampDesc, samplerStateOverlay.GetAddressOf());
 
 	pixelShader = std::make_shared<Shader>();
-	
+
 	pixelShader->LoadVertexShader();
 	pixelShader->LoadPixelShader("PixelShader.cso");
 	pixelShader->CreatePixelBuffer();
@@ -92,7 +92,7 @@ void Game::Initialize() {
 	light.Direction = XMFLOAT3(1.0f, 1.0f, 0.0f);
 	light.Color = XMFLOAT3(1.0f, 0.0f, 0.0f);
 	light.Intensity = 1.0f;*/
-	
+
 	currentCamera = 0;
 	// Initialize ImGui itself & platform/renderer backends
 	IMGUI_CHECKVERSION();
@@ -220,15 +220,7 @@ void Game::CreateGeometry()
 	float offset = 3.0f;
 	for (int i = 0; i < meshes.size(); i++) {
 		int materialsCount = i % 5;
-		if (i < 2) {
-			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[materialsCount]));
-		}
-		else if (i >= 2 && i <= 4)
-			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[materialsCount]));
-		else {
-			pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[materialsCount]));
-		}
-
+		pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[materialsCount]));
 		pixelEntities[i]->GetTransform()->SetPosition(offset * i, 0.0f, 0.0f);
 	}
 }
