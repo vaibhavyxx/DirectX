@@ -1,5 +1,2 @@
 ﻿  Game.cpp
-C:\Users\vaibh\Documents\git\ggp-hws\Light\Game.cpp(38,9): error C3863: array type 'Light [5]' is not assignable
-  Main.cpp
-  Mesh.cpp
-  Generating Code...
+  D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\Light\x64\Debug\D3D11Starter.exe

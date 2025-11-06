@@ -35,7 +35,6 @@ using namespace DirectX;
 // --------------------------------------------------------
 Game::Game()
 {
-	Light lights[5] = {};
 	for (int i = 0; i < 5; i++) {
 		Light dirLight = {};
 		dirLight.Type = LIGHT_TYPE_DIRECTIONAL;
@@ -43,7 +42,6 @@ Game::Game()
 		dirLight.Color = XMFLOAT3(1.0f, 0.0f, 0.0f);
 		dirLight.Intensity = 1.0f;
 		lights[i] = dirLight;
-		//lights[3] = {dirLight, dirLight, dirLight};
 	}
 
 	/*Light spotLight = {};
@@ -206,17 +204,17 @@ void Game::CreateGeometry()
 	std::shared_ptr<Material> red = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 0.592f, 0.588f, 0.80f), 0.5f, ambientColor);
 	std::shared_ptr<Material> blueGreen = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f), 1.0f, ambientColor);
 	std::shared_ptr<Material> purple = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f), 0.25f, ambientColor);
-	materials = { white, red, blueGreen, purple, white };
+	materials = { white, red, purple, white };
 
-	for (int i = 0; i < 5; i++) {
-		if (i < 2)
+	for (int i = 0; i < 4; i++) {
+		if (i <= 2)
 			materials[i]->AddTextureSRV(0, srvWater);
 		else
 			materials[i]->AddTextureSRV(0, srvRock);
 
 		materials[i]->AddTextureSRV(1, srvOverlay);		//additional texture for combine.cso
 		materials[i]->AddSampler(0, samplerState);
-		materials[i]->AddSampler(1, samplerStateOverlay);
+		//materials[i]->AddSampler(1, samplerStateOverlay);
 		materials[i]->BindTexturesAndSamplers();
 	}
 
@@ -227,11 +225,11 @@ void Game::CreateGeometry()
 	std::shared_ptr<Mesh> quad = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/quad.obj").c_str());
 	std::shared_ptr<Mesh> quadDoubleSided = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/quad_double_sided.obj").c_str());
 	std::shared_ptr<Mesh> torus = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/torus.obj").c_str());
-	meshes = { sphere, cube, helix, cylinder, quad, quadDoubleSided, torus };
+	meshes = {sphere, cube, cylinder, quad, helix,quadDoubleSided, torus };
 
 	float offset = 3.0f;
 	for (int i = 0; i < meshes.size(); i++) {
-		int materialsCount = i % 5;
+		int materialsCount = i % materials.size();
 		pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[materialsCount]));
 		pixelEntities[i]->GetTransform()->SetPosition(offset * i, 0.0f, 0.0f);
 	}
@@ -277,12 +275,13 @@ void Game::Draw(float deltaTime, float totalTime)
 	{
 		// Clear the back buffer (erase what's on screen) and depth buffer
 		Graphics::Context->ClearRenderTargetView(Graphics::BackBufferRTV.Get(), color);
+		Graphics::Context->ClearRenderTargetView(Graphics::BackBufferRTV.Get(), color);
 		Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 	}
 	BuildUI();
 	for (int i = 0; i < pixelEntities.size(); i++) {
-		//pixelEntities[i]->Draw(cameras[currentCamera], lights);
+		pixelEntities[i]->Draw(cameras[currentCamera], &lights[0]);
 	}
 
 	// Frame END

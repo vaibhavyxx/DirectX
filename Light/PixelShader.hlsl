@@ -43,7 +43,7 @@ float4 main(VertexToPixel input) : SV_TARGET
     float3 totalLight = ambientTerm;
     float3 toLight = normalize(-light.Direction);
 
-    float diffuse = saturate(dot(input.normal, -toLight));
+    float diffuse = saturate(dot(input.normal, toLight));
     //diffuse = clamp(diffuse, 0.0f, 1.0f);  
     float3 diffuseTerm = (diffuse
     * surfaceColor)
