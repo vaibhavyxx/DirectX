@@ -56,7 +56,8 @@ private:
 
 	float color[4] = { 0.4f, 0.6f, 0.75f, 1.0f };
 	int currentCamera = 0;
+	int currentLight = 0;
 	DirectX::XMFLOAT3 ambientColor;
-	Light light;
+	Light lights[5];
 };
 

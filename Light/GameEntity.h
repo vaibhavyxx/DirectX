@@ -10,6 +10,7 @@
 #include "Material.h"
 #include "Shader.h"
 #include "Lights.h"
+#include <vector>
 
 class GameEntity
 {
@@ -18,7 +19,7 @@ public:
 	std::shared_ptr<Mesh> GetMesh();
 	std::shared_ptr<Transform> GetTransform();
 	std::shared_ptr<Material> GetMaterial();
-	void Draw(std::shared_ptr<Camera> cam, Light light);	
+	void Draw(std::shared_ptr<Camera> cam, Light* lights);
 	void Update(float deltaTime, float totalTime);
 	
 private:

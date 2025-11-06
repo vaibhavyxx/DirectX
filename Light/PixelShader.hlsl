@@ -8,6 +8,7 @@
 
 cbuffer ExternalData : register(b0)
 {
+    //Light lights[5];
     Light light;
     float4 colorTint;       //16
     float2 scale;
@@ -27,11 +28,7 @@ SamplerState BasicSampler	: register(s0);
 
 float4 main(VertexToPixel input) : SV_TARGET
 {
-    /*Calculate the normalized direction to this light
-    • Calculate the overall diffuse color for this light using the proper vectors, surface color, light color
-    and light intensity
-    • Calculate the final pixel color as a sum of the final ambient and diffuse terms
-    • Return that result from the pixel shader, using 1 for alpha: float4(totalLight, 1)*/
+    //Light light = lights[0];
     
     input.normal = normalize(input.normal);
     input.uv = input.uv * scale + offset;
@@ -59,7 +56,7 @@ float4 main(VertexToPixel input) : SV_TARGET
     float specExponent = (1.0f - roughness) * MAX_SPECULAR_EXPONENT;
     float RdotV = saturate(dot(reflectionVector, surfaceToCamViewVector)); 
     
-    float specularStrength = 0.5f; // or based on roughness
+    float specularStrength = 1.0f; // or based on roughness
     float3 specularTerm = pow(RdotV, specExponent) * light.Color * light.Intensity * specularStrength;
     
     float3 result = ambientTerm+ diffuseTerm + specularTerm;     //both of them separately are multiplied by surface color

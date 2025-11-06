@@ -35,12 +35,24 @@ using namespace DirectX;
 // --------------------------------------------------------
 Game::Game()
 {
+	Light lights[5] = {};
+	for (int i = 0; i < 5; i++) {
+		Light dirLight = {};
+		dirLight.Type = LIGHT_TYPE_DIRECTIONAL;
+		dirLight.Direction = XMFLOAT3(1.0f, 0.0f, 0.0f);
+		dirLight.Color = XMFLOAT3(1.0f, 0.0f, 0.0f);
+		dirLight.Intensity = 1.0f;
+		lights[i] = dirLight;
+		//lights[3] = {dirLight, dirLight, dirLight};
+	}
 
-	light = {};
-	light.Type = LIGHT_TYPE_DIRECTIONAL;
-	light.Direction = XMFLOAT3(1.0f, 0.0f, 0.0f);
-	light.Color = XMFLOAT3(1.0f, 0.0f, 0.0f);
-	light.Intensity = 1.0f;
+	/*Light spotLight = {};
+	spotLight.Type = LIGHT_TYPE_SPOT;
+	spotLight.Position = XMFLOAT3(0.0f, 5.0f, 0.0f);
+	spotLight.Direction = XMFLOAT3(1.0f, 0.0f, 0.0f);
+	spotLight.Color = XMFLOAT3(1.0f, 0.0f, 0.0f);
+	spotLight.Intensity = 1.0f;
+	lights[1] = (spotLight);*/
 
 	//Loads textures
 	CreateWICTextureFromFile(
@@ -270,7 +282,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	}
 	BuildUI();
 	for (int i = 0; i < pixelEntities.size(); i++) {
-		pixelEntities[i]->Draw(cameras[currentCamera], light);
+		//pixelEntities[i]->Draw(cameras[currentCamera], lights);
 	}
 
 	// Frame END
