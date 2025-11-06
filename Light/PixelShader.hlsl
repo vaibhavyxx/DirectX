@@ -50,6 +50,14 @@ float3 Directional(Light light, float3 normal, float3 worldPos, float3 camPos, f
     return (diff + spec) * light.Intensity * light.Color;
 }
 
+//Range based attenuation
+float Attenuate(Light light, float3 worldPos)
+{
+    float dist = distance(light.Position, worldPos);
+    float att = saturate(1.0f - (dist * dist / light.Range * light.Range));
+    return att * att;
+}
+
 Texture2D SurfaceTexture	: register(t0);
 Texture2D SpecularMap : register(t1);
 SamplerState BasicSampler	: register(s0);
