@@ -78,7 +78,7 @@ void Material::SetupPixelStruct(std::shared_ptr<Camera> cam, Light* lights)
 	pixelData.ambient = GetAmbient();
 
 	pixelData.type = 0;
-	pixelData.lightCount = 0;
+	pixelData.lightCount = 2;
 
 	for (int i = 0; i < 5; i++) {
 		pixelData.lights[i] = lights[i];

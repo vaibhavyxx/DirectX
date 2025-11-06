@@ -38,9 +38,27 @@ Game::Game()
 	for (int i = 0; i < 5; i++) {
 		Light dirLight = {};
 		dirLight.Type = LIGHT_TYPE_DIRECTIONAL;
-		dirLight.Direction = XMFLOAT3(1.0f, 0.0f, 0.0f);
-		dirLight.Color = XMFLOAT3(1.0f, 0.0f, 0.0f);
-		dirLight.Intensity = 1.0f;
+		if (i == 0) {
+			dirLight.Direction = XMFLOAT3(1.0f, 0.0f, 0.0f);
+			dirLight.Color = XMFLOAT3(1.0f, 0.0f, 0.0f);
+			dirLight.Intensity = 1.0f;
+		}
+		else if (i == 1) {
+			dirLight.Direction = XMFLOAT3(1.0f, 1.0f, 0.0f);
+			dirLight.Color = XMFLOAT3(1.0f, 1.0f, 0.0f);
+			dirLight.Intensity = 1.0f;
+		}
+		else if (i == 2) {
+			dirLight.Direction = XMFLOAT3(1.0f, 0.0f, 1.0f);
+			dirLight.Color = XMFLOAT3(1.0f, 0.0f, 1.0f);
+			dirLight.Intensity = 0.5f;
+		}
+		else{
+			dirLight.Direction = XMFLOAT3(0.0f, 0.0f, 1.0f);
+			dirLight.Color = XMFLOAT3(0.5f, 0.5f, 0.5f);
+			dirLight.Intensity = 1.0f;
+		}
+		
 		lights[i] = dirLight;
 	}
 
@@ -96,12 +114,6 @@ Game::Game()
 }
 
 void Game::Initialize() {
-
-	/*light = {};
-	light.Type = LIGHT_TYPE_DIRECTIONAL;
-	light.Direction = XMFLOAT3(1.0f, 1.0f, 0.0f);
-	light.Color = XMFLOAT3(1.0f, 0.0f, 0.0f);
-	light.Intensity = 1.0f;*/
 
 	currentCamera = 0;
 	// Initialize ImGui itself & platform/renderer backends
