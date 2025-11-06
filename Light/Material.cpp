@@ -78,9 +78,11 @@ void Material::SetupPixelStruct(std::shared_ptr<Camera> cam, Light* lights)
 	pixelData.ambient = GetAmbient();
 
 	pixelData.type = 0;
-	pixelData.light = lights[0];
+	pixelData.lightCount = 0;
+
 	for (int i = 0; i < 5; i++) {
-		std::cout << "Light: " << lights[i].Position.x ;
+		pixelData.lights[i] = lights[i];
+		//std::cout << "Light: " << lights[i].Position.x ;
 	}
 	Graphics::FillAndBindNextCB(&pixelData, sizeof(PixelStruct), D3D11_PIXEL_SHADER, 0);
 }

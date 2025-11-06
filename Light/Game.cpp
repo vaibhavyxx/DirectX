@@ -214,7 +214,7 @@ void Game::CreateGeometry()
 
 		materials[i]->AddTextureSRV(1, srvOverlay);		//additional texture for combine.cso
 		materials[i]->AddSampler(0, samplerState);
-		//materials[i]->AddSampler(1, samplerStateOverlay);
+		materials[i]->AddSampler(1, samplerStateOverlay);
 		materials[i]->BindTexturesAndSamplers();
 	}
 
@@ -234,7 +234,6 @@ void Game::CreateGeometry()
 		pixelEntities[i]->GetTransform()->SetPosition(offset * i, 0.0f, 0.0f);
 	}
 }
-
 
 // --------------------------------------------------------
 // Handle resizing to match the new window size

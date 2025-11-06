@@ -8,8 +8,8 @@
 
 cbuffer ExternalData : register(b0)
 {
-    //Light lights[5];
-    Light light;
+    Light lights[5];
+    //Light light;
     float4 colorTint;       //16
     float2 scale;
     float2 offset;          //32
@@ -28,36 +28,33 @@ SamplerState BasicSampler	: register(s0);
 
 float4 main(VertexToPixel input) : SV_TARGET
 {
-    //Light light = lights[0];
-    
+    Light thisLight = lights[lightCount];
     input.normal = normalize(input.normal);
     input.uv = input.uv * scale + offset;
     float3 color = float3(1.0f, 0.0f, 0.0f);
     float intensity = 1.0f;
     float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb;
     surfaceColor *= colorTint;
-    //float3 surfaceColor = colorTint;
     
     float3 ambientTerm = ambient * surfaceColor;
 
     float3 totalLight = ambientTerm;
-    float3 toLight = normalize(-light.Direction);
+    float3 toLight = normalize(-thisLight.Direction);
 
     float diffuse = saturate(dot(input.normal, toLight));
-    //diffuse = clamp(diffuse, 0.0f, 1.0f);  
     float3 diffuseTerm = (diffuse
     * surfaceColor)
-    * light.Intensity * light.Color;
+    * thisLight.Intensity * thisLight.Color;
     totalLight += diffuseTerm;
     
-    float3 reflectionVector = normalize(reflect(light.Direction, input.normal));
+    float3 reflectionVector = normalize(reflect(thisLight.Direction, input.normal));
     float3 surfaceToCamViewVector = normalize(camPos - input.worldPos);
     
     float specExponent = (1.0f - roughness) * MAX_SPECULAR_EXPONENT;
     float RdotV = saturate(dot(reflectionVector, surfaceToCamViewVector)); 
     
     float specularStrength = 1.0f; // or based on roughness
-    float3 specularTerm = pow(RdotV, specExponent) * light.Color * light.Intensity * specularStrength;
+    float3 specularTerm = pow(RdotV, specExponent) * thisLight.Color * thisLight.Intensity * specularStrength;
     
     float3 result = ambientTerm+ diffuseTerm + specularTerm;     //both of them separately are multiplied by surface color
     //result *= colorTint;

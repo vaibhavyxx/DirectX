@@ -15,8 +15,8 @@ struct  VertexStruct
 };
 
 struct PixelStruct {
-	//Light lights[5];
-	Light light;
+	Light lights[5];
+	//Light light;
 	DirectX::XMFLOAT4 colorTint;      
 	DirectX::XMFLOAT2 uvScale;
 	DirectX::XMFLOAT2 offset;    
