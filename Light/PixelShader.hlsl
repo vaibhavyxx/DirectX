@@ -45,9 +45,9 @@ float3 Directional(Light light, float3 normal, float3 worldPos, float3 camPos, f
     float3 toLight = normalize(-light.Direction);
     float3 toCam = normalize(camPos - worldPos);
     
-    float diff = Diffuse(normal, toLight);
+    float diff = Diffuse(normal, toLight) * surfaceColor;
     float spec = SpecularPhong(normal, toLight, toCam, roughness) * specularScale;
-    return (diff * surfaceColor) * light.Intensity * light.Color;
+    return (diff + spec) * light.Intensity * light.Color;
 }
 
 Texture2D SurfaceTexture	: register(t0);
