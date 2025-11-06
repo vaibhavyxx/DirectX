@@ -40,7 +40,7 @@ float SpecularPhong(float3 normal, float3 dirToLight, float3 toCam, float roughn
     return specExponent;
 }
 
-float3 DirLight(Light light, float3 normal, float3 worldPos, float3 camPos, float roughness, float3 surfaceColor, float specularScale)
+float3 Directional(Light light, float3 normal, float3 worldPos, float3 camPos, float roughness, float3 surfaceColor, float specularScale)
 {
     float3 toLight = normalize(-light.Direction);
     float3 toCam = normalize(camPos - worldPos);
@@ -56,7 +56,6 @@ SamplerState BasicSampler	: register(s0);
 
 float4 main(VertexToPixel input) : SV_TARGET
 {
-    Light thisLight = lights[lightCount];
     input.normal = normalize(input.normal);
     input.uv = input.uv * scale + offset;
 
@@ -64,17 +63,17 @@ float4 main(VertexToPixel input) : SV_TARGET
     surfaceColor *= colorTint;
     float specularScale = SpecularMap.Sample(BasicSampler, input.uv).r;
     
-    float3 ambientTerm = ambient * surfaceColor;
+    float3 totalLight = ambient * surfaceColor;
 
-    float3 totalLight = ambientTerm;
     for (int i = 0; i < 2; i++)
     {
         Light light = lights[i];
+        light.Direction = normalize(light.Direction);
         
         switch (light.Type)
         {
             case LIGHT_TYPE_DIRECTIONAL:
-                totalLight += DirLight(light, input.normal, input.worldPos, camPos, roughness, surfaceColor, specularScale);
+                totalLight += Directional(light, input.normal, input.worldPos, camPos, roughness, surfaceColor, specularScale);
                 break;
             
             case LIGHT_TYPE_POINT:
