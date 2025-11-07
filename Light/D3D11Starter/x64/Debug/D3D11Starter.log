@@ -1,5 +1,6 @@
-﻿C:\Users\vaibh\Documents\git\ggp-hws\Light\PixelShader.hlsl(48,11-56): warning X3206: implicit truncation of vector type
-C:\Users\vaibh\Documents\git\ggp-hws\Light\PixelShader.hlsl(63,5-29): warning X3206: implicit truncation of vector type
+﻿C:\Users\vaibh\Documents\git\ggp-hws\Light\PixelShader.hlsl(49,11-56): warning X3206: implicit truncation of vector type
+C:\Users\vaibh\Documents\git\ggp-hws\Light\PixelShader.hlsl(69,11-41): warning X3206: implicit truncation of vector type
+C:\Users\vaibh\Documents\git\ggp-hws\Light\PixelShader.hlsl(86,5-29): warning X3206: implicit truncation of vector type
 C:\Users\vaibh\Documents\git\ggp-hws\Light\PixelShader.hlsl(37,17): warning X4000: use of potentially uninitialized variable (SpecularPhong)
   
   compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\Light\x64\Debug\PixelShader.cso

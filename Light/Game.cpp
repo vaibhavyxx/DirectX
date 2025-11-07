@@ -38,20 +38,28 @@ Game::Game()
 	for (int i = 0; i < 5; i++) {
 		Light dirLight = {};
 		dirLight.Type = LIGHT_TYPE_DIRECTIONAL;
-		if (i == 0) {
+		if (i == 1) {
 			dirLight.Direction = XMFLOAT3(1.0f, 0.0f, 0.0f);
 			dirLight.Color = XMFLOAT3(1.0f, 0.0f, 0.0f);
 			dirLight.Intensity = 1.0f;
 		}
-		else if (i == 1) {
+		else if (i == 0) {
+			dirLight.Type = LIGHT_TYPE_POINT;
+			dirLight.Position = XMFLOAT3(5.0f, 1.0f, 0.0f);
 			dirLight.Direction = XMFLOAT3(1.0f, 1.0f, 0.0f);
 			dirLight.Color = XMFLOAT3(1.0f, 1.0f, 0.0f);
 			dirLight.Intensity = 1.0f;
+			dirLight.Range = 0.5f;
 		}
 		else if (i == 2) {
-			dirLight.Direction = XMFLOAT3(1.0f, 0.0f, 1.0f);
+			dirLight.Type = LIGHT_TYPE_SPOT;
+			dirLight.Direction = XMFLOAT3(0.0f, 1.0f, 1.0f);
 			dirLight.Color = XMFLOAT3(1.0f, 0.0f, 1.0f);
 			dirLight.Intensity = 0.5f;
+			dirLight.Range = 0.5f;
+			dirLight.Position = XMFLOAT3(-5.0f, 0.0f, 0.0f);
+			dirLight.SpotOuterAngle = XMConvertToRadians(60.0f);
+			dirLight.SpotInnerAngle = XMConvertToRadians(45.0f);
 		}
 		else{
 			dirLight.Direction = XMFLOAT3(0.0f, 0.0f, 1.0f);
@@ -61,14 +69,6 @@ Game::Game()
 		
 		lights[i] = dirLight;
 	}
-
-	/*Light spotLight = {};
-	spotLight.Type = LIGHT_TYPE_SPOT;
-	spotLight.Position = XMFLOAT3(0.0f, 5.0f, 0.0f);
-	spotLight.Direction = XMFLOAT3(1.0f, 0.0f, 0.0f);
-	spotLight.Color = XMFLOAT3(1.0f, 0.0f, 0.0f);
-	spotLight.Intensity = 1.0f;
-	lights[1] = (spotLight);*/
 
 	//Loads textures
 	CreateWICTextureFromFile(
