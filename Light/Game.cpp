@@ -164,48 +164,6 @@ Game::~Game()
 	ImGui::DestroyContext();
 }
 
-//--------------------------------------------------------
-//Helper function for count
-//--------------------------------------------------------
-template<typename T, size_t N>
-int Game::ArrayCount(const T(&array)[N]) {
-	return sizeof(array) / sizeof(array[0]);
-}
-
-//--------------------------------------------------------
-//Generates Vertices for Polygons
-//--------------------------------------------------------
-
-std::vector<DirectX::XMFLOAT3> Game::GenerateVertices(float centerX, float centerY, int sides, float radius) {
-	std::vector <DirectX::XMFLOAT3> tempVertex;
-
-	for (int i = 0; i < sides; ++i) {
-		float angle = (XM_PI * 2.0f) / sides * i;
-		float x = centerX + cosf(angle) * radius;
-		float y = centerY + sinf(angle) * radius;
-		tempVertex.push_back(XMFLOAT3(x, y, 0.0f));
-	}
-	tempVertex.push_back(XMFLOAT3(centerX, centerY, 0.0f));
-	return tempVertex;
-}
-//----------------------------------------------------------
-//Generates indices
-//---------------------------------------------------------
-std::vector<unsigned int> Game::GenerateIndices(int sides) {
-	int vertices = sides + 1;
-	int totalIndices = vertices * 3;
-	int centerIndex = sides;			//last index is the center index
-	std::vector<unsigned int> indices;
-
-	//Iterates through all the sides excluding the center
-	for (int i = 0; i < sides; i++) {
-		indices.push_back(i);
-		indices.push_back(centerIndex);
-		indices.push_back((i + 1) % sides);
-	}
-	return indices;
-}
-
 // --------------------------------------------------------
 // Creates the geometry we're going to draw
 // --------------------------------------------------------
@@ -292,7 +250,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	}
 	BuildUI();
 	for (int i = 0; i < pixelEntities.size(); i++) {
-		pixelEntities[i]->Draw(cameras[currentCamera], &lights[0]);
+		pixelEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor);
 	}
 
 	// Frame END
@@ -358,7 +316,29 @@ void Game::BuildUI() {
 		if (ImGui::Button("Camera 2")) currentCamera = 1;
 		if (ImGui::Button("Camera 3")) currentCamera = 2;
 	}
+	if (ImGui::CollapsingHeader("Lights")) {
+		for (int i = 0; i < 5; i++) {
+			DirectX::XMFLOAT3 colorValue = lights[i].Color;
+			float intensityValue = lights[i].Intensity;
 
+			std::string label = "Light##" + std::to_string(i);
+			std::string color = "Color##" + std::to_string(i);
+			std::string intensity = "Intensity##" + std::to_string(i);
+
+			if (ImGui::ColorEdit3(color.c_str(), &colorValue.x))
+				lights[i].Color = colorValue;
+
+			if (ImGui::DragFloat(intensity.c_str(), &intensityValue, 0.01f, 0.0f, 1.0f))
+				lights[i].Intensity = intensityValue;
+		}
+		std::string ambientLabel = "Ambience";
+		XMFLOAT3 colorRGB = ambientColor;
+		if (ImGui::ColorEdit3(ambientLabel.c_str(), &colorRGB.x)) {
+		
+			ambientColor = colorRGB;
+		}
+			
+	}
 
 	ImGui::End();
 }

@@ -34,7 +34,7 @@ void GameEntity::Update(float deltaTime, float time) {
 	material->SetTime(time);
 }
 
-void GameEntity::Draw(std::shared_ptr<Camera> cam, Light* lights)
+void GameEntity::Draw(std::shared_ptr<Camera> cam, Light* lights, DirectX::XMFLOAT3 color)
 {
 	material->GetShader()->Setup();
 	material->BindTexturesAndSamplers();
@@ -46,7 +46,8 @@ void GameEntity::Draw(std::shared_ptr<Camera> cam, Light* lights)
 	vsData.worldInvTranspose = transform->GetWorldInverseTransposeMatrix();
 	vsData.worldPos = transform->GetPosition();	//??
 	Graphics::FillAndBindNextCB(&vsData, sizeof(VertexStruct), D3D11_VERTEX_SHADER, 0);
-
+	
+	material->SetAmbient(color);
 	material->SetupPixelStruct(cam, lights);
 	mesh->Draw();
 }
