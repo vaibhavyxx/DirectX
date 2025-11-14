@@ -1,7 +1,4 @@
-﻿  Game.cpp
-  GameEntity.cpp
-  Main.cpp
-  Material.cpp
-  Mesh.cpp
-  Generating Code...
+﻿C:\Users\vaibh\Documents\git\ggp-hws\Light\Lighting.hlsli(37,5): warning X4000: use of potentially uninitialized variable (SpecularPhong)
+  
+  compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\Light\x64\Debug\PixelShader.cso
   D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\Light\x64\Debug\D3D11Starter.exe

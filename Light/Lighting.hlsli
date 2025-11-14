@@ -42,7 +42,7 @@ float3 Directional(Light light, float3 normal, float3 worldPos, float3 camPos, f
     float3 toLight = normalize(-light.Direction);
     float3 toCam = normalize(camPos - worldPos);
     
-    float diff = Diffuse(normal, toLight) * surfaceColor;
+    float3 diff = Diffuse(normal, toLight) * surfaceColor;
     float spec = SpecularPhong(normal, toLight, toCam, roughness) * specularScale;
     return (diff + spec) * light.Intensity * light.Color;
 }
@@ -63,10 +63,10 @@ float3 Point(Light light, float3 worldPos, float3 normal, float specularScale, f
     
     float atten = Attenuate(light, worldPos);
     
-    float diff = Diffuse(normal, toLight);
+    float3 diff = Diffuse(normal, toLight);
     float spec = SpecularPhong(normal, toLight, toCam, roughness) * specularScale;
     
-    return (diff * surfaceColor + spec * atten) * light.Intensity * light.Color;
+    return (diff * surfaceColor + spec) * light.Intensity * light.Color * atten;
     //Directional(light, normal, worldPos, camPos, roughness, surfaceColor, specularScale) * atten; 
 }
 
