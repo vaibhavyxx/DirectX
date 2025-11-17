@@ -32,14 +32,16 @@ float4 main(VertexToPixel input) : SV_TARGET
     input.normal = normalize(input.normal);
     input.uv = input.uv * scale + offset;
     
-    float3 unpackedNormal = normalize(NormalMap.Sample(BasicSampler, input.uv) * 2.0f -1.0f);
+    float3 unpackedNormal = normalize(NormalMap.Sample(BasicSampler, input.uv).xyz * 2.0f -1.0f);
     float3 n = normalize(input.normal);
     float3 t = normalize(input.tangent - dot(input.tangent, n) * n);
     float3 b = cross(t, n);
     float3x3 tbn = float3x3(t, b, n);
     
-    float3 finalNormal = mul(unpackedNormal, tbn);
+    float3 finalNormal = mul(tbn, unpackedNormal);
     input.normal = finalNormal;
+    
+    //return float4(input.tangent, 1.0f);
     
     float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb;
     surfaceColor *= colorTint.rgb;
