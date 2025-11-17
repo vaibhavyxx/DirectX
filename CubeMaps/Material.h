@@ -29,8 +29,7 @@ private:
 	XMFLOAT3 ambient;
 
 public:
-	Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color, float roughness, DirectX::XMFLOAT3 ambient,
-		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normal);
+	Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color, float roughness, DirectX::XMFLOAT3 ambient);
 
 	//Setters 
 	void SetColorTint(int r, int g, int b, int a);

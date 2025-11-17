@@ -71,26 +71,29 @@ Game::Game()
 	}
 
 	//Loads textures
+
 	CreateWICTextureFromFile(
-		Graphics::Device.Get(), // Device for resource creation
-		Graphics::Context.Get(), // Context for mipmap creation
-		FixPath(L"../../Assets/Materials/crate.png").c_str(), // Actual image file
+		Graphics::Device.Get(), 
+		Graphics::Context.Get(),
+		FixPath(L"../../Assets/Materials/crate.png").c_str(), 
 		0, // ID3D11Texture2D pointer - unneeded
-		srvRock.GetAddressOf()); // SRV pointer – what we need
+		crate.GetAddressOf());
 
 	CreateWICTextureFromFile(
 		Graphics::Device.Get(),
 		Graphics::Context.Get(),
 		FixPath(L"../../Assets/Materials/water.jpg").c_str(),
 		0,
-		srvWater.GetAddressOf());
+		water.GetAddressOf());
 
 	CreateWICTextureFromFile(
 		Graphics::Device.Get(),
 		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/danger.png").c_str(),
+		FixPath(L"../../Assets/Materials/rock.png").c_str(),
 		0,
-		srvOverlay.GetAddressOf());
+		rock.GetAddressOf());
+
+	srvVector = { crate, rock, water };
 
 	//Calls PS Set Shader Resources
 	D3D11_SAMPLER_DESC sampDesc = {};
@@ -103,11 +106,11 @@ Game::Game()
 	Graphics::Device->CreateSamplerState(&sampDesc, samplerState.GetAddressOf());
 	Graphics::Device->CreateSamplerState(&sampDesc, samplerStateOverlay.GetAddressOf());
 
-	pixelShader = std::make_shared<Shader>();
+	shaders = std::make_shared<Shader>();
 
-	pixelShader->LoadVertexShader();
-	pixelShader->LoadPixelShader("PixelShader.cso");
-	pixelShader->CreatePixelBuffer();
+	shaders->LoadVertexShader();
+	shaders->LoadPixelShader("PixelShader.cso");
+	shaders->CreatePixelBuffer();
 
 	Initialize();
 	CreateGeometry();
@@ -170,21 +173,16 @@ Game::~Game()
 void Game::CreateGeometry()
 {
 	ambientColor = DirectX::XMFLOAT3(0.1f, 0.1f, 0.25f);
-	std::shared_ptr<Material> white = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor, srvRock);
-	std::shared_ptr<Material> red = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 0.592f, 0.588f, 0.80f), 0.5f, ambientColor, srvRock);
-	std::shared_ptr<Material> blueGreen = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f), 1.0f, ambientColor, srvRock);
-	std::shared_ptr<Material> purple = std::make_shared<Material>(pixelShader, DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f), 0.25f, ambientColor, srvRock);
-	materials = { white, red, purple, white };
+	materials = { 
+		std::make_shared<Material>(shaders, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor),
+		std::make_shared<Material>(shaders, DirectX::XMFLOAT4(1.0f, 0.592f, 0.588f, 0.80f), 0.5f, ambientColor),
+		std::make_shared<Material>(shaders, DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f), 0.25f, ambientColor)};
 
 	for (int i = 0; i < 4; i++) {
-		if (i <= 2)
-			materials[i]->AddTextureSRV(0, srvWater);
-		else
-			materials[i]->AddTextureSRV(0, srvRock);
-
-		materials[i]->AddTextureSRV(1, srvOverlay);		//additional texture for combine.cso
+		materials[i]->AddTextureSRV(0, water);
+		//materials[i]->AddTextureSRV(1, srvOverlay);		//additional texture for combine.cso
 		materials[i]->AddSampler(0, samplerState);
-		materials[i]->AddSampler(1, samplerStateOverlay);
+		//materials[i]->AddSampler(1, samplerStateOverlay);
 		materials[i]->BindTexturesAndSamplers();
 	}
 
@@ -200,8 +198,8 @@ void Game::CreateGeometry()
 	float offset = 3.0f;
 	for (int i = 0; i < meshes.size(); i++) {
 		int materialsCount = i % materials.size();
-		pixelEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[materialsCount]));
-		pixelEntities[i]->GetTransform()->SetPosition(offset * i, 0.0f, 0.0f);
+		gameEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[materialsCount]));
+		gameEntities[i]->GetTransform()->SetPosition(offset * i, 0.0f, 0.0f);
 	}
 }
 
@@ -230,8 +228,8 @@ void Game::Update(float deltaTime, float totalTime)
 		Window::Quit();
 	float speed = 0.5f;
 	d += speed * deltaTime;
-	for (int i = 0; i < pixelEntities.size(); i++) {
-		pixelEntities[i]->GetTransform()->SetRotation(d, d, 1.0f);
+	for (int i = 0; i < gameEntities.size(); i++) {
+		gameEntities[i]->GetTransform()->SetRotation(d, d, 1.0f);
 	}
 	cameras[currentCamera]->Update(deltaTime);
 }
@@ -243,14 +241,14 @@ void Game::Draw(float deltaTime, float totalTime)
 {
 	{
 		// Clear the back buffer (erase what's on screen) and depth buffer
-		Graphics::Context->ClearRenderTargetView(Graphics::BackBufferRTV.Get(), color);
+		//Graphics::Context->ClearRenderTargetView(Graphics::BackBufferRTV.Get(), color);
 		Graphics::Context->ClearRenderTargetView(Graphics::BackBufferRTV.Get(), color);
 		Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 	}
 	BuildUI();
-	for (int i = 0; i < pixelEntities.size(); i++) {
-		pixelEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor);
+	for (int i = 0; i < gameEntities.size(); i++) {
+		gameEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor);
 	}
 
 	// Frame END
@@ -294,9 +292,9 @@ int count = 0;
 void Game::BuildUI() {
 	ImGui::Begin("Inspector");
 
-	for (unsigned int i = 0; i < pixelEntities.size(); i++)
+	for (unsigned int i = 0; i < gameEntities.size(); i++)
 	{
-		EntityValues(pixelEntities[i], i);
+		EntityValues(gameEntities[i], i);
 	}
 
 	if (ImGui::CollapsingHeader("Camera"))
