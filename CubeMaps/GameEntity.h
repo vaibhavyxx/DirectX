@@ -1,0 +1,31 @@
+#pragma once
+#include "Mesh.h"
+#include "Transform.h"
+#include <d3d11.h>
+#include <wrl/client.h>
+#include <memory>
+#include "Vertex.h"
+#include <DirectXMath.h>
+#include "Camera.h"
+#include "Material.h"
+#include "Shader.h"
+#include "Lights.h"
+#include <vector>
+
+class GameEntity
+{
+public:
+	GameEntity(std::shared_ptr<Mesh> mesh, std::shared_ptr <Material> material);
+	std::shared_ptr<Mesh> GetMesh();
+	std::shared_ptr<Transform> GetTransform();
+	std::shared_ptr<Material> GetMaterial();
+	void Draw(std::shared_ptr<Camera> cam, Light* lights, XMFLOAT3 color);
+	void Update(float deltaTime, float totalTime);
+	
+private:
+	std::shared_ptr<Mesh> mesh;
+	std::shared_ptr<Transform> transform;
+	std::shared_ptr<Material> material;
+
+};
+
