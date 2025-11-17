@@ -80,17 +80,18 @@ Game::Game()
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> flatNRM;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rockNRM;
 
+#pragma region Texture files
 	CreateWICTextureFromFile(
-		Graphics::Device.Get(), 
+		Graphics::Device.Get(),
 		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/crate.png").c_str(), 
-		0, 
+		FixPath(L"../../Assets/Materials/cobblestone.png").c_str(),
+		0,
 		crate.GetAddressOf());
 
 	CreateWICTextureFromFile(
 		Graphics::Device.Get(),
 		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/water.jpg").c_str(),
+		FixPath(L"../../Assets/Materials/cushion.png").c_str(),
 		0,
 		water.GetAddressOf());
 
@@ -101,7 +102,9 @@ Game::Game()
 		0,
 		rock.GetAddressOf());
 
-	//Normals
+#pragma endregion
+
+#pragma region Normals
 	CreateWICTextureFromFile(
 		Graphics::Device.Get(),
 		Graphics::Context.Get(),
@@ -129,9 +132,10 @@ Game::Game()
 		FixPath(L"../../Assets/Materials/rock_normals.png").c_str(),
 		0,
 		rockNRM.GetAddressOf());
+#pragma endregion
 
 	srvVector = { crate, rock, water };
-	normalsSRV = { cobblestoneNRM, cushionNRM, flatNRM, rockNRM };
+	normalsSRV = { cobblestoneNRM, cushionNRM, rockNRM, flatNRM };
 
 	//Calls PS Set Shader Resources
 	D3D11_SAMPLER_DESC sampDesc = {};
