@@ -178,7 +178,7 @@ void Game::CreateGeometry()
 		std::make_shared<Material>(shaders, DirectX::XMFLOAT4(1.0f, 0.592f, 0.588f, 0.80f), 0.5f, ambientColor),
 		std::make_shared<Material>(shaders, DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f), 0.25f, ambientColor)};
 
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < 3; i++) {
 		materials[i]->AddTextureSRV(0, water);
 		//materials[i]->AddTextureSRV(1, srvOverlay);		//additional texture for combine.cso
 		materials[i]->AddSampler(0, samplerState);
