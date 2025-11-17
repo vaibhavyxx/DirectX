@@ -68,5 +68,5 @@ float4 main(VertexToPixel input) : SV_TARGET
     }
        
     
-    return float4(totalLight, 1.0f);
+    return float4(input.tangent, 1.0f);
 }

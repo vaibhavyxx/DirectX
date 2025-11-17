@@ -12,7 +12,6 @@ struct  VertexStruct
 	DirectX::XMFLOAT3 worldPos;
 	float pad2;
 	DirectX::XMFLOAT4X4 worldInvTranspose;
-	DirectX::XMFLOAT3 tangent;
 };
 
 struct PixelStruct {
