@@ -24,13 +24,23 @@ cbuffer ExternalData : register(b0)
 }
 Texture2D SurfaceTexture : register(t0);
 Texture2D SpecularMap : register(t1);
+Texture2D NormalMap : register(t2);
 SamplerState BasicSampler : register(s0);
 
 float4 main(VertexToPixel input) : SV_TARGET
 {
     input.normal = normalize(input.normal);
     input.uv = input.uv * scale + offset;
-
+    
+    float3 unpackedNormal = normalize(NormalMap.Sample(BasicSampler, input.uv) * 2.0f -1.0f);
+    float3 n = normalize(input.normal);
+    float3 t = normalize(input.tangent - dot(input.tangent, n) * n);
+    float3 b = cross(t, n);
+    float3x3 tbn = float3x3(t, b, n);
+    
+    float3 finalNormal = mul(unpackedNormal, tbn);
+    input.normal = finalNormal;
+    
     float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb;
     surfaceColor *= colorTint.rgb;
     float specularScale = SpecularMap.Sample(BasicSampler, input.uv).r;
@@ -68,5 +78,5 @@ float4 main(VertexToPixel input) : SV_TARGET
     }
        
     
-    return float4(input.tangent, 1.0f);
+    return float4(totalLight, 1.0f);
 }

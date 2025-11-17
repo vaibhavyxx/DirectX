@@ -37,6 +37,7 @@ Material::Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color, floa
 	this->roughness = roughness;
 	this->ambient = ambient;
 	this->normal = normal;
+	AddTextureSRV(1, normal);
 }
 
 void Material::SetColorTint(int r, int g, int b, int a)
@@ -79,7 +80,7 @@ void Material::SetupPixelStruct(std::shared_ptr<Camera> cam, Light* lights)
 	pixelData.roughness = GetRoughness();
 	pixelData.camPos = cam->GetTransform()->GetPosition();
 	pixelData.ambient = GetAmbient();
-
+	
 	pixelData.type = 0;
 	pixelData.lightCount = 1;
 
@@ -92,6 +93,7 @@ void Material::SetupPixelStruct(std::shared_ptr<Camera> cam, Light* lights)
 void Material::SetNormal(Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> value)
 {
 	this->normal = value;
+	AddTextureSRV(1, this->normal);
 }
 
 void Material::SetVertexBuffer(Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader)
