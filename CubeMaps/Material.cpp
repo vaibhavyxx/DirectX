@@ -21,7 +21,8 @@
 #include "Lights.h"
 #include <vector>
 
-Material::Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color, float roughness, DirectX::XMFLOAT3 ambient)
+Material::Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color, float roughness, DirectX::XMFLOAT3 ambient,
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normal)
 {
 	this->normal = normal;
 	this->shader = shader;
@@ -35,6 +36,7 @@ Material::Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color, floa
 	this->samplerCounter = 0;
 	this->roughness = roughness;
 	this->ambient = ambient;
+	this->normal = normal;
 }
 
 void Material::SetColorTint(int r, int g, int b, int a)
@@ -85,6 +87,11 @@ void Material::SetupPixelStruct(std::shared_ptr<Camera> cam, Light* lights)
 		pixelData.lights[i] = lights[i];
 	}
 	Graphics::FillAndBindNextCB(&pixelData, sizeof(PixelStruct), D3D11_PIXEL_SHADER, 0);
+}
+
+void Material::SetNormal(Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> value)
+{
+	this->normal = value;
 }
 
 void Material::SetVertexBuffer(Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader)

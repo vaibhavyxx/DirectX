@@ -29,7 +29,7 @@ private:
 	XMFLOAT3 ambient;
 
 public:
-	Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color, float roughness, DirectX::XMFLOAT3 ambient);
+	Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color, float roughness, DirectX::XMFLOAT3 ambient, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normal);
 
 	//Setters 
 	void SetColorTint(int r, int g, int b, int a);
@@ -39,7 +39,7 @@ public:
 	void SetAmbient(XMFLOAT3 value);
 	XMFLOAT3 GetAmbient();
 	void SetupPixelStruct(std::shared_ptr<Camera> cam, Light* lights);
-
+	void SetNormal(Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> value);
 	void SetVertexBuffer(Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader);
 	void SetPixelBuffer(Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader);
 

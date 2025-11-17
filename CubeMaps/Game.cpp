@@ -216,12 +216,13 @@ void Game::CreateGeometry()
 {
 	ambientColor = DirectX::XMFLOAT3(0.1f, 0.1f, 0.25f);
 	materials = { 
-		std::make_shared<Material>(shaders, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor),
-		std::make_shared<Material>(shaders, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.5f, ambientColor),
-		std::make_shared<Material>(shaders, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.25f, ambientColor)};
+		std::make_shared<Material>(shaders, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor, normalsSRV[3]),
+		std::make_shared<Material>(shaders, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.5f, ambientColor, normalsSRV[3]),
+		std::make_shared<Material>(shaders, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.25f, ambientColor, normalsSRV[3])};
 
 	for (int i = 0; i < 3; i++) {
 		materials[i]->AddTextureSRV(0, srvVector[i]);
+		materials[i]->SetNormal(normalsSRV[i]);
 		//materials[i]->AddTextureSRV(1, srvOverlay);		//additional texture for combine.cso
 		materials[i]->AddSampler(0, samplerState);
 		//materials[i]->AddSampler(1, samplerStateOverlay);
