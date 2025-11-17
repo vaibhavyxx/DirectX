@@ -71,12 +71,20 @@ Game::Game()
 	}
 
 	//Loads textures
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> crate;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> water;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rock;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cobblestoneNRM;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cushionNRM;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> flatNRM;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rockNRM;
 
 	CreateWICTextureFromFile(
 		Graphics::Device.Get(), 
 		Graphics::Context.Get(),
 		FixPath(L"../../Assets/Materials/crate.png").c_str(), 
-		0, // ID3D11Texture2D pointer - unneeded
+		0, 
 		crate.GetAddressOf());
 
 	CreateWICTextureFromFile(
@@ -93,7 +101,37 @@ Game::Game()
 		0,
 		rock.GetAddressOf());
 
+	//Normals
+	CreateWICTextureFromFile(
+		Graphics::Device.Get(),
+		Graphics::Context.Get(),
+		FixPath(L"../../Assets/Materials/cobblestone_normals.png").c_str(),
+		0,
+		cobblestoneNRM.GetAddressOf());
+
+	CreateWICTextureFromFile(
+		Graphics::Device.Get(),
+		Graphics::Context.Get(),
+		FixPath(L"../../Assets/Materials/cushion_normals.jpg").c_str(),
+		0,
+		cushionNRM.GetAddressOf());
+
+	CreateWICTextureFromFile(
+		Graphics::Device.Get(),
+		Graphics::Context.Get(),
+		FixPath(L"../../Assets/Materials/flat_normals.png").c_str(),
+		0,
+		flatNRM.GetAddressOf());
+
+	CreateWICTextureFromFile(
+		Graphics::Device.Get(),
+		Graphics::Context.Get(),
+		FixPath(L"../../Assets/Materials/rock_normals.png").c_str(),
+		0,
+		rockNRM.GetAddressOf());
+
 	srvVector = { crate, rock, water };
+	normalsSRV = { cobblestoneNRM, cushionNRM, flatNRM, rockNRM };
 
 	//Calls PS Set Shader Resources
 	D3D11_SAMPLER_DESC sampDesc = {};
@@ -179,7 +217,7 @@ void Game::CreateGeometry()
 		std::make_shared<Material>(shaders, DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f), 0.25f, ambientColor)};
 
 	for (int i = 0; i < 3; i++) {
-		materials[i]->AddTextureSRV(0, water);
+		materials[i]->AddTextureSRV(0, srvVector[i]);
 		//materials[i]->AddTextureSRV(1, srvOverlay);		//additional texture for combine.cso
 		materials[i]->AddSampler(0, samplerState);
 		//materials[i]->AddSampler(1, samplerStateOverlay);
