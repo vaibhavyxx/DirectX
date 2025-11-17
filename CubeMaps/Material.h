@@ -18,6 +18,7 @@ private:
 	std::shared_ptr<Shader> shader;
 	float time;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> textureSRVs[128];
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normal;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplers[16];
 
 	int textureCounter;
@@ -28,7 +29,8 @@ private:
 	XMFLOAT3 ambient;
 
 public:
-	Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color, float roughness, DirectX::XMFLOAT3 ambient);
+	Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color, float roughness, DirectX::XMFLOAT3 ambient,
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normal);
 
 	//Setters 
 	void SetColorTint(int r, int g, int b, int a);

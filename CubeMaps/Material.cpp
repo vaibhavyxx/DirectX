@@ -21,8 +21,10 @@
 #include "Lights.h"
 #include <vector>
 
-Material::Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color, float roughness, DirectX::XMFLOAT3 ambient)
+Material::Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color, float roughness, DirectX::XMFLOAT3 ambient,
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normal)
 {
+	this->normal = normal;
 	this->shader = shader;
 	this->vertexShader = shader->GetVertexShader();
 	this->pixelShader = shader->GetPixelShader();

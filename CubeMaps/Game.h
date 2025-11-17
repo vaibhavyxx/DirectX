@@ -36,11 +36,6 @@ private:
 	void MeshDetails(std::shared_ptr<Mesh> mesh, const char* name);
 	void EntityValues(std::shared_ptr<GameEntity> entity, unsigned int i);
 
-	template<typename T, size_t N>
-	int ArrayCount(const T(&array)[N]);
-	std::vector<DirectX::XMFLOAT3> GenerateVertices(float centerX, float centerY, int sides, float radius);
-	std::vector<unsigned int> GenerateIndices(int sides);
-
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srvRock;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srvWater;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srvOverlay;
