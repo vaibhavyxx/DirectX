@@ -14,14 +14,3 @@ struct Vertex
 	DirectX::XMFLOAT3 Normal;
 	DirectX::XMFLOAT3 Tangent;
 };
-
-/*
-matrix world;
-    matrix view;
-    matrix projection;
-    float3 normal;
-    float pad;
-    float3 worldPos;
-    float pad2;
-    matrix worldInvTranspose;
-    float3 tangent;*/

@@ -29,3 +29,8 @@ struct PixelStruct {
 	DirectX::XMFLOAT3 pad;
 	int lightCount;
 };
+
+struct Skybox {
+	DirectX::XMFLOAT4X4 view;
+	DirectX::XMFLOAT4X4 projection;
+};
