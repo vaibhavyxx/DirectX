@@ -1,2 +1,10 @@
-﻿  Camera.cpp
+﻿  compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\CombineShader.cso
+  compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\CustomPS.cso
+  compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\DebugNormalsPS.cso
+  compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\DebugUVPS.cso
+C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\Lighting.hlsli(34,20): warning X4000: use of potentially uninitialized variable (SpecularPhong)
+  
+  compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\PixelShader.cso
+  compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\SkyVertexShader.cso
+  compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\VertexShader.cso
   D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\D3D11Starter.exe

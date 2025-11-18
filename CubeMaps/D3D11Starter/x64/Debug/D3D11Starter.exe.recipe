@@ -22,6 +22,9 @@
       <FullPath>C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\PixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
+      <FullPath>C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\SkyVertexShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
       <FullPath>C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\VertexShader.cso</FullPath>
     </ContentFile>
   </ContentFiles>

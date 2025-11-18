@@ -40,21 +40,21 @@ Game::Game()
 		dirLight.Type = LIGHT_TYPE_DIRECTIONAL;
 		if (i == 1) {
 			dirLight.Direction = XMFLOAT3(1.0f, 0.0f, 0.0f);
-			dirLight.Color = XMFLOAT3(1.0f, 0.0f, 0.0f);
+			dirLight.Color = XMFLOAT3(1.0f, 1.0f, 1.0f);
 			dirLight.Intensity = 1.0f;
 		}
 		else if (i == 0) {
 			dirLight.Type = LIGHT_TYPE_POINT;
 			dirLight.Position = XMFLOAT3(5.0f, 1.0f, 0.0f);
 			dirLight.Direction = XMFLOAT3(1.0f, 1.0f, 0.0f);
-			dirLight.Color = XMFLOAT3(1.0f, 1.0f, 0.0f);
+			dirLight.Color = XMFLOAT3(1.0f, 1.0f, 1.0f);
 			dirLight.Intensity = 1.0f;
 			dirLight.Range = 0.5f;
 		}
 		else if (i == 2) {
 			dirLight.Type = LIGHT_TYPE_SPOT;
 			dirLight.Direction = XMFLOAT3(0.0f, 1.0f, 1.0f);
-			dirLight.Color = XMFLOAT3(1.0f, 0.0f, 1.0f);
+			dirLight.Color = XMFLOAT3(1.0f, 1.0f, 1.0f);
 			dirLight.Intensity = 0.5f;
 			dirLight.Range = 0.5f;
 			dirLight.Position = XMFLOAT3(-5.0f, 0.0f, 0.0f);
@@ -63,7 +63,7 @@ Game::Game()
 		}
 		else{
 			dirLight.Direction = XMFLOAT3(0.0f, 0.0f, 1.0f);
-			dirLight.Color = XMFLOAT3(0.5f, 0.5f, 0.5f);
+			dirLight.Color = XMFLOAT3(1.0f, 1.0f, 1.0f);
 			dirLight.Intensity = 1.0f;
 		}
 		

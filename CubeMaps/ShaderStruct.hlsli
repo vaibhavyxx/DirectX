@@ -18,5 +18,9 @@ struct VertexToPixel
     float3 worldPos : POSITION;
     float3 tangent : TANGENT;
 };
-
+struct VertexToPixel_SKY
+{
+    float4 position : SV_POSITION; // XYZW position (System Value Position)
+    float3 sampleDir : TEXCOORD1;
+};
 #endif
