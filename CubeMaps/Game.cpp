@@ -72,7 +72,7 @@ Game::Game()
 
 	//Loads textures
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> crate;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> water;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cushion;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rock;
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cobblestoneNRM;
@@ -93,7 +93,7 @@ Game::Game()
 		Graphics::Context.Get(),
 		FixPath(L"../../Assets/Materials/cushion.png").c_str(),
 		0,
-		water.GetAddressOf());
+		cushion.GetAddressOf());
 
 	CreateWICTextureFromFile(
 		Graphics::Device.Get(),
@@ -134,7 +134,7 @@ Game::Game()
 		rockNRM.GetAddressOf());
 #pragma endregion
 
-	srvVector = { crate, rock, water };
+	srvVector = { crate, cushion, rock };
 	normalsSRV = { cobblestoneNRM, cushionNRM, rockNRM, flatNRM };
 
 	//Calls PS Set Shader Resources
@@ -222,10 +222,10 @@ void Game::CreateGeometry()
 
 	for (int i = 0; i < 3; i++) {
 		materials[i]->AddTextureSRV(0, srvVector[i]);
-		materials[i]->SetNormal(normalsSRV[i]);
+		materials[i]->AddTextureSRV(2, normalsSRV[i]);
 		//materials[i]->AddTextureSRV(1, srvOverlay);		//additional texture for combine.cso
 		materials[i]->AddSampler(0, samplerState);
-		//materials[i]->AddSampler(1, samplerStateOverlay);
+		//materials[i]->AddSampler(1, samplerState);
 		materials[i]->BindTexturesAndSamplers();
 	}
 
@@ -271,7 +271,7 @@ void Game::Update(float deltaTime, float totalTime)
 	float speed = 0.5f;
 	d += speed * deltaTime;
 	for (int i = 0; i < gameEntities.size(); i++) {
-		gameEntities[i]->GetTransform()->SetRotation(d, d, 1.0f);
+		//gameEntities[i]->GetTransform()->SetRotation(d, d, 1.0f);
 	}
 	cameras[currentCamera]->Update(deltaTime);
 }

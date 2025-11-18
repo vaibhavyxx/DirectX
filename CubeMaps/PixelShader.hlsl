@@ -30,6 +30,7 @@ SamplerState BasicSampler : register(s0);
 float4 main(VertexToPixel input) : SV_TARGET
 {
     input.normal = normalize(input.normal);
+    input.tangent = normalize(input.tangent);
     input.uv = input.uv * scale + offset;
     
     float3 unpackedNormal = normalize(NormalMap.Sample(BasicSampler, input.uv).xyz * 2.0f -1.0f);
@@ -41,7 +42,7 @@ float4 main(VertexToPixel input) : SV_TARGET
     float3 finalNormal = mul(tbn, unpackedNormal);
     input.normal = finalNormal;
     
-    //return float4(input.tangent, 1.0f);
+    //return float4(unpackedNormal, 1.0f);
     
     float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb;
     surfaceColor *= colorTint.rgb;

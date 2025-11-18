@@ -9,7 +9,7 @@ cbuffer ExternalData : register(b0)
     float3 worldPos;
     float pad2;
     matrix worldInvTranspose;
-    float3 tangent;
+    //float3 tangent;
 }
 
 // --------------------------------------------------------

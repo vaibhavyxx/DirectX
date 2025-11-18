@@ -14,7 +14,7 @@ Camera::Camera(float aspectRatio, DirectX::XMFLOAT3 initialPosition,
     this->nearClip = nearClip;
     this->farClip = farClip;
     this->orthographic = orthographic;
-    this->moveSpeed = movementSpeed;
+    this->moveSpeed = 5.0f;
     this->mouseLookSpeed = mouseLookSpeed;
     this->windowSize = windowSize;
     transform = std::make_shared<Transform>();
