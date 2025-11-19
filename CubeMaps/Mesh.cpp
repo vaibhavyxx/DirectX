@@ -235,7 +235,7 @@ Mesh::~Mesh() {
 
 void Mesh::CreateBuffers(Vertex* vertArray, size_t numVerts, unsigned int* indexArray, size_t numIndices)
 {
-	CalculateTangents(vertArray, numVerts, indexArray, numIndices);
+	CalculateTangents(vertArray, (int)numVerts, indexArray, (int)numIndices);
 
 	{
 		D3D11_BUFFER_DESC vbd = {};
