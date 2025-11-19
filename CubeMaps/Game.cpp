@@ -35,6 +35,7 @@ using namespace DirectX;
 // --------------------------------------------------------
 Game::Game()
 {
+	float offset = 0.5f;
 	for (int i = 0; i < 5; i++) {
 		Light dirLight = {};
 		dirLight.Type = LIGHT_TYPE_DIRECTIONAL;
@@ -46,7 +47,7 @@ Game::Game()
 		else if (i == 0) {
 			dirLight.Type = LIGHT_TYPE_POINT;
 			dirLight.Position = XMFLOAT3(5.0f, 1.0f, 0.0f);
-			dirLight.Direction = XMFLOAT3(1.0f, 1.0f, 0.0f);
+			dirLight.Direction = XMFLOAT3(offset * i, offset * i, 0.0f);
 			dirLight.Color = XMFLOAT3(1.0f, 1.0f, 1.0f);
 			dirLight.Intensity = 1.0f;
 			dirLight.Range = 0.5f;
@@ -57,7 +58,7 @@ Game::Game()
 			dirLight.Color = XMFLOAT3(1.0f, 1.0f, 1.0f);
 			dirLight.Intensity = 0.5f;
 			dirLight.Range = 0.5f;
-			dirLight.Position = XMFLOAT3(-5.0f, 0.0f, 0.0f);
+			dirLight.Position = XMFLOAT3(offset * i, 0.0f, 0.0f);
 			dirLight.SpotOuterAngle = XMConvertToRadians(60.0f);
 			dirLight.SpotInnerAngle = XMConvertToRadians(45.0f);
 		}
@@ -65,13 +66,14 @@ Game::Game()
 			dirLight.Direction = XMFLOAT3(0.0f, 0.0f, 1.0f);
 			dirLight.Color = XMFLOAT3(1.0f, 1.0f, 1.0f);
 			dirLight.Intensity = 1.0f;
+			dirLight.Position = XMFLOAT3(offset * i, 0.0f, 0.0f);
 		}
 		
 		lights[i] = dirLight;
 	}
 
 	//Loads textures
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> crate;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cobblestone;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cushion;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rock;
 
@@ -86,7 +88,7 @@ Game::Game()
 		Graphics::Context.Get(),
 		FixPath(L"../../Assets/Materials/cobblestone.png").c_str(),
 		0,
-		crate.GetAddressOf());
+		cobblestone.GetAddressOf());
 
 	CreateWICTextureFromFile(
 		Graphics::Device.Get(),
@@ -185,7 +187,7 @@ Game::Game()
 		up.GetAddressOf());
 #pragma endregion
 
-	srvVector = { crate, cushion, rock };
+	srvVector = { cobblestone, cushion, rock };
 	normalsSRV = { cobblestoneNRM, cushionNRM, rockNRM, flatNRM };
 	//skySRV = { back, down, front, left, right, up };
 
@@ -271,7 +273,7 @@ Game::~Game()
 // --------------------------------------------------------
 void Game::CreateGeometry()
 {
-	ambientColor = DirectX::XMFLOAT3(0.1f, 0.1f, 0.25f);
+	ambientColor = DirectX::XMFLOAT3(0.545f, 0.74f, 0.97f);
 	materials = { 
 		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor, normalsSRV[3]),
 		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.5f, ambientColor, normalsSRV[3]),
@@ -293,11 +295,12 @@ void Game::CreateGeometry()
 	std::shared_ptr<Mesh> quad = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/quad.obj").c_str());
 	std::shared_ptr<Mesh> quadDoubleSided = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/quad_double_sided.obj").c_str());
 	std::shared_ptr<Mesh> torus = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/torus.obj").c_str());
-	meshes = {sphere, cube, cylinder, quad, helix,quadDoubleSided, torus };
+	meshes = {sphere, cube, quad,cylinder, helix,quadDoubleSided, torus };
 
 	sky = std::make_shared<Sky>(cube, samplerState, textures, skyShader);	//makes a sky
 
-	float offset = 3.0f;
+	float offset = 5.0f;
+
 	for (int i = 0; i < meshes.size(); i++) {
 		int materialsCount = i % materials.size();
 		gameEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[materialsCount]));

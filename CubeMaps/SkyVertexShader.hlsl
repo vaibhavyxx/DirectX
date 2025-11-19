@@ -12,9 +12,9 @@ VertexToPixel_SKY main(VertexShaderInput input)
     VertexToPixel_SKY output;
     
     matrix viewNoTranslation = view;
-    viewNoTranslation._14 = 0;
-    viewNoTranslation._24 = 0;
-    viewNoTranslation._34 = 0;
+    viewNoTranslation._14 = 0.0f;
+    viewNoTranslation._24 = 0.0f;
+    viewNoTranslation._34 = 0.0f;
     
     matrix vp = mul(projection, viewNoTranslation);
     output.position = mul(vp, float4(input.localPosition, 1.0f));
