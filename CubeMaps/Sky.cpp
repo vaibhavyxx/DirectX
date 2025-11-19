@@ -2,8 +2,12 @@
 #include "Graphics.h"
 #include "BufferHelpers.h"
 #include "WICTextureLoader.h"
+#include <iostream>
+#include <vector>
+#include <algorithm>
 
-Sky::Sky(std::shared_ptr<Mesh> mesh, Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState)
+Sky::Sky(std::shared_ptr<Mesh> mesh, Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState,
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> textures[6])
 {
 	{
 		D3D11_RASTERIZER_DESC rasterizer = {};
@@ -19,7 +23,9 @@ Sky::Sky(std::shared_ptr<Mesh> mesh, Microsoft::WRL::ComPtr<ID3D11SamplerState> 
 		Graphics::Device->CreateDepthStencilState(&depthStencilState, depthBuffer.GetAddressOf());
 	}
 	this->geometry = mesh;
-	this->samplerState = samplerState;
+	//this->samplerState = samplerState;
+	//this->srvVectors = srvVectors;
+	this->srv = CreateCubemap(textures);
 }
 
 void Sky::Draw(float deltaTime, std::shared_ptr<Camera> cam)
@@ -51,25 +57,28 @@ void Sky::Draw(float deltaTime, std::shared_ptr<Camera> cam)
 // the cube map and cleans up all of the temporary resources.
 // --------------------------------------------------------
 Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> Sky::CreateCubemap(
-	const wchar_t* right,
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> textures[6])
+/*	const wchar_t* right,
 	const wchar_t* left,
 	const wchar_t* up,
 	const wchar_t* down,
 	const wchar_t* front,
-	const wchar_t* back)
+	const wchar_t* back)*/
 {
 	// Load the 6 textures into an array.
 	// - We need references to the TEXTURES, not SHADER RESOURCE VIEWS!
 	// - Explicitly NOT generating mipmaps, as we don't need them for the sky!
 	// - Order matters here! +X, -X, +Y, -Y, +Z, -Z
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> textures[6] = {};
+	//Microsoft::WRL::ComPtr<ID3D11Texture2D> textures[6] = {};
+	//std::copy(this->srvVectors.begin(), this->srvVectors.end(), textures);
+	/*std::cout << Graphics::Device.Get() << std::endl;
 	DirectX::CreateWICTextureFromFile(Graphics::Device.Get(), right, (ID3D11Resource**)textures[0].GetAddressOf(), 0);
 	DirectX::CreateWICTextureFromFile(Graphics::Device.Get(), left, (ID3D11Resource**)textures[1].GetAddressOf(), 0);
 	DirectX::CreateWICTextureFromFile(Graphics::Device.Get(), up, (ID3D11Resource**)textures[2].GetAddressOf(), 0);
 	DirectX::CreateWICTextureFromFile(Graphics::Device.Get(), down, (ID3D11Resource**)textures[3].GetAddressOf(), 0);
 	DirectX::CreateWICTextureFromFile(Graphics::Device.Get(), front, (ID3D11Resource**)textures[4].GetAddressOf(), 0);
 	DirectX::CreateWICTextureFromFile(Graphics::Device.Get(), back, (ID3D11Resource**)textures[5].GetAddressOf(), 0);
-
+	*/
 	// We'll assume all of the textures are the same color format and resolution,
 	// so get the description of the first texture
 	D3D11_TEXTURE2D_DESC faceDesc = {};

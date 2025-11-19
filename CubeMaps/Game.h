@@ -13,6 +13,7 @@
 #include "Material.h"
 #include "Shader.h"
 #include "Lights.h"
+#include "Sky.h"
 
 class Game
 {
@@ -40,6 +41,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
 
 	std::shared_ptr<Shader> shaders;
+	std::shared_ptr<Sky> sky;
 	std::vector<std::shared_ptr<GameEntity>> gameEntities;
 	
 	std::vector<std::shared_ptr<Camera>> cameras;
@@ -48,6 +50,7 @@ private:
 	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> srvVector;
 	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> normalsSRV;
 	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> skySRV;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> textures[6] = {};
 
 	float color[4] = { 0.4f, 0.6f, 0.75f, 1.0f };
 	int currentCamera = 0;

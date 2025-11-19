@@ -146,48 +146,48 @@ Game::Game()
 		Graphics::Device.Get(),
 		Graphics::Context.Get(),
 		FixPath(L"../../Assets/Clouds/back.png").c_str(),
-		0,
+		(ID3D11Resource**)textures[5].GetAddressOf(),
 		back.GetAddressOf());
 
 	CreateWICTextureFromFile(
 		Graphics::Device.Get(),
 		Graphics::Context.Get(),
 		FixPath(L"../../Assets/Clouds/down.png").c_str(),
-		0,
+		(ID3D11Resource**)textures[3].GetAddressOf(),
 		down.GetAddressOf());
 
 	CreateWICTextureFromFile(
 		Graphics::Device.Get(),
 		Graphics::Context.Get(),
 		FixPath(L"../../Assets/Clouds/front.png").c_str(),
-		0,
+		(ID3D11Resource**)textures[4].GetAddressOf(),
 		front.GetAddressOf());
 
 	CreateWICTextureFromFile(
 		Graphics::Device.Get(),
 		Graphics::Context.Get(),
 		FixPath(L"../../Assets/Clouds/left.png").c_str(),
-		0,
+		(ID3D11Resource**)textures[1].GetAddressOf(),
 		left.GetAddressOf());
 
 	CreateWICTextureFromFile(
 		Graphics::Device.Get(),
 		Graphics::Context.Get(),
 		FixPath(L"../../Assets/Clouds/right.png").c_str(),
-		0,
+		(ID3D11Resource**)textures[0].GetAddressOf(),
 		right.GetAddressOf());
 
 	CreateWICTextureFromFile(
 		Graphics::Device.Get(),
 		Graphics::Context.Get(),
 		FixPath(L"../../Assets/Clouds/up.png").c_str(),
-		0,
+		(ID3D11Resource**)textures[2].GetAddressOf(),
 		up.GetAddressOf());
 #pragma endregion
 
 	srvVector = { crate, cushion, rock };
 	normalsSRV = { cobblestoneNRM, cushionNRM, rockNRM, flatNRM };
-	skySRV = { back, down, front, left, right, up };
+	//skySRV = { back, down, front, left, right, up };
 
 	//Calls PS Set Shader Resources
 	D3D11_SAMPLER_DESC sampDesc = {};
@@ -290,6 +290,8 @@ void Game::CreateGeometry()
 	std::shared_ptr<Mesh> torus = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/torus.obj").c_str());
 	meshes = {sphere, cube, cylinder, quad, helix,quadDoubleSided, torus };
 
+	sky = std::make_shared<Sky>(cube, samplerState, textures);	//makes a sky
+
 	float offset = 3.0f;
 	for (int i = 0; i < meshes.size(); i++) {
 		int materialsCount = i % materials.size();
@@ -340,11 +342,14 @@ void Game::Draw(float deltaTime, float totalTime)
 		Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 	}
+	
+
 	BuildUI();
 	for (int i = 0; i < gameEntities.size(); i++) {
 		gameEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor);
 	}
 
+	//sky->Draw(deltaTime, cameras[currentCamera]);
 	// Frame END
 	// - These should happen exactly ONCE PER FRAME
 	// - At the very end of the frame (after drawing *everything*)
