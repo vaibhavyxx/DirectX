@@ -134,8 +134,60 @@ Game::Game()
 		rockNRM.GetAddressOf());
 #pragma endregion
 
+#pragma region Sky
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> back;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> down;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> front;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> left;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> right;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> up;
+
+	CreateWICTextureFromFile(
+		Graphics::Device.Get(),
+		Graphics::Context.Get(),
+		FixPath(L"../../Assets/Clouds/back.png").c_str(),
+		0,
+		back.GetAddressOf());
+
+	CreateWICTextureFromFile(
+		Graphics::Device.Get(),
+		Graphics::Context.Get(),
+		FixPath(L"../../Assets/Clouds/down.png").c_str(),
+		0,
+		down.GetAddressOf());
+
+	CreateWICTextureFromFile(
+		Graphics::Device.Get(),
+		Graphics::Context.Get(),
+		FixPath(L"../../Assets/Clouds/front.png").c_str(),
+		0,
+		front.GetAddressOf());
+
+	CreateWICTextureFromFile(
+		Graphics::Device.Get(),
+		Graphics::Context.Get(),
+		FixPath(L"../../Assets/Clouds/left.png").c_str(),
+		0,
+		left.GetAddressOf());
+
+	CreateWICTextureFromFile(
+		Graphics::Device.Get(),
+		Graphics::Context.Get(),
+		FixPath(L"../../Assets/Clouds/right.png").c_str(),
+		0,
+		right.GetAddressOf());
+
+	CreateWICTextureFromFile(
+		Graphics::Device.Get(),
+		Graphics::Context.Get(),
+		FixPath(L"../../Assets/Clouds/up.png").c_str(),
+		0,
+		up.GetAddressOf());
+#pragma endregion
+
 	srvVector = { crate, cushion, rock };
 	normalsSRV = { cobblestoneNRM, cushionNRM, rockNRM, flatNRM };
+	skySRV = { back, down, front, left, right, up };
 
 	//Calls PS Set Shader Resources
 	D3D11_SAMPLER_DESC sampDesc = {};

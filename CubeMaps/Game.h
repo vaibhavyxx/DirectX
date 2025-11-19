@@ -47,6 +47,7 @@ private:
 	std::vector<std::shared_ptr<Material>> materials;
 	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> srvVector;
 	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> normalsSRV;
+	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> skySRV;
 
 	float color[4] = { 0.4f, 0.6f, 0.75f, 1.0f };
 	int currentCamera = 0;

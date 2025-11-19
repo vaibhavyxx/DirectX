@@ -1,14 +1,18 @@
-﻿  compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\SkyPS.cso
+﻿  compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\CombineShader.cso
+  compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\CustomPS.cso
+  compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\DebugNormalsPS.cso
+  compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\DebugUVPS.cso
+C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\Lighting.hlsli(34,20): warning X4000: use of potentially uninitialized variable (SpecularPhong)
+  
+  compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\PixelShader.cso
+  compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\SkyPS.cso
   compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\SkyVertexShader.cso
   compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\VertexShader.cso
   Game.cpp
-  GameEntity.cpp
   Main.cpp
-  Material.cpp
   Mesh.cpp
 C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\Mesh.cpp(238,53): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
 C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\Mesh.cpp(238,31): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-  Shader.cpp
   Sky.cpp
   Generating Code...
      Creating library C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\D3D11Starter.lib and object C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\D3D11Starter.exp
