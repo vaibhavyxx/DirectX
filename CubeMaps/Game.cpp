@@ -200,11 +200,16 @@ Game::Game()
 	Graphics::Device->CreateSamplerState(&sampDesc, samplerState.GetAddressOf());
 	Graphics::Device->CreateSamplerState(&sampDesc, samplerStateOverlay.GetAddressOf());
 
-	shaders = std::make_shared<Shader>();
+	shader = std::make_shared<Shader>();
+	skyShader = std::make_shared<Shader>();
 
-	shaders->LoadVertexShader();
-	shaders->LoadPixelShader("PixelShader.cso");
-	shaders->CreatePixelBuffer();
+	shader->LoadVertexShader("VertexShader.cso");
+	shader->LoadPixelShader("PixelShader.cso");
+	shader->CreatePixelBuffer();
+
+	skyShader->LoadVertexShader("SkyVertexShader.cso");
+	skyShader->LoadPixelShader("SkyPS.cso");
+	skyShader->CreatePixelBuffer();
 
 	Initialize();
 	CreateGeometry();
@@ -268,9 +273,9 @@ void Game::CreateGeometry()
 {
 	ambientColor = DirectX::XMFLOAT3(0.1f, 0.1f, 0.25f);
 	materials = { 
-		std::make_shared<Material>(shaders, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor, normalsSRV[3]),
-		std::make_shared<Material>(shaders, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.5f, ambientColor, normalsSRV[3]),
-		std::make_shared<Material>(shaders, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.25f, ambientColor, normalsSRV[3])};
+		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor, normalsSRV[3]),
+		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.5f, ambientColor, normalsSRV[3]),
+		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.25f, ambientColor, normalsSRV[3])};
 
 	for (int i = 0; i < 3; i++) {
 		materials[i]->AddTextureSRV(0, srvVector[i]);
@@ -290,7 +295,7 @@ void Game::CreateGeometry()
 	std::shared_ptr<Mesh> torus = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/torus.obj").c_str());
 	meshes = {sphere, cube, cylinder, quad, helix,quadDoubleSided, torus };
 
-	sky = std::make_shared<Sky>(cube, samplerState, textures);	//makes a sky
+	sky = std::make_shared<Sky>(cube, samplerState, textures, skyShader);	//makes a sky
 
 	float offset = 3.0f;
 	for (int i = 0; i < meshes.size(); i++) {
@@ -349,7 +354,7 @@ void Game::Draw(float deltaTime, float totalTime)
 		gameEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor);
 	}
 
-	//sky->Draw(deltaTime, cameras[currentCamera]);
+	sky->Draw(deltaTime, cameras[currentCamera]);
 	// Frame END
 	// - These should happen exactly ONCE PER FRAME
 	// - At the very end of the frame (after drawing *everything*)

@@ -40,7 +40,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerStateOverlay;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
 
-	std::shared_ptr<Shader> shaders;
+	std::shared_ptr<Shader> shader;
+	std::shared_ptr<Shader> skyShader;
 	std::shared_ptr<Sky> sky;
 	std::vector<std::shared_ptr<GameEntity>> gameEntities;
 	

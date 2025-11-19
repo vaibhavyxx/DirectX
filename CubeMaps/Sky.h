@@ -5,6 +5,7 @@
 #include "Mesh.h"
 #include "Camera.h"
 #include <vector>
+#include "Shader.h"
 
 class Sky {
 private:
@@ -16,10 +17,11 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader;
 	std::vector< Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> srvVectors;
 	std::shared_ptr<Mesh> geometry;
+	std::shared_ptr<Shader> shader;
 
 public:
 	Sky(std::shared_ptr<Mesh> mesh, Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState,
-		Microsoft::WRL::ComPtr<ID3D11Texture2D> textures[6]);
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> textures[6], std::shared_ptr<Shader> skyShader);
 	void Draw(float deltaTime, std::shared_ptr<Camera> cam);
 	// Helper for creating a cubemap from 6 individual textures
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> CreateCubemap(

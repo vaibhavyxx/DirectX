@@ -24,7 +24,7 @@ public:
 	void Setup();
 
 	void LoadPixelShader(std::string fileName);
-	void LoadVertexShader();
+	void LoadVertexShader(std::string fileName);
 	void SetInputLayout(ID3DBlob* vertexShaderBlob);
 	void CreatePixelBuffer();
 };

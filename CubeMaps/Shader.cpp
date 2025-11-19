@@ -37,9 +37,11 @@ void Shader::LoadPixelShader(std::string fileName) {
 		0,										// No classes in this shader
 		pixelShader.GetAddressOf());			// Address of the ID3D11PixelShader pointer
 }
-void Shader::LoadVertexShader() {
+void Shader::LoadVertexShader(std::string fileName) {
+	std::wstring wideFileName(fileName.begin(), fileName.end());
 	ID3DBlob* vertexShaderBlob;
-	D3DReadFileToBlob(FixPath(L"VertexShader.cso").c_str(), &vertexShaderBlob);
+	D3DReadFileToBlob(FixPath(wideFileName).c_str(), &vertexShaderBlob);
+	//D3DReadFileToBlob(FixPath(L"VertexShader.cso").c_str(), &vertexShaderBlob);
 
 	Graphics::Device->CreateVertexShader(
 		vertexShaderBlob->GetBufferPointer(),	// Get a pointer to the blob's contents

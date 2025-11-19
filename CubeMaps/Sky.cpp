@@ -7,7 +7,7 @@
 #include <algorithm>
 
 Sky::Sky(std::shared_ptr<Mesh> mesh, Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState,
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> textures[6])
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> textures[6], std::shared_ptr<Shader> shader)
 {
 	{
 		D3D11_RASTERIZER_DESC rasterizer = {};
@@ -22,14 +22,19 @@ Sky::Sky(std::shared_ptr<Mesh> mesh, Microsoft::WRL::ComPtr<ID3D11SamplerState> 
 		depthStencilState.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 		Graphics::Device->CreateDepthStencilState(&depthStencilState, depthBuffer.GetAddressOf());
 	}
+	this->shader = shader;
+	this->vertexShader = shader->GetVertexShader();
+	this->pixelShader = shader->GetPixelShader();
 	this->geometry = mesh;
-	//this->samplerState = samplerState;
+	this->samplerState = samplerState;
 	//this->srvVectors = srvVectors;
 	this->srv = CreateCubemap(textures);
 }
 
 void Sky::Draw(float deltaTime, std::shared_ptr<Camera> cam)
 {
+	this->shader->Setup();
+
 	Graphics::Context->RSSetState(raster.Get());
 	Graphics::Context->OMSetDepthStencilState(depthBuffer.Get(), 0);
 
