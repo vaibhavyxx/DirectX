@@ -22,7 +22,7 @@
 #include <vector>
 
 Material::Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color, float roughness, DirectX::XMFLOAT3 ambient,
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normal)
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normal, bool flat)
 {
 	this->normal = normal;
 	this->shader = shader;
@@ -37,6 +37,7 @@ Material::Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color, floa
 	this->roughness = roughness;
 	this->ambient = ambient;
 	this->normal = normal;
+	this->flat = flat;
 	AddTextureSRV(1, normal);
 }
 
@@ -83,6 +84,9 @@ void Material::SetupPixelStruct(std::shared_ptr<Camera> cam, Light* lights)
 	
 	pixelData.type = 0;
 	pixelData.lightCount = 1;
+	pixelData.flat = flat;
+	pixelData.pad = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	pixelData.pad2 = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
 	for (int i = 0; i < 5; i++) {
 		pixelData.lights[i] = lights[i];

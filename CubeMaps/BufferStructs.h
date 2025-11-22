@@ -17,7 +17,6 @@ struct  VertexStruct
 
 struct PixelStruct {
 	Light lights[5];
-	//Light light;
 	DirectX::XMFLOAT4 colorTint;      
 	DirectX::XMFLOAT2 uvScale;
 	DirectX::XMFLOAT2 offset;    
@@ -28,6 +27,8 @@ struct PixelStruct {
 	int type;
 	DirectX::XMFLOAT3 pad;
 	int lightCount;
+	bool flat;
+	DirectX::XMFLOAT3 pad2;
 };
 
 struct Skybox {

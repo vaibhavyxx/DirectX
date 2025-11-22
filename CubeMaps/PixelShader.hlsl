@@ -9,7 +9,6 @@
 cbuffer ExternalData : register(b0)
 {
     Light lights[5];
-    //Light light;
     float4 colorTint; //16
     float2 scale;
     float2 offset; //32
@@ -17,9 +16,11 @@ cbuffer ExternalData : register(b0)
     float3 camPos;
     float roughness; //48
     float3 ambient;
-    int type; //64
+    int type;       //64
     float3 pad;
     int lightCount; //80
+    bool flat;
+    float3 pad2;
     
 }
 Texture2D SurfaceTexture : register(t0);
@@ -42,10 +43,13 @@ float4 main(VertexToPixel input) : SV_TARGET
     float3 finalNormal = mul(tbn, unpackedNormal);
     input.normal = finalNormal;
     
-    //return float4(unpackedNormal, 1.0f);
-    
-    float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb;
+    float3 surfaceColor = float3(1.0f, 1.0f, 1.0f);
+    if (!flat)
+    {
+        surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb;
+    }
     surfaceColor *= colorTint.rgb;
+    surfaceColor = pow(surfaceColor, 2.2f);
     float specularScale = SpecularMap.Sample(BasicSampler, input.uv).r;
     
     float3 totalLight = ambient * surfaceColor;
@@ -79,7 +83,15 @@ float4 main(VertexToPixel input) : SV_TARGET
             
         }
     }
-       
+    float3 gammaAdjusted = totalLight;
+    if (!flat)
+    {
+        gammaAdjusted = pow(gammaAdjusted, 1.0f/2.2f);
+    }
+    else
+    {
+        gammaAdjusted = pow(gammaAdjusted, 2.2f);
+    }
     
-    return float4(totalLight, 1.0f);
+    return float4(gammaAdjusted, 1.0f);
 }
