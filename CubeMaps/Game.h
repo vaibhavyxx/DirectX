@@ -36,6 +36,7 @@ private:
 	void AppDetails();
 	void MeshDetails(std::shared_ptr<Mesh> mesh, const char* name);
 	void EntityValues(std::shared_ptr<GameEntity> entity, unsigned int i);
+	void LoadTextures(std::string path, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv);
 
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerStateOverlay;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
@@ -51,6 +52,7 @@ private:
 	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> srvVector;
 	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> normalsSRV;
 	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> skySRV;
+	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> metalTex;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> textures[6] = {};
 
 	float color[4] = { 0.4f, 0.6f, 0.75f, 1.0f };

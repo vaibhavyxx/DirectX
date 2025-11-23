@@ -136,6 +136,42 @@ Game::Game()
 		rockNRM.GetAddressOf());
 #pragma endregion
 
+#pragma region Metal
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> color;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normal;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rough;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> metal;
+
+	CreateWICTextureFromFile(
+		Graphics::Device.Get(),
+		Graphics::Context.Get(),
+		FixPath(L"../../Assets/Materials/Metal/Color.png").c_str(),
+		0,
+		color.GetAddressOf());
+	
+	CreateWICTextureFromFile(
+		Graphics::Device.Get(),
+		Graphics::Context.Get(),
+		FixPath(L"../../Assets/Materials/Metal/Normal.png").c_str(),
+		0,
+		normal.GetAddressOf());
+
+	CreateWICTextureFromFile(
+		Graphics::Device.Get(),
+		Graphics::Context.Get(),
+		FixPath(L"../../Assets/Materials/Metal/Roughness.png").c_str(),
+		0,
+		rough.GetAddressOf());
+
+	CreateWICTextureFromFile(
+		Graphics::Device.Get(),
+		Graphics::Context.Get(),
+		FixPath(L"../../Assets/Materials/Metal/Metalness.png").c_str(),
+		0,
+		metal.GetAddressOf());
+#pragma endregion
+
+
 #pragma region Sky
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> back;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> down;
@@ -189,7 +225,7 @@ Game::Game()
 
 	srvVector = { cobblestone, cushion, rock };
 	normalsSRV = { cobblestoneNRM, cushionNRM, rockNRM, flatNRM };
-	//skySRV = { back, down, front, left, right, up };
+	metalTex = { color, normal, rough, metal };
 
 	//Calls PS Set Shader Resources
 	D3D11_SAMPLER_DESC sampDesc = {};
@@ -280,12 +316,11 @@ void Game::CreateGeometry()
 		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.25f, ambientColor, normalsSRV[3], false)};
 
 	for (int i = 0; i < 3; i++) {
-		materials[i]->AddTextureSRV(0, srvVector[i]);
-		materials[i]->AddTextureSRV(2, normalsSRV[i]);
-		//materials[i]->SetColorTint(DirectX::XMFLOAT3(1.0f, 0.f, 1.0f));
-		//materials[i]->AddTextureSRV(1, srvOverlay);		//additional texture for combine.cso
+		materials[i]->AddTextureSRV(0, metalTex[0]);
+		materials[i]->AddTextureSRV(1, metalTex[1]);
+		materials[i]->AddTextureSRV(2, metalTex[2]);
+		materials[i]->AddTextureSRV(3, metalTex[3]);
 		materials[i]->AddSampler(0, samplerState);
-		//materials[i]->AddSampler(1, samplerState);
 		materials[i]->BindTexturesAndSamplers();
 	}
 
@@ -541,6 +576,10 @@ void Game::EntityValues(std::shared_ptr<GameEntity> entity, unsigned int i)
 			ImGui::Image(matSRV2, ImVec2(50.0f, 50.0f));
 		}
 	}
+}
+
+void Game::LoadTextures(std::string path, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv)
+{
 }
 
 

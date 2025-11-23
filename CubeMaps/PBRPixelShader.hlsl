@@ -52,6 +52,7 @@ float4 main(VertexToPixel input) : SV_TARGET
     albedo *= colorTint.rgb;
     albedo = pow(albedo, 2.2f);
     //float specularScale = SpecularMap.Sample(BasicSampler, input.uv).r;
+    
     float3 specularColor = lerp(0.04f, albedo, metalness);
     float3 totalLight = albedo;
 
@@ -63,11 +64,13 @@ float4 main(VertexToPixel input) : SV_TARGET
         switch (light.Type)
         {
             case LIGHT_TYPE_DIRECTIONAL:
-                totalLight += Directional(light, input.normal, input.worldPos, camPos, roughness, albedo, specularScale);
+            //Light light, float3 normal, float3 worldPos, float3 camPos, float roughness, 
+                //float3 surfaceColor, float3 specColor, float metalness)
+                totalLight += Directional(light, input.normal, input.worldPos, camPos, roughness, albedo, specularColor, metalness);
                 break;
             
             case LIGHT_TYPE_POINT:
-                totalLight += Point(light, input.worldPos, input.normal, specularScale, albedo, roughness, camPos);
+                totalLight += Point(light, input.worldPos, input.normal, albedo, roughness, camPos, specularColor, metalness);
                 break;
             
             case LIGHT_TYPE_SPOT:
@@ -79,7 +82,7 @@ float4 main(VertexToPixel input) : SV_TARGET
                 float fallOff = outerCosAngle - innerCosAngle;
             
                 float spotTerm = saturate((pixelAngle - outerCosAngle) / fallOff);
-                totalLight += Point(light, input.worldPos, input.normal, specularScale, albedo, roughness, camPos) * spotTerm;
+                totalLight += Point(light, input.worldPos, input.normal, albedo, roughness, camPos, specularColor, metalness) * spotTerm;
                 break;
             
         }
