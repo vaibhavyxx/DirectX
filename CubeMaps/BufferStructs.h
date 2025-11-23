@@ -23,12 +23,9 @@ struct PixelStruct {
 	float time;
 	DirectX::XMFLOAT3 camPos;
 	float roughness;
-	DirectX::XMFLOAT3 ambient;
 	int type;
-	DirectX::XMFLOAT3 pad;
 	int lightCount;
 	bool flat;
-	DirectX::XMFLOAT3 pad2;
 };
 
 struct Skybox {

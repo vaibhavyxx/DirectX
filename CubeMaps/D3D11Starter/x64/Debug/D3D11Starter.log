@@ -1,2 +1,5 @@
-﻿  Game.cpp
+﻿C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\Lighting.hlsli(34,20): warning X4000: use of potentially uninitialized variable (SpecularPhong)
+  
+  compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\PBRPixelShader.cso
+  Game.cpp
   D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\D3D11Starter.exe

@@ -206,7 +206,7 @@ Game::Game()
 	skyShader = std::make_shared<Shader>();
 
 	shader->LoadVertexShader("VertexShader.cso");
-	shader->LoadPixelShader("PixelShader.cso");
+	shader->LoadPixelShader("PBRPixelShader.cso");
 	shader->CreatePixelBuffer();
 
 	skyShader->LoadVertexShader("SkyVertexShader.cso");

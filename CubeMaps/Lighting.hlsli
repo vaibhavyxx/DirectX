@@ -7,6 +7,9 @@
 #define LIGHT_TYPE_POINT       1
 #define LIGHT_TYPE_SPOT        2
 
+#define MIN_ROUGHNESS           0.0000001f
+#define PI                      3.14159265f
+
 struct Light
 {
     int Type;
@@ -19,6 +22,23 @@ struct Light
     float SpotOuterAngle;
     float2 Padding;
 };
+
+float NormalDistribution_GGX(float3 n, float3 h, float alpha)
+{
+    float NdotH = saturate(dot(n, h));
+    float NdotHSq = NdotH * NdotH;
+    float a2 = max(alpha, MIN_ROUGHNESS);
+    
+    float denomToSq = NdotH * (a2 - 1) + 1;
+    return a2 / (PI * denomToSq * denomToSq);
+}
+//Takes in normal, normalized light vector, normalized view vector, roughness and specular color
+float3 MicrofacetBRDF(float3 n, float3 l, float3 v, float roughness, float3 f0)
+{
+    float halfVector = normalize(v + l);
+    float alpha = roughness * roughness;
+    return float3(0.0f, 0.0f, 0.0f);
+}
 
 //Uses lambert equation
 float3 Diffuse(float3 normal, float3 to)
