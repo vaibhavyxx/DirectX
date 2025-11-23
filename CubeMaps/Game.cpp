@@ -311,8 +311,8 @@ void Game::CreateGeometry()
 {
 	ambientColor = DirectX::XMFLOAT3(0.545f, 0.74f, 0.97f);
 	materials = { 
-		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, ambientColor, normalsSRV[3], false),
-		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, ambientColor, normalsSRV[3], false),
+		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor, normalsSRV[3], false),
+		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor, normalsSRV[3], false),
 		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.25f, ambientColor, normalsSRV[3], false)};
 
 	for (int i = 0; i < 3; i++) {

@@ -106,7 +106,7 @@ float3 surfaceColor, float3 specColor, float metalness)
 float Attenuate(Light light, float3 worldPos)
 {
     float dist = distance(light.Position, worldPos);
-    float att = saturate(1.0f - (dist * dist / light.Range * light.Range));
+    float att = saturate(1.0f - ((dist * dist) / (light.Range * light.Range)));
     return att * att;
 }
 
