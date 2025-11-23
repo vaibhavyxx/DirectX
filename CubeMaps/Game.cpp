@@ -145,28 +145,28 @@ Game::Game()
 	CreateWICTextureFromFile(
 		Graphics::Device.Get(),
 		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/Metal/Color.png").c_str(),
+		FixPath(L"../../Assets/Materials/SilverMetal/Color.png").c_str(),
 		0,
 		color.GetAddressOf());
 	
 	CreateWICTextureFromFile(
 		Graphics::Device.Get(),
 		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/Metal/Normal.png").c_str(),
+		FixPath(L"../../Assets/Materials/SilverMetal/Normal.png").c_str(),
 		0,
 		normal.GetAddressOf());
 
 	CreateWICTextureFromFile(
 		Graphics::Device.Get(),
 		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/Metal/Roughness.png").c_str(),
+		FixPath(L"../../Assets/Materials/SilverMetal/Roughness.png").c_str(),
 		0,
 		rough.GetAddressOf());
 
 	CreateWICTextureFromFile(
 		Graphics::Device.Get(),
 		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/Metal/Metalness.png").c_str(),
+		FixPath(L"../../Assets/Materials/SilverMetal/Metalness.png").c_str(),
 		0,
 		metal.GetAddressOf());
 #pragma endregion
@@ -315,10 +315,17 @@ void Game::CreateGeometry()
 		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor, normalsSRV[3], false),
 		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.25f, ambientColor, normalsSRV[3], false)};
 
+	/*
+	* Texture2D Albedo : register(t0);
+Texture2D RoughnessMap : register(t1);
+Texture2D NormalMap : register(t2);
+Texture2D MetalnessMap : register(t3);
+	*/
+
 	for (int i = 0; i < 3; i++) {
 		materials[i]->AddTextureSRV(0, metalTex[0]);
-		materials[i]->AddTextureSRV(1, metalTex[1]);
-		materials[i]->AddTextureSRV(2, metalTex[2]);
+		materials[i]->AddTextureSRV(1, metalTex[2]);
+		materials[i]->AddTextureSRV(2, metalTex[1]);
 		materials[i]->AddTextureSRV(3, metalTex[3]);
 		materials[i]->AddSampler(0, samplerState);
 		materials[i]->BindTexturesAndSamplers();

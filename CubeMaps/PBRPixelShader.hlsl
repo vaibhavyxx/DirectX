@@ -64,8 +64,6 @@ float4 main(VertexToPixel input) : SV_TARGET
         switch (light.Type)
         {
             case LIGHT_TYPE_DIRECTIONAL:
-            //Light light, float3 normal, float3 worldPos, float3 camPos, float roughness, 
-                //float3 surfaceColor, float3 specColor, float metalness)
                 totalLight += Directional(light, input.normal, input.worldPos, camPos, roughness, albedo, specularColor, metalness);
                 break;
             
@@ -88,14 +86,15 @@ float4 main(VertexToPixel input) : SV_TARGET
         }
     }
     float3 gammaAdjusted = totalLight;
-    if (!flat)
+   
+    //if (!flat)
     {
         gammaAdjusted = pow(gammaAdjusted, 1.0f / 2.2f);
     }
-    else
+  /*  else
     {
         gammaAdjusted = pow(gammaAdjusted, 2.2f);
-    }
+    }*/
     
-    return float4(gammaAdjusted, 1.0f);
+    return float4(specularColor, 1.0f);
 }

@@ -99,7 +99,7 @@ float3 surfaceColor, float3 specColor, float metalness)
     float3 F = F_Schlick(toCam, h,specColor);
     float3 balancedDiff = DiffuseEnergyConserve(diff, F, metalness);
     
-    return (balancedDiff + spec + surfaceColor) * light.Intensity * light.Color;
+    return (diff + spec + surfaceColor) * light.Intensity * light.Color;
 }
 
 //Range based attenuation
@@ -124,7 +124,7 @@ float3 Point(Light light, float3 worldPos, float3 normal, float3 surfaceColor, f
     float3 F = F_Schlick(toCam, h, specularColor);
     float3 balancedDiff = DiffuseEnergyConserve(diff, F, metalness);
     
-    return (balancedDiff + surfaceColor + spec) * light.Intensity * (light.Color * atten);
+    return (diff + surfaceColor + spec) * light.Intensity * (light.Color * atten);
 }
 
 #endif
