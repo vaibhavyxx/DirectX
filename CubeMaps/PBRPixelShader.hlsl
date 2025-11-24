@@ -10,14 +10,22 @@ cbuffer ExternalData : register(b0)
 {
     Light lights[5];
     float4 colorTint;   //16
+    
     float2 scale;
     float2 offset;      //32
+    
     float time;
     float3 camPos;      //48
+    
     float roughness; 
     int type; 
     int lightCount; 
-    bool flat;          //80
+    
+    bool useGamma;      //80
+    bool useNormals;
+    bool useRoughness;
+    bool useMetals;
+    bool useAldedo;     //96
 }
 Texture2D Albedo : register(t0);
 Texture2D RoughnessMap : register(t1);
@@ -34,7 +42,10 @@ float4 main(VertexToPixel input) : SV_TARGET
     float2 uv = input.uv * scale + offset;
     
     float roughness = RoughnessMap.Sample(BasicSampler, uv).r;
+    roughness = useRoughness ? roughness : 0.1f;    //default value
+    
     float metalness = MetalnessMap.Sample(BasicSampler, uv).r;
+    //metalness = useMetals ? metalness : 0.0f; - causes the bug
     
     float3 unpackedNormal = normalize(NormalMap.Sample(BasicSampler, uv).xyz * 2.0f - 1.0f);
     float3 t = tgt - dot(tgt, nrm) * nrm;
@@ -43,20 +54,16 @@ float4 main(VertexToPixel input) : SV_TARGET
     
     float3 finalNormal = mul(tbn, unpackedNormal);
     input.normal = finalNormal;
+    input.normal = useNormals? finalNormal: input.normal;
     input.tangent = tgt;
     input.uv = uv;
     
-    float3 albedo = float3(1.0f, 1.0f, 1.0f);
-    if (!flat)
-    {
-        albedo = Albedo.Sample(BasicSampler, input.uv).rgb;
-    }
-    //albedo *= colorTint.rgb;
-    albedo = pow(albedo, 2.2f);
-    //float specularScale = SpecularMap.Sample(BasicSampler, input.uv).r;
+    float3 albedo = Albedo.Sample(BasicSampler, input.uv).rgb;
+    albedo = useGamma ? pow(albedo, 2.2f) : albedo.rgb;
+    //albedo = useAldedo ? albedo : colorTint.rgb; - bug
     
     float3 specularColor = lerp(0.04f, albedo, metalness);
-    float3 totalLight = albedo;
+    float3 totalLight = albedo; //add ambience
 
     for (int i = 0; i < 5; i++)
     {
@@ -74,29 +81,11 @@ float4 main(VertexToPixel input) : SV_TARGET
                 break;
             
             case LIGHT_TYPE_SPOT:
-                float3 toLight = normalize(light.Position - input.worldPos);
-                float pixelAngle = saturate(dot(-toLight, light.Direction));
-            
-                float outerCosAngle = cos(light.SpotOuterAngle);
-                float innerCosAngle = cos(light.SpotInnerAngle);
-                float fallOff = outerCosAngle - innerCosAngle;
-            
-                float spotTerm = saturate((pixelAngle - outerCosAngle) / fallOff);
-                totalLight = Point(light, input.worldPos, input.normal, albedo, roughness, camPos, specularColor, metalness) * spotTerm;
+                totalLight = Spot(light, input.worldPos, input.normal, albedo, roughness, camPos, specularColor, metalness);
                 break;
             
         }
     }
-    float3 gammaAdjusted = totalLight;
-    
-    //if (!flat)
-    {
-        gammaAdjusted = pow(gammaAdjusted, 2.2f);
-    }
-  /*  else
-    {
-        gammaAdjusted = pow(gammaAdjusted, 2.2f);
-    }*/
-    
-    return float4(gammaAdjusted, 1.0f);
+    //float3 gammaAdjusted = useGamma ? pow(totalLight, 1.0f / 2.2f):totalLight;
+    return float4(totalLight, 1.0f);
 }

@@ -135,4 +135,17 @@ float3 Point(Light light, float3 worldPos, float3 normal, float3 surfaceColor, f
     return (balancedDiff + surfaceColor + spec) * (light.Color * atten);    //Removing light intensity
 }
 
+float3 Spot(Light light, float3 worldPos, float3 normal, float3 surfaceColor, float roughness, float3 camPos, float3 specularColor,
+    float metalness)
+{
+    float3 toLight = normalize(light.Position - worldPos);
+    float pixelAngle = saturate(dot(-toLight, light.Direction));
+            
+    float outerCosAngle = cos(light.SpotOuterAngle);
+    float innerCosAngle = cos(light.SpotInnerAngle);
+    float fallOff = outerCosAngle - innerCosAngle;
+            
+    float spotTerm = saturate((pixelAngle - outerCosAngle) / fallOff);
+    return Point(light, worldPos, normal, surfaceColor, roughness, camPos, specularColor, metalness) * spotTerm;
+}
 #endif

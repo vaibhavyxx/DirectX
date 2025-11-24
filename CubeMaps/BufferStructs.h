@@ -25,7 +25,11 @@ struct PixelStruct {
 	float roughness;
 	int type;
 	int lightCount;
-	bool flat;
+	bool useGamma;      
+	bool useNormals;
+	bool useRoughness;
+	bool useMetals;
+	bool useAldedo;
 };
 
 struct Skybox {

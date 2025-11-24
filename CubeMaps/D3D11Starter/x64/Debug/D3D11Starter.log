@@ -1,4 +1,5 @@
 ﻿C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\Lighting.hlsli(131,11-84): warning X3206: implicit truncation of vector type
   
   compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\PBRPixelShader.cso
+  Material.cpp
   D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\D3D11Starter.exe
