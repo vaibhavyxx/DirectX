@@ -50,29 +50,35 @@ float3 F_Schlick(float3 v, float3 h, float3 f0)
 
 float3 DiffuseEnergyConserve(float3 diffuse, float3 F, float metalness)
 {
-    float3 Finv = 1 - F;
-    return diffuse * (Finv * (1 - metalness));
+    //float3 Finv = 1 - F;
+    return diffuse * (1 - F) * (1 - metalness);
 }
 
 //Takes in normal, normalized light vector, normalized view vector, roughness and specular color
-float3 MicrofacetBRDF(float3 n, float3 l, float3 v, float roughness, float3 f0, float h)
+float3 MicrofacetBRDF(float3 n, float3 l, float3 v, float roughness, float3 f0, out float3 F_out)
 {
-    //float halfVector = normalize(v + l);
+    float3 h = normalize(v + l);
     float alpha = roughness * roughness;
+    //float NdotV = saturate(dot(n, v));
+    //float NdotL = saturate(dot(n, l));
     
     float D = D_GGX(n, h, alpha);
     float3 F = F_Schlick(v, h, f0);
     float g1 = G_SchlickGGX(n, v, roughness);
     float g2 = G_SchlickGGX(n, l, roughness);
     float G = g1 * g2;
+    F_out = F;
     
-    return (D * F * G)/4.0f;
+    //Cook Torrance: (D*G*F)/(4 * NdotV *NdotL)
+    float3 specularResult = (D * F * G)/4.0f;
+    
+    return specularResult * max(dot(n, l), 0);
 }
 
 //Uses lambert equation
 float3 Diffuse(float3 normal, float3 to)
 {
-    return saturate(dot(normal, to));
+    return (saturate(dot(normal, to)) / PI);
 }
 
 float SpecularPhong(float3 normal, float3 dirToLight, float3 toCam, float roughness)
@@ -93,13 +99,14 @@ float3 surfaceColor, float3 specColor, float metalness)
     float3 toCam = normalize(camPos - worldPos);
     
     float3 diff = Diffuse(normal, toLight);
-    float h = normalize(toCam + toLight);
-
-    float3 spec = MicrofacetBRDF(normal, toLight, toCam, roughness, specColor, h);
-    float3 F = F_Schlick(toCam, h,specColor);
+    //float3 h = normalize(toCam + toLight);
+    
+    float3 F; // = F_Schlick(toCam, h, specColor);
+    float3 spec = MicrofacetBRDF(normal, toLight, toCam, roughness, specColor,F);
+    
     float3 balancedDiff = DiffuseEnergyConserve(diff, F, metalness);
     
-    return (diff + spec + surfaceColor) * light.Intensity * light.Color;
+    return (balancedDiff + spec + surfaceColor) * light.Color; //Removing light intensity
 }
 
 //Range based attenuation
@@ -116,15 +123,16 @@ float3 Point(Light light, float3 worldPos, float3 normal, float3 surfaceColor, f
 {
     float3 toLight = normalize(light.Position - worldPos);
     float3 toCam = normalize(camPos - worldPos);
-    float h = normalize(toCam + toLight);
+    //float3 h = normalize(toCam + toLight);
     float atten = Attenuate(light, worldPos);
     
     float3 diff = Diffuse(normal, toLight);
-    float spec = MicrofacetBRDF(normal, toLight, toCam, roughness, specularColor, h);
-    float3 F = F_Schlick(toCam, h, specularColor);
+    float3 F;
+    float spec = MicrofacetBRDF(normal, toLight, toCam, roughness, specularColor, F);
+    //float3 F = F_Schlick(toCam, h, specularColor);
     float3 balancedDiff = DiffuseEnergyConserve(diff, F, metalness);
     
-    return (diff + surfaceColor + spec) * light.Intensity * (light.Color * atten);
+    return (balancedDiff + surfaceColor + spec) * (light.Color * atten);    //Removing light intensity
 }
 
 #endif
