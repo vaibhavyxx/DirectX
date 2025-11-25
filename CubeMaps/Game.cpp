@@ -117,7 +117,7 @@ Game::Game()
 	CreateWICTextureFromFile(
 		Graphics::Device.Get(),
 		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/cushion_normals.jpg").c_str(),
+		FixPath(L"../../Assets/Materials/cushion_normals.png").c_str(),
 		0,
 		cushionNRM.GetAddressOf());
 
