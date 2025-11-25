@@ -20,8 +20,8 @@ cbuffer ExternalData : register(b0)
     float roughness; 
     int type; 
     int lightCount; 
-    
     bool useGamma;      //80
+    
     bool useNormals;
     bool useRoughness;
     bool useMetals;
@@ -36,20 +36,20 @@ SamplerState BasicSampler : register(s0);
 
 float4 main(VertexToPixel input) : SV_TARGET
 {
+    //float3 ambient = float3(0.5f, 0.5f, 0.0f);
     //input.normal = normalize(input.normal);
     float3 nrm = normalize(input.normal);
     float3 tgt = normalize(input.tangent);
     float2 uv = input.uv * scale + offset;
     
     float roughness = RoughnessMap.Sample(BasicSampler, uv).r;
-    float3 rough = RoughnessMap.Sample(BasicSampler, uv).rgb;
     roughness = useRoughness ? roughness : 0.1f;    //default value
     
     float metalness = MetalnessMap.Sample(BasicSampler, uv).r;
-    metalness = 1.0f;
+    //metalness = 1.0f;
     //useMetals ? metalness : 0.0f;  -- issue here
     
-    //return float4(rough.r, 0,0, 0);
+    //return float4(metalness, 1);
     
     float3 unpackedNormal = normalize(NormalMap.Sample(BasicSampler, uv).xyz * 2.0f - 1.0f);
     float3 t = tgt - dot(tgt, nrm) * nrm;
@@ -58,25 +58,27 @@ float4 main(VertexToPixel input) : SV_TARGET
     
     float3 finalNormal = mul(tbn, unpackedNormal);
     input.normal = finalNormal;
+    //return float4(metalness, 0,0,1.0f);
     input.normal = useNormals? finalNormal: input.normal;
     input.tangent = tgt;
     input.uv = uv;
 
     float3 albedo = Albedo.Sample(BasicSampler, input.uv).rgb;
     albedo = pow(albedo, 2.2f);
+    //albedo *= ambient;
     //albedo *= colorTint.rgb;
-    //return (metalness, 0, 0, .0f);
+    //return (metalness, 0, 0, 0);
     
     //false - metals
     //normals - false
     //roughness - false
-    //albedo = useGamma ? pow(albedo, 2.2f) : albedo.rgb; //false
-    //albedo = useAldedo ? albedo : colorTint.rgb; //- bug
+    albedo = useGamma ? pow(albedo, 2.2f) : albedo.rgb; //false
+    albedo = useAldedo ? albedo : colorTint.rgb; //- bug
     
     float3 specularColor = lerp(0.04f, albedo, metalness);
     float3 totalLight = albedo;
-
-    for (int i = 0; i < 2; i++)
+    //return float4(input.normal, 1.0f);
+    for (int i = 0; i < 1; i++)
     {
         Light light = lights[i];
         light.Direction = normalize(light.Direction);
@@ -97,8 +99,8 @@ float4 main(VertexToPixel input) : SV_TARGET
             
         }
     }
-    totalLight = pow(totalLight, 0.45f);
+    //totalLight = pow(totalLight, 0.45f);
     
-    //float3 gammaAdjusted = useGamma ? pow(totalLight, 1.0f / 2.2f):totalLight;
+    totalLight = useGamma ? pow(totalLight, 1.0f / 2.2f):totalLight;
     return float4(totalLight, 1.0f);
 }

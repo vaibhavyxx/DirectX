@@ -49,7 +49,7 @@ Game::Game()
 			dirLight.Position = XMFLOAT3(5.0f, 1.0f, 0.0f);
 			dirLight.Direction = XMFLOAT3(offset * i, offset * i, 0.0f);
 			dirLight.Color = XMFLOAT3(1.0f, 1.0f, 1.0f);
-			dirLight.Intensity = 1.0f;
+			dirLight.Intensity = 0.0f;
 			dirLight.Range = 0.5f;
 		}
 		else if (i == 2) {
@@ -69,7 +69,7 @@ Game::Game()
 			dirLight.Position = XMFLOAT3(offset * i, 0.0f, 0.0f);
 		}
 		
-		dirLight.Intensity = 0.0f;
+		dirLight.Intensity = 0.5f;
 		lights[i] = dirLight;
 	}
 
@@ -146,28 +146,28 @@ Game::Game()
 	CreateWICTextureFromFile(
 		Graphics::Device.Get(),
 		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/SilverMetal/Color.png").c_str(),
+		FixPath(L"../../Assets/Materials/PBR/floor_albedo.png").c_str(),
 		0,
 		color.GetAddressOf());
 	
 	CreateWICTextureFromFile(
 		Graphics::Device.Get(),
 		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/SilverMetal/Normal.png").c_str(),
+		FixPath(L"../../Assets/Materials/PBR/floor_normals.png").c_str(),
 		0,
 		normal.GetAddressOf());
 
 	CreateWICTextureFromFile(
 		Graphics::Device.Get(),
 		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/SilverMetal/Roughness.png").c_str(),
+		FixPath(L"../../Assets/Materials/PBR/floor_roughness.png").c_str(),
 		0,
 		rough.GetAddressOf());
 
 	CreateWICTextureFromFile(
 		Graphics::Device.Get(),
 		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/SilverMetal/Metalness.png").c_str(),
+		FixPath(L"../../Assets/Materials/PBR/floor_metal.png").c_str(),
 		0,
 		metal.GetAddressOf());
 #pragma endregion
