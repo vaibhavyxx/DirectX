@@ -42,14 +42,14 @@ Game::Game()
 		if (i == 1) {
 			dirLight.Direction = XMFLOAT3(1.0f, 0.0f, 0.0f);
 			dirLight.Color = XMFLOAT3(1.0f, 1.0f, 1.0f);
-			dirLight.Intensity = 1.0f;
+			dirLight.Intensity = 0.5f;
 		}
 		else if (i == 0) {
 			dirLight.Type = LIGHT_TYPE_POINT;
 			dirLight.Position = XMFLOAT3(5.0f, 1.0f, 0.0f);
 			dirLight.Direction = XMFLOAT3(offset * i, offset * i, 0.0f);
 			dirLight.Color = XMFLOAT3(1.0f, 1.0f, 1.0f);
-			dirLight.Intensity = 1.0f;
+			dirLight.Intensity = 0.1f;
 			dirLight.Range = 0.5f;
 		}
 		else if (i == 2) {
@@ -65,7 +65,7 @@ Game::Game()
 		else{
 			dirLight.Direction = XMFLOAT3(0.0f, 0.0f, 1.0f);
 			dirLight.Color = XMFLOAT3(1.0f, 1.0f, 1.0f);
-			dirLight.Intensity = 1.0f;
+			dirLight.Intensity = 0.8f;
 			dirLight.Position = XMFLOAT3(offset * i, 0.0f, 0.0f);
 		}
 		
@@ -171,6 +171,41 @@ Game::Game()
 		metal.GetAddressOf());
 #pragma endregion
 
+#pragma region Gold
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> colorG;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normalG;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> roughG;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> metalG;
+
+	CreateWICTextureFromFile(
+		Graphics::Device.Get(),
+		Graphics::Context.Get(),
+		FixPath(L"../../Assets/Materials/Metal/Color.png").c_str(),
+		0,
+		colorG.GetAddressOf());
+
+	CreateWICTextureFromFile(
+		Graphics::Device.Get(),
+		Graphics::Context.Get(),
+		FixPath(L"../../Assets/Materials/Metal/Normal.png").c_str(),
+		0,
+		normalG.GetAddressOf());
+
+	CreateWICTextureFromFile(
+		Graphics::Device.Get(),
+		Graphics::Context.Get(),
+		FixPath(L"../../Assets/Materials/Metal/Roughness.png").c_str(),
+		0,
+		roughG.GetAddressOf());
+
+	CreateWICTextureFromFile(
+		Graphics::Device.Get(),
+		Graphics::Context.Get(),
+		FixPath(L"../../Assets/Materials/Metal/Metalness.png").c_str(),
+		0,
+		metalG.GetAddressOf());
+#pragma endregion
+
 
 #pragma region Sky
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> back;
@@ -226,6 +261,7 @@ Game::Game()
 	srvVector = { cobblestone, cushion, rock };
 	normalsSRV = { cobblestoneNRM, cushionNRM, rockNRM, flatNRM };
 	metalTex = { color, normal, rough, metal };
+	goldMetal = { colorG, normalG, roughG, metalG };
 
 	//Calls PS Set Shader Resources
 	D3D11_SAMPLER_DESC sampDesc = {};
@@ -320,6 +356,7 @@ void Game::CreateGeometry()
 Texture2D RoughnessMap : register(t1);
 Texture2D NormalMap : register(t2);
 Texture2D MetalnessMap : register(t3);
+goldMetal = { colorG, normalG, roughG, metalG };
 	*/
 
 	for (int i = 0; i < 3; i++) {
@@ -330,6 +367,13 @@ Texture2D MetalnessMap : register(t3);
 		materials[i]->AddSampler(0, samplerState);
 		materials[i]->BindTexturesAndSamplers();
 	}
+
+	/*materials[1]->AddTextureSRV(0, goldMetal[0]);
+	materials[1]->AddTextureSRV(1, goldMetal[2]);
+	materials[1]->AddTextureSRV(2, goldMetal[1]);
+	materials[1]->AddTextureSRV(3, goldMetal[3]);
+	materials[1]->AddSampler(0, samplerState);
+	materials[1]->BindTexturesAndSamplers();*/
 
 	std::shared_ptr<Mesh> sphere = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/sphere.obj").c_str());
 	std::shared_ptr<Mesh> cube = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/cube.obj").c_str());

@@ -1,4 +1,6 @@
 ﻿C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\Lighting.hlsli(137,11-84): warning X3206: implicit truncation of vector type
+C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\PBRPixelShader.hlsl(67,13-27): warning X3081: comma expression used where a vector constructor may have been intended
+C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\PBRPixelShader.hlsl(67,5-29): warning X3081: potentially unintended use of a comma expression in a return statement
   
   compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\PBRPixelShader.cso
   D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\D3D11Starter.exe

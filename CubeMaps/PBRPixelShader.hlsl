@@ -8,7 +8,7 @@
 
 cbuffer ExternalData : register(b0)
 {
-    Light lights[5];
+    Light lights[2];
     float4 colorTint;   //16
     
     float2 scale;
@@ -58,9 +58,12 @@ float4 main(VertexToPixel input) : SV_TARGET
     input.tangent = tgt;
     input.uv = uv;
     
+    //float3 albedo;
     float3 albedo = Albedo.Sample(BasicSampler, input.uv).rgb;
+    
     albedo = useGamma ? pow(albedo, 2.2f) : albedo.rgb;
-    //albedo = useAldedo ? albedo : colorTint.rgb; - bug
+    //albedo = useAldedo ? albedo : colorTint.rgb; //- bug
+    //return (roughness, 1.0f);
     
     float3 specularColor = lerp(0.04f, albedo, metalness);
     float3 totalLight = albedo; //add ambience
