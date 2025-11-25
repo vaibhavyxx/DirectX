@@ -68,7 +68,7 @@ Game::Game()
 			dirLight.Intensity = 1.0f;
 			dirLight.Position = XMFLOAT3(offset * i, 0.0f, 0.0f);
 		}
-		
+		dirLight.Intensity = 0.1f;
 		lights[i] = dirLight;
 	}
 
@@ -135,41 +135,77 @@ Game::Game()
 		0,
 		rockNRM.GetAddressOf());
 #pragma endregion
+	{
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> color;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normal;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rough;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> metal;
 
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> color;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normal;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rough;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> metal;
+		CreateWICTextureFromFile(
+			Graphics::Device.Get(),
+			Graphics::Context.Get(),
+			FixPath(L"../../Assets/Materials/PBR/floor_albedo.png").c_str(),
+			0,
+			color.GetAddressOf());
 
-	CreateWICTextureFromFile(
-		Graphics::Device.Get(),
-		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/PBR/floor_albedo.png").c_str(),
-		0,
-		color.GetAddressOf());
+		CreateWICTextureFromFile(
+			Graphics::Device.Get(),
+			Graphics::Context.Get(),
+			FixPath(L"../../Assets/Materials/PBR/floor_normals.png").c_str(),
+			0,
+			normal.GetAddressOf());
 
-	CreateWICTextureFromFile(
-		Graphics::Device.Get(),
-		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/PBR/floor_normals.png").c_str(),
-		0,
-		normal.GetAddressOf());
+		CreateWICTextureFromFile(
+			Graphics::Device.Get(),
+			Graphics::Context.Get(),
+			FixPath(L"../../Assets/Materials/PBR/floor_roughness.png").c_str(),
+			0,
+			rough.GetAddressOf());
 
-	CreateWICTextureFromFile(
-		Graphics::Device.Get(),
-		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/PBR/floor_roughness.png").c_str(),
-		0,
-		rough.GetAddressOf());
+		CreateWICTextureFromFile(
+			Graphics::Device.Get(),
+			Graphics::Context.Get(),
+			FixPath(L"../../Assets/Materials/PBR/floor_metal.png").c_str(),
+			0,
+			metal.GetAddressOf());
+		floor = { color, rough, normal, metal };
+	}
+	{
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> color;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normal;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rough;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> metal;
 
-	CreateWICTextureFromFile(
-		Graphics::Device.Get(),
-		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/PBR/floor_metal.png").c_str(),
-		0,
-		metal.GetAddressOf());
-	metalSRV = { color, rough, normal, metal };
+		CreateWICTextureFromFile(
+			Graphics::Device.Get(),
+			Graphics::Context.Get(),
+			FixPath(L"../../Assets/Materials/PBR/scratched_albedo.png").c_str(),
+			0,
+			color.GetAddressOf());
 
+		CreateWICTextureFromFile(
+			Graphics::Device.Get(),
+			Graphics::Context.Get(),
+			FixPath(L"../../Assets/Materials/PBR/scratched_normals.png").c_str(),
+			0,
+			normal.GetAddressOf());
+
+		CreateWICTextureFromFile(
+			Graphics::Device.Get(),
+			Graphics::Context.Get(),
+			FixPath(L"../../Assets/Materials/PBR/scratched_roughness.png").c_str(),
+			0,
+			rough.GetAddressOf());
+
+		CreateWICTextureFromFile(
+			Graphics::Device.Get(),
+			Graphics::Context.Get(),
+			FixPath(L"../../Assets/Materials/PBR/scratched_metal.png").c_str(),
+			0,
+			metal.GetAddressOf());
+		stones = { color, rough, normal, metal };
+	}
+	
 #pragma region Sky
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> back;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> down;
@@ -307,21 +343,32 @@ Game::~Game()
 // --------------------------------------------------------
 void Game::CreateGeometry()
 {
-	ambientColor = DirectX::XMFLOAT3(0.545f, 0.74f, 0.97f);
+	ambientColor = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	materials = { 
 		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor, normalsSRV[3]),
 		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.5f, ambientColor, normalsSRV[3]),
 		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.25f, ambientColor, normalsSRV[3])};
 
-	for (int i = 0; i < 3; i++) {
-		materials[i]->AddTextureSRV(0, metalSRV[0]);
-		materials[i]->AddTextureSRV(1, metalSRV[1]);
-		materials[i]->AddTextureSRV(2, metalSRV[2]);
-		materials[i]->AddTextureSRV(3, metalSRV[3]);
-		
-		materials[i]->AddSampler(0, samplerState);
-		materials[i]->BindTexturesAndSamplers();
-	}
+	materials[0]->AddTextureSRV(0, floor[0]);
+	materials[0]->AddTextureSRV(1, floor[1]);
+	materials[0]->AddTextureSRV(2, floor[2]);
+	materials[0]->AddTextureSRV(3, floor[3]);
+	materials[0]->AddSampler(0, samplerState);
+	materials[0]->BindTexturesAndSamplers();
+
+	materials[1]->AddTextureSRV(0, stones[0]);
+	materials[1]->AddTextureSRV(1, stones[1]);
+	materials[1]->AddTextureSRV(2, stones[2]);
+	materials[1]->AddTextureSRV(3, stones[3]);
+	materials[1]->AddSampler(0, samplerState);
+	materials[1]->BindTexturesAndSamplers();
+
+	materials[2]->AddTextureSRV(0, floor[0]);
+	materials[2]->AddTextureSRV(1, floor[1]);
+	materials[2]->AddTextureSRV(2, floor[2]);
+	materials[2]->AddTextureSRV(3, floor[3]);
+	materials[2]->AddSampler(0, samplerState);
+	materials[2]->BindTexturesAndSamplers();
 
 	std::shared_ptr<Mesh> sphere = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/sphere.obj").c_str());
 	std::shared_ptr<Mesh> cube = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/cube.obj").c_str());

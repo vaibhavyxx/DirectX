@@ -9,18 +9,22 @@
 cbuffer ExternalData : register(b0)
 {
     Light lights[5];
-    //Light light;
+    
     float4 colorTint; //16
+    
     float2 scale;
     float2 offset; //32
+    
     float time;
     float3 camPos;
+    
     float roughness; //48
     float3 ambient;
-    int type; //64
-    float3 pad;
-    int lightCount; //80
     
+    int type; 
+    int lightCount; 
+    int useGamma;
+    int useNormal;
 }
 Texture2D SurfaceTexture : register(t0);
 Texture2D RoughnessMap : register(t1);
@@ -49,15 +53,14 @@ float4 main(VertexToPixel input) : SV_TARGET
     input.normal = finalNormal;
     
     //Gamma
-    float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb;
-    surfaceColor *= colorTint.rgb;
+    float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb * useGamma;
+    //surfaceColor = colorTint.rgb;
+    //surfaceColor *= colorTint.rgb;
     surfaceColor = pow(surfaceColor, 2.2f);
-    float specularScale = 0.0f;//SpecularMap.Sample(BasicSampler, input.uv).r;
-    
-    float3 totalLight = ambient * surfaceColor;
-    
+    float3 specularColor = lerp(0.04f, surfaceColor, metal);
+    float3 totalLight =  surfaceColor;
 
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < 1; i++)
     {
         Light light = lights[i];
         light.Direction = normalize(light.Direction);
@@ -65,11 +68,11 @@ float4 main(VertexToPixel input) : SV_TARGET
         switch (light.Type)
         {
             case LIGHT_TYPE_DIRECTIONAL:
-                totalLight += DirectionalPBR(light, input.normal, input.worldPos, camPos, roughness, surfaceColor, specularScale, metal);
+                totalLight += DirectionalPBR(light, input.normal, input.worldPos, camPos, roughness, surfaceColor, specularColor, metal);
                 break;
             
             case LIGHT_TYPE_POINT:
-                totalLight += PointPBR(light, input.worldPos, input.normal, specularScale, surfaceColor, roughness, camPos, metal);
+                totalLight += PointPBR(light, input.worldPos, input.normal, surfaceColor, roughness, camPos,specularColor ,metal);
                 break;
             
             case LIGHT_TYPE_SPOT:
@@ -81,10 +84,11 @@ float4 main(VertexToPixel input) : SV_TARGET
                 float fallOff = outerCosAngle - innerCosAngle;
             
                 float spotTerm = saturate((pixelAngle - outerCosAngle) / fallOff);
-                totalLight += PointPBR(light, input.worldPos, input.normal, specularScale, surfaceColor, roughness, camPos, metal) * spotTerm;
+                totalLight += PointPBR(light, input.worldPos, input.normal, surfaceColor, roughness, camPos, specularColor, metal) * spotTerm;
                 break;
         }
     }
+    
     totalLight = pow(totalLight, 0.45f);
     
     return float4(totalLight, 1.0f);

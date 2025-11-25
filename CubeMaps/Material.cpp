@@ -80,9 +80,11 @@ void Material::SetupPixelStruct(std::shared_ptr<Camera> cam, Light* lights)
 	pixelData.roughness = GetRoughness();
 	pixelData.camPos = cam->GetTransform()->GetPosition();
 	pixelData.ambient = GetAmbient();
-	
+
 	pixelData.type = 0;
 	pixelData.lightCount = 1;
+	pixelData.useGamma = 1;
+	pixelData.useNormal = 1;
 
 	for (int i = 0; i < 5; i++) {
 		pixelData.lights[i] = lights[i];
