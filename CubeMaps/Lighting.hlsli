@@ -56,7 +56,9 @@ float3 F_Schlick(float3 v, float3 h, float3 f0)
 float3 DiffuseEnergyConserve(float3 diffuse, float3 F, float metalness)
 {
     //float3 Finv = 1 - F;
-    return diffuse * (1 - F) * (1 - metalness);
+    diffuse *= (1 - F);
+    diffuse *= metalness;
+    return diffuse;// * (1 - F) * (1 - metalness);
 }
 
 //Takes in normal, normalized light vector, normalized view vector, roughness and specular color
@@ -64,7 +66,7 @@ float3 MicrofacetBRDF(float3 n, float3 l, float3 v, float roughness, float3 f0, 
 {
     float3 h = normalize(v + l);
     //float alpha = roughness * roughness;
-    float NdotV = saturate(dot(n, v));
+    //float NdotV = saturate(dot(n, v));
     float NdotL = saturate(dot(n, l));
     
     float D = D_GGX(n, h, roughness);
@@ -77,7 +79,7 @@ float3 MicrofacetBRDF(float3 n, float3 l, float3 v, float roughness, float3 f0, 
     //Cook Torrance: (D*G*F)/(4 * NdotV *NdotL)
     float3 specularResult = (D * F * G)/4.0f;
     
-    return specularResult * max(dot(n, l), 0);
+    return specularResult * max(NdotL, 0);
 }
 
 //Uses lambert equation
@@ -90,7 +92,7 @@ float SpecularPhong(float3 normal, float3 dirToLight, float3 toCam, float roughn
 {
     float3 reflection = reflect(-dirToLight, normal);
     float spec = (1 - roughness) * MAX_SPECULAR_EXPONENT;
-    spec *= (1 - roughness);
+    //spec *= (1 - roughness);
     
     float specExponent = pow(max(dot(toCam, reflection), 0), spec);
     return specExponent;
