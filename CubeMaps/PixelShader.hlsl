@@ -23,8 +23,10 @@ cbuffer ExternalData : register(b0)
     
 }
 Texture2D SurfaceTexture : register(t0);
-Texture2D SpecularMap : register(t1);
+Texture2D RoughnessMap : register(t1);
 Texture2D NormalMap : register(t2);
+Texture2D MetalnessMap : register(t3);
+
 SamplerState BasicSampler : register(s0);
 
 float4 main(VertexToPixel input) : SV_TARGET
@@ -33,8 +35,10 @@ float4 main(VertexToPixel input) : SV_TARGET
     input.tangent = normalize(input.tangent);
     input.uv = input.uv * scale + offset;
     
+    float roughness = RoughnessMap.Sample(BasicSampler, input.uv).r;
+    
     float3 unpackedNormal = normalize(NormalMap.Sample(BasicSampler, input.uv).xyz * 2.0f -1.0f);
-    float3 n = normalize(input.normal);
+    float3 n = (input.normal);
     float3 t = normalize(input.tangent - dot(input.tangent, n) * n);
     float3 b = cross(t, n);
     float3x3 tbn = float3x3(t, b, n);
@@ -42,13 +46,14 @@ float4 main(VertexToPixel input) : SV_TARGET
     float3 finalNormal = mul(tbn, unpackedNormal);
     input.normal = finalNormal;
     
-    //return float4(unpackedNormal, 1.0f);
-    
+    //Gamma
     float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb;
     surfaceColor *= colorTint.rgb;
-    float specularScale = SpecularMap.Sample(BasicSampler, input.uv).r;
+    surfaceColor = pow(surfaceColor, 2.2f);
+    float specularScale = 0.0f;//SpecularMap.Sample(BasicSampler, input.uv).r;
     
     float3 totalLight = ambient * surfaceColor;
+    
 
     for (int i = 0; i < 5; i++)
     {
@@ -76,10 +81,9 @@ float4 main(VertexToPixel input) : SV_TARGET
                 float spotTerm = saturate((pixelAngle - outerCosAngle) / fallOff);
                 totalLight += Point(light, input.worldPos, input.normal, specularScale, surfaceColor, roughness, camPos) * spotTerm;
                 break;
-            
         }
     }
-       
+    totalLight = pow(totalLight, 0.45f);
     
     return float4(totalLight, 1.0f);
 }
