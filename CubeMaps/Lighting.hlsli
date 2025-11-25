@@ -50,8 +50,9 @@ float3 Directional(Light light, float3 normal, float3 worldPos, float3 camPos, f
 //Range based attenuation
 float Attenuate(Light light, float3 worldPos)
 {
-    float dist = distance(light.Position, worldPos);
-    float att = saturate(1.0f - (dist * dist / light.Range * light.Range));
+    float3 delta = light.Position - worldPos;
+    float dist = delta * delta;
+    float att = saturate(1.0f - (dist / light.Range * light.Range));
     return att * att;
 }
 
