@@ -8,7 +8,7 @@
 
 cbuffer ExternalData : register(b0)
 {
-    Light lights[5];
+    Light lights[2];
     float4 colorTint;   //16
     
     float2 scale;
@@ -42,10 +42,14 @@ float4 main(VertexToPixel input) : SV_TARGET
     float2 uv = input.uv * scale + offset;
     
     float roughness = RoughnessMap.Sample(BasicSampler, uv).r;
+    float3 rough = RoughnessMap.Sample(BasicSampler, uv).rgb;
     roughness = useRoughness ? roughness : 0.1f;    //default value
     
     float metalness = MetalnessMap.Sample(BasicSampler, uv).r;
-    //metalness = useMetals ? metalness : 0.0f; - causes the bug
+    metalness = 1.0f;
+    //useMetals ? metalness : 0.0f;  -- issue here
+    
+    //return float4(rough.r, 0,0, 0);
     
     float3 unpackedNormal = normalize(NormalMap.Sample(BasicSampler, uv).xyz * 2.0f - 1.0f);
     float3 t = tgt - dot(tgt, nrm) * nrm;
@@ -57,15 +61,22 @@ float4 main(VertexToPixel input) : SV_TARGET
     input.normal = useNormals? finalNormal: input.normal;
     input.tangent = tgt;
     input.uv = uv;
-    
+
     float3 albedo = Albedo.Sample(BasicSampler, input.uv).rgb;
-    albedo = useGamma ? pow(albedo, 2.2f) : albedo.rgb;
-    //albedo = useAldedo ? albedo : colorTint.rgb; - bug
+    albedo = pow(albedo, 2.2f);
+    //albedo *= colorTint.rgb;
+    //return (metalness, 0, 0, .0f);
+    
+    //false - metals
+    //normals - false
+    //roughness - false
+    //albedo = useGamma ? pow(albedo, 2.2f) : albedo.rgb; //false
+    //albedo = useAldedo ? albedo : colorTint.rgb; //- bug
     
     float3 specularColor = lerp(0.04f, albedo, metalness);
-    float3 totalLight = albedo; //add ambience
+    float3 totalLight = albedo;
 
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < 2; i++)
     {
         Light light = lights[i];
         light.Direction = normalize(light.Direction);
@@ -73,20 +84,21 @@ float4 main(VertexToPixel input) : SV_TARGET
         switch (light.Type)
         {
             case LIGHT_TYPE_DIRECTIONAL:
-                totalLight = Directional(light, input.normal, input.worldPos, camPos, roughness, albedo, specularColor, metalness);
+                totalLight += Directional(light, input.normal, input.worldPos, camPos, roughness, albedo, specularColor, metalness);
                 break;
             
             case LIGHT_TYPE_POINT:
-                totalLight = Point(light, input.worldPos, input.normal, albedo, roughness, camPos, specularColor, metalness);
+                totalLight += Point(light, input.worldPos, input.normal, albedo, roughness, camPos, specularColor, metalness);
                 break;
             
             case LIGHT_TYPE_SPOT:
-                totalLight = Spot(light, input.worldPos, input.normal, albedo, roughness, camPos, specularColor, metalness);
+                totalLight += Spot(light, input.worldPos, input.normal, albedo, roughness, camPos, specularColor, metalness);
                 break;
             
         }
     }
+    totalLight = pow(totalLight, 0.45f);
     
-    float3 gammaAdjusted = useGamma ? pow(totalLight, 1.0f / 2.2f):totalLight;
-    return float4(gammaAdjusted, 1.0f);
+    //float3 gammaAdjusted = useGamma ? pow(totalLight, 1.0f / 2.2f):totalLight;
+    return float4(totalLight, 1.0f);
 }

@@ -65,10 +65,11 @@ Game::Game()
 		else{
 			dirLight.Direction = XMFLOAT3(0.0f, 0.0f, 1.0f);
 			dirLight.Color = XMFLOAT3(1.0f, 1.0f, 1.0f);
-			dirLight.Intensity = 1.0f;
+			//dirLight.Intensity = 1.0f;
 			dirLight.Position = XMFLOAT3(offset * i, 0.0f, 0.0f);
 		}
 		
+		dirLight.Intensity = 0.0f;
 		lights[i] = dirLight;
 	}
 
