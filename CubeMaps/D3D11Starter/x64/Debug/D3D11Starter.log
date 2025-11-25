@@ -1,8 +1,15 @@
 ﻿C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\Lighting.hlsli(116,11-30): warning X3206: implicit truncation of vector type
-C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\PixelShader.hlsl(68,31-126): warning X3206: 'Directional': implicit truncation of vector type
-C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\PixelShader.hlsl(72,31-120): warning X3206: 'Point': implicit truncation of vector type
-C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\PixelShader.hlsl(84,31-120): warning X3206: 'Point': implicit truncation of vector type
-C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\Lighting.hlsli(96,20): warning X4000: use of potentially uninitialized variable (SpecularPhong)
+C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\PixelShader.hlsl(72,31-130): warning X3206: 'PointPBR': implicit truncation of vector type
+C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\PixelShader.hlsl(84,31-130): warning X3206: 'PointPBR': implicit truncation of vector type
   
   compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\PixelShader.cso
+  Game.cpp
+  GameEntity.cpp
+  Main.cpp
+  Material.cpp
+  Mesh.cpp
+  Shader.cpp
+  Sky.cpp
+  Transform.cpp
+  Generating Code...
   D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\D3D11Starter.exe

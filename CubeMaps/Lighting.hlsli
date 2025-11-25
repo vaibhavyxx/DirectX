@@ -133,6 +133,65 @@ float3 Point(Light light, float3 worldPos, float3 normal, float specularScale, f
     //Directional(light, normal, worldPos, camPos, roughness, surfaceColor, specularScale) * atten; 
 }
 
+//PBR-------------------------------------------------------------------
 
+float3 DirectionalPBR(Light light, float3 normal, float3 worldPos, float3 camPos, float roughness,
+float3 surfaceColor, float3 specColor, float metalness)
+{
+    float3 toLight = normalize(-light.Direction);
+    float3 toCam = normalize(camPos - worldPos);
+    
+    float3 diff = Diffuse(normal, toLight);
+    //float3 h = normalize(toCam + toLight);
+    
+    float3 F; // = F_Schlick(toCam, h, specColor);
+    float3 spec = MicrofacetBRDF(normal, toLight, toCam, roughness, specColor, F);
+    
+    float3 balancedDiff = DiffuseEnergyConserve(diff, F, metalness);
+    
+    return (balancedDiff + spec + surfaceColor) * light.Color * light.Intensity;
+}
+
+//Range based attenuation
+float AttenuatePBR(Light light, float3 worldPos)
+{
+    float3 d = worldPos - light.Position;
+    float distSq = dot(d, d);
+    float rangeSq = max(light.Range * light.Range, 1e-6f);
+    float att = saturate(1.0f - (distSq / rangeSq));
+    return att * att;
+}
+
+//Calculates attenuation and then multiplies that to the lamberl value
+float3 PointPBR(Light light, float3 worldPos, float3 normal, float3 surfaceColor, float roughness, float3 camPos, float3 specularColor,
+    float metalness)
+{
+    float3 toLight = normalize(light.Position - worldPos);
+    float3 toCam = normalize(camPos - worldPos);
+    //float3 h = normalize(toCam + toLight);
+    float atten = Attenuate(light, worldPos);
+    
+    float3 diff = Diffuse(normal, toLight);
+    float3 F; // = F_Schlick(toCam, h, specularColor);
+    float3 spec = MicrofacetBRDF(normal, toLight, toCam, roughness, specularColor, F);
+    //float3 F = F_Schlick(toCam, h, specularColor);
+    float3 balancedDiff = DiffuseEnergyConserve(diff, F, metalness);
+    
+    return (balancedDiff + surfaceColor + spec) * (light.Color * atten) * light.Intensity;
+}
+
+float3 SpotPBR(Light light, float3 worldPos, float3 normal, float3 surfaceColor, float roughness, float3 camPos, float3 specularColor,
+    float metalness)
+{
+    float3 toLight = normalize(light.Position - worldPos);
+    float pixelAngle = saturate(dot(-toLight, light.Direction));
+            
+    float outerCosAngle = cos(light.SpotOuterAngle);
+    float innerCosAngle = cos(light.SpotInnerAngle);
+    float fallOff = outerCosAngle - innerCosAngle;
+            
+    float spotTerm = saturate((pixelAngle - outerCosAngle) / fallOff);
+    return PointPBR(light, worldPos, normal, surfaceColor, roughness, camPos, specularColor, metalness) * spotTerm;
+}
 
 #endif

@@ -65,11 +65,11 @@ float4 main(VertexToPixel input) : SV_TARGET
         switch (light.Type)
         {
             case LIGHT_TYPE_DIRECTIONAL:
-                totalLight += Directional(light, input.normal, input.worldPos, camPos, roughness, surfaceColor, specularScale);
+                totalLight += DirectionalPBR(light, input.normal, input.worldPos, camPos, roughness, surfaceColor, specularScale, metal);
                 break;
             
             case LIGHT_TYPE_POINT:
-                totalLight += Point(light, input.worldPos, input.normal, specularScale, surfaceColor, roughness, camPos);
+                totalLight += PointPBR(light, input.worldPos, input.normal, specularScale, surfaceColor, roughness, camPos, metal);
                 break;
             
             case LIGHT_TYPE_SPOT:
@@ -81,7 +81,7 @@ float4 main(VertexToPixel input) : SV_TARGET
                 float fallOff = outerCosAngle - innerCosAngle;
             
                 float spotTerm = saturate((pixelAngle - outerCosAngle) / fallOff);
-                totalLight += Point(light, input.worldPos, input.normal, specularScale, surfaceColor, roughness, camPos) * spotTerm;
+                totalLight += PointPBR(light, input.worldPos, input.normal, specularScale, surfaceColor, roughness, camPos, metal) * spotTerm;
                 break;
         }
     }
