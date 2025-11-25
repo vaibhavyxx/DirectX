@@ -24,11 +24,12 @@ struct Light
     float2 Padding;
 };
 
-float D_GGX(float3 n, float3 h, float alpha)
+float D_GGX(float3 n, float3 h, float r)
 {
     float NdotH = saturate(dot(n, h));
     float NdotHSq = NdotH * NdotH;
-    float a2 = max(alpha, MIN_ROUGHNESS);
+    float a1 = r * r;
+    float a2 = max(a1, MIN_ROUGHNESS);
     
     float denomToSq = NdotH * (a2 - 1) + 1;
     return a2 / (PI * denomToSq * denomToSq);
@@ -36,7 +37,9 @@ float D_GGX(float3 n, float3 h, float alpha)
 
 float G_SchlickGGX(float3 n, float3 v, float roughness)
 {
-    float k = pow(roughness + 1, 2) / 8.0f;
+    float r = roughness + 1;
+    float k = (r * r) * 0.125f;
+    //pow(roughness + 1, 2) / 8.0f;
     float NdotV = saturate(dot(n, v));
     return 1 / (NdotV * (1 - k) + k);
 }
@@ -45,7 +48,9 @@ float3 F_Schlick(float3 v, float3 h, float3 f0)
 {
     float VdotH = saturate(dot(v, h));
     float VdotHinv = 1 - VdotH;
-    return (f0 + (1 - f0) * pow(VdotHinv, 5));
+    float VdotH2 = VdotH * VdotH;
+    float VdotH5 = VdotH2 * VdotH2 * VdotH;
+    return (f0 + (1 - f0) * VdotH5);
 }
 
 float3 DiffuseEnergyConserve(float3 diffuse, float3 F, float metalness)
@@ -58,11 +63,11 @@ float3 DiffuseEnergyConserve(float3 diffuse, float3 F, float metalness)
 float3 MicrofacetBRDF(float3 n, float3 l, float3 v, float roughness, float3 f0, out float3 F_out)
 {
     float3 h = normalize(v + l);
-    float alpha = roughness * roughness;
-    //float NdotV = saturate(dot(n, v));
-    //float NdotL = saturate(dot(n, l));
+    //float alpha = roughness * roughness;
+    float NdotV = saturate(dot(n, v));
+    float NdotL = saturate(dot(n, l));
     
-    float D = D_GGX(n, h, alpha);
+    float D = D_GGX(n, h, roughness);
     float3 F = F_Schlick(v, h, f0);
     float g1 = G_SchlickGGX(n, v, roughness);
     float g2 = G_SchlickGGX(n, l, roughness);
@@ -85,8 +90,7 @@ float SpecularPhong(float3 normal, float3 dirToLight, float3 toCam, float roughn
 {
     float3 reflection = reflect(-dirToLight, normal);
     float spec = (1 - roughness) * MAX_SPECULAR_EXPONENT;
-    if (roughness == 1)
-        return 0.0f;
+    spec *= (1 - roughness);
     
     float specExponent = pow(max(dot(toCam, reflection), 0), spec);
     return specExponent;

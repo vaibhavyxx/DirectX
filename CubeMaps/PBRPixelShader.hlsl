@@ -86,6 +86,7 @@ float4 main(VertexToPixel input) : SV_TARGET
             
         }
     }
-    //float3 gammaAdjusted = useGamma ? pow(totalLight, 1.0f / 2.2f):totalLight;
-    return float4(totalLight, 1.0f);
+    
+    float3 gammaAdjusted = useGamma ? pow(totalLight, 1.0f / 2.2f):totalLight;
+    return float4(gammaAdjusted, 1.0f);
 }
