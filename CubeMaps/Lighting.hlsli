@@ -71,4 +71,6 @@ float3 Point(Light light, float3 worldPos, float3 normal, float specularScale, f
     //Directional(light, normal, worldPos, camPos, roughness, surfaceColor, specularScale) * atten; 
 }
 
+
+
 #endif
