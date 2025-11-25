@@ -36,6 +36,8 @@ float4 main(VertexToPixel input) : SV_TARGET
     input.uv = input.uv * scale + offset;
     
     float roughness = RoughnessMap.Sample(BasicSampler, input.uv).r;
+    float metal = MetalnessMap.Sample(BasicSampler, input.uv).r;
+    //return float4(metal, 1.0f);
     
     float3 unpackedNormal = normalize(NormalMap.Sample(BasicSampler, input.uv).xyz * 2.0f -1.0f);
     float3 n = (input.normal);

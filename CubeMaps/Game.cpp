@@ -136,6 +136,40 @@ Game::Game()
 		rockNRM.GetAddressOf());
 #pragma endregion
 
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> color;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normal;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rough;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> metal;
+
+	CreateWICTextureFromFile(
+		Graphics::Device.Get(),
+		Graphics::Context.Get(),
+		FixPath(L"../../Assets/Materials/PBR/floor_albedo.png").c_str(),
+		0,
+		color.GetAddressOf());
+
+	CreateWICTextureFromFile(
+		Graphics::Device.Get(),
+		Graphics::Context.Get(),
+		FixPath(L"../../Assets/Materials/PBR/floor_normals.png").c_str(),
+		0,
+		normal.GetAddressOf());
+
+	CreateWICTextureFromFile(
+		Graphics::Device.Get(),
+		Graphics::Context.Get(),
+		FixPath(L"../../Assets/Materials/PBR/floor_roughness.png").c_str(),
+		0,
+		rough.GetAddressOf());
+
+	CreateWICTextureFromFile(
+		Graphics::Device.Get(),
+		Graphics::Context.Get(),
+		FixPath(L"../../Assets/Materials/PBR/floor_metal.png").c_str(),
+		0,
+		metal.GetAddressOf());
+	metalSRV = { color, rough, normal, metal };
+
 #pragma region Sky
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> back;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> down;
@@ -280,11 +314,12 @@ void Game::CreateGeometry()
 		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.25f, ambientColor, normalsSRV[3])};
 
 	for (int i = 0; i < 3; i++) {
-		materials[i]->AddTextureSRV(0, srvVector[i]);
-		materials[i]->AddTextureSRV(2, normalsSRV[i]);
-		//materials[i]->AddTextureSRV(1, srvOverlay);		//additional texture for combine.cso
+		materials[i]->AddTextureSRV(0, metalSRV[0]);
+		materials[i]->AddTextureSRV(1, metalSRV[1]);
+		materials[i]->AddTextureSRV(2, metalSRV[2]);
+		materials[i]->AddTextureSRV(3, metalSRV[3]);
+		
 		materials[i]->AddSampler(0, samplerState);
-		//materials[i]->AddSampler(1, samplerState);
 		materials[i]->BindTexturesAndSamplers();
 	}
 
