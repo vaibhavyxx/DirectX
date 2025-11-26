@@ -37,7 +37,9 @@ float D_GGX(float3 n, float3 h, float r)
 
 float G_SchlickGGX(float3 n, float3 v, float roughness)
 {
-    float k = pow(roughness + 1, 2) / 8.0f; // End result of remaps
+    float r = roughness + 1;
+    float k = (r * r) * 0.125f;
+    //float k = pow(roughness + 1, 2) / 8.0f; // End result of remaps
     float NdotV = saturate(dot(n, v));
     return NdotV / (NdotV * (1 - k) + k);
 }
@@ -65,13 +67,14 @@ float3 MicrofacetBRDF(float3 n, float3 l, float3 v, float roughness, float3 f0, 
     F_out = F;
     float G = G_SchlickGGX(n, v, roughness) * G_SchlickGGX(n, l, roughness);
     float3 spec = (D * F * G) / (4 * NdotV * NdotL);
+    //return (4 * saturate(dot(n, v)) * saturate(dot(n, l)));
     return (D * F * G) / (4);
 }
 
 //Uses lambert equation
 float3 Diffuse(float3 normal, float3 to)
 {
-    return saturate(dot(normal, to));
+    return saturate(dot(normal, to))/PI;
 }
 
 float SpecularPhong(float3 normal, float3 dirToLight, float3 toCam, float roughness)
@@ -129,12 +132,10 @@ float3 surfaceColor, float3 specColor, float metalness)
     float3 h = normalize(toCam + toLight);
     float3 diff = Diffuse(normal, toLight);
 
-    float3 F; // = F_Schlick(toCam, h, specColor);
+    float3 F;
     float3 spec = MicrofacetBRDF(normal, toLight, toCam, roughness, specColor, F);
-    F = F_Schlick(toCam, h, specColor);
-    
+
     float3 balancedDiff = DiffuseEnergyConserve(diff, F, metalness);
-    //return spec;
     return (balancedDiff * surfaceColor + spec) * light.Color * light.Intensity;
 }
 
@@ -150,12 +151,9 @@ float3 PointPBR(Light light, float3 worldPos, float3 normal, float3 surfaceColor
     float3 diff = Diffuse(normal, toLight);
     float3 F = F_Schlick(toCam, h, specularColor);
     float3 spec = MicrofacetBRDF(normal, toLight, toCam, roughness, specularColor, F);
-    F = F_Schlick(toCam, h, specularColor);
     float3 balancedDiff = DiffuseEnergyConserve(diff, F, metalness);
-    //balancedDiff = 0;
-    //spec = 0;
-    //return spec;
-    return (balancedDiff * surfaceColor + spec) * (light.Color * atten) * light.Intensity;
+    
+    return (balancedDiff  * surfaceColor + spec) * (light.Color * atten) * light.Intensity;
 }
 
 float3 SpotPBR(Light light, float3 worldPos, float3 normal, float3 surfaceColor, float roughness, float3 camPos, float3 specularColor,

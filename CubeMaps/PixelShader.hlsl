@@ -57,7 +57,7 @@ float4 main(VertexToPixel input) : SV_TARGET
     input.normal = finalNormal;
  
     float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb;
-    //surfaceColor = pow(surfaceColor, 2.2f);
+    surfaceColor = pow(surfaceColor, 2.2f);
     float3 dielectricF0 = float3(0.04, 0.04, 0.04);
     float3 specularColor = lerp(dielectricF0, surfaceColor, metal);
     float3 totalLight = colorTint.rgb * surfaceColor;
@@ -82,6 +82,6 @@ float4 main(VertexToPixel input) : SV_TARGET
                 break;
         }
     }
-    //totalLight = pow(totalLight, 0.45f);
+    totalLight = pow(totalLight, 0.45f);
     return float4(totalLight, 1.0f);
 }
