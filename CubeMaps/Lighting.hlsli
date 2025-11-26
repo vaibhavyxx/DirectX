@@ -25,39 +25,34 @@ struct Light
 
 float D_GGX(float3 n, float3 h, float r)
 {
+    // Pre-calculations
     float NdotH = saturate(dot(n, h));
-    float NdotHSq = NdotH * NdotH;
-    float a1 = r * r;
-    float a2 = max(a1, MIN_ROUGHNESS);
-    
-    float denomToSq = NdotH * (a2 - 1) + 1;
-    return a2 / (PI * denomToSq * denomToSq);
+    float NdotH2 = NdotH * NdotH;
+    float a = r * r; // Remapping roughness
+    float a2 = max(a * a, MIN_ROUGHNESS);
+    // Denominator to be squared is ((n dot h)^2 * (a^2 - 1) + 1)
+    float denomToSquare = NdotH2 * (a2 - 1) + 1;
+    return a2 / (PI * denomToSquare * denomToSquare);
 }
 
 float G_SchlickGGX(float3 n, float3 v, float roughness)
 {
-    float r = roughness + 1;
-    float k = (r * r) * 0.125f;
-    //pow(roughness + 1, 2) / 8.0f;
+    float k = pow(roughness + 1, 2) / 8.0f; // End result of remaps
     float NdotV = saturate(dot(n, v));
-    return 1 / (NdotV * (1 - k) + k);
+    return NdotV / (NdotV * (1 - k) + k);
 }
 
 float3 F_Schlick(float3 v, float3 h, float3 f0)
 {
     float VdotH = saturate(dot(v, h));
-    float VdotHinv = 1 - VdotH;
-    float VdotH2 = VdotH * VdotH;
-    float VdotH5 = VdotH2 * VdotH2 * VdotH;
-    return (f0 + (1 - f0) * VdotH5);
+    return f0 + (1 - f0) * pow(1 - VdotH, 5);
 }
 
 float3 DiffuseEnergyConserve(float3 diffuse, float3 F, float metalness)
 {
-    //float3 Finv = 1 - F;
     diffuse *= (1 - F);
     diffuse *= metalness;
-    diffuse *= 0.318f;
+    diffuse /= PI;
     return diffuse; // * (1 - F) * (1 - metalness);
 }
 
@@ -65,21 +60,13 @@ float3 DiffuseEnergyConserve(float3 diffuse, float3 F, float metalness)
 float3 MicrofacetBRDF(float3 n, float3 l, float3 v, float roughness, float3 f0, out float3 F_out)
 {
     float3 h = normalize(v + l);
-    //float alpha = roughness * roughness;
-    //float NdotV = saturate(dot(n, v));
-    float NdotL = saturate(dot(n, l));
-    
+    // Run each function: D and G are scalars, F is a vector
     float D = D_GGX(n, h, roughness);
     float3 F = F_Schlick(v, h, f0);
-    float g1 = G_SchlickGGX(n, v, roughness);
-    float g2 = G_SchlickGGX(n, l, roughness);
-    float G = g1 * g2;
     F_out = F;
-    
-    //Cook Torrance: (D*G*F)/(4 * NdotV *NdotL)
-    float3 specularResult = (D * F * G) * 0.25f;
-    
-    return specularResult * max(NdotL, 0);
+    float G = G_SchlickGGX(n, v, roughness) * G_SchlickGGX(n, l, roughness);
+    // Final formula
+    return (D * F * G) / (4);
 }
 
 //Uses lambert equation
@@ -168,11 +155,11 @@ float3 PointPBR(Light light, float3 worldPos, float3 normal, float3 surfaceColor
 {
     float3 toLight = normalize(light.Position - worldPos);
     float3 toCam = normalize(camPos - worldPos);
-    //float3 h = normalize(toCam + toLight);
+    float3 h = normalize(toCam + toLight);
     float atten = Attenuate(light, worldPos);
     
     float3 diff = Diffuse(normal, toLight);
-    float3 F; // = F_Schlick(toCam, h, specularColor);
+    float3 F = F_Schlick(toCam, h, specularColor);
     float3 spec = MicrofacetBRDF(normal, toLight, toCam, roughness, specularColor, F);
     //float3 F = F_Schlick(toCam, h, specularColor);
     float3 balancedDiff = DiffuseEnergyConserve(diff, F, metalness);

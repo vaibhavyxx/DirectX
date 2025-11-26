@@ -203,7 +203,43 @@ Game::Game()
 			FixPath(L"../../Assets/Materials/PBR/scratched_metal.png").c_str(),
 			0,
 			metal.GetAddressOf());
-		stones = { color, rough, normal, metal };
+		metals = { color, rough, normal, metal };
+	}
+
+	{
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> color;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normal;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rough;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> metal;
+
+		CreateWICTextureFromFile(
+			Graphics::Device.Get(),
+			Graphics::Context.Get(),
+			FixPath(L"../../Assets/Materials/PBR/cobblestone_albedo.png").c_str(),
+			0,
+			color.GetAddressOf());
+
+		CreateWICTextureFromFile(
+			Graphics::Device.Get(),
+			Graphics::Context.Get(),
+			FixPath(L"../../Assets/Materials/PBR/cobblestone_normals.png").c_str(),
+			0,
+			normal.GetAddressOf());
+
+		CreateWICTextureFromFile(
+			Graphics::Device.Get(),
+			Graphics::Context.Get(),
+			FixPath(L"../../Assets/Materials/PBR/cobblestone_roughness.png").c_str(),
+			0,
+			rough.GetAddressOf());
+
+		CreateWICTextureFromFile(
+			Graphics::Device.Get(),
+			Graphics::Context.Get(),
+			FixPath(L"../../Assets/Materials/PBR/cobblestone_metal.png").c_str(),
+			0,
+			metal.GetAddressOf());
+		cobblestoneMaterials = { color, rough, normal, metal };
 	}
 	
 #pragma region Sky
@@ -259,8 +295,7 @@ Game::Game()
 
 	srvVector = { cobblestone, cushion, rock };
 	normalsSRV = { cobblestoneNRM, cushionNRM, rockNRM, flatNRM };
-	//skySRV = { back, down, front, left, right, up };
-
+	
 	//Calls PS Set Shader Resources
 	D3D11_SAMPLER_DESC sampDesc = {};
 	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -356,17 +391,17 @@ void Game::CreateGeometry()
 	materials[0]->AddSampler(0, samplerState);
 	materials[0]->BindTexturesAndSamplers();
 
-	materials[1]->AddTextureSRV(0, stones[0]);
-	materials[1]->AddTextureSRV(1, stones[1]);
-	materials[1]->AddTextureSRV(2, stones[2]);
-	materials[1]->AddTextureSRV(3, stones[3]);
+	materials[1]->AddTextureSRV(0, metals[0]);
+	materials[1]->AddTextureSRV(1, metals[1]);
+	materials[1]->AddTextureSRV(2, metals[2]);
+	materials[1]->AddTextureSRV(3, metals[3]);
 	materials[1]->AddSampler(0, samplerState);
 	materials[1]->BindTexturesAndSamplers();
 
-	materials[2]->AddTextureSRV(0, floor[0]);
-	materials[2]->AddTextureSRV(1, floor[1]);
-	materials[2]->AddTextureSRV(2, floor[2]);
-	materials[2]->AddTextureSRV(3, floor[3]);
+	materials[2]->AddTextureSRV(0, cobblestoneMaterials[0]);
+	materials[2]->AddTextureSRV(1, cobblestoneMaterials[1]);
+	materials[2]->AddTextureSRV(2, cobblestoneMaterials[2]);
+	materials[2]->AddTextureSRV(3, cobblestoneMaterials[3]);
 	materials[2]->AddSampler(0, samplerState);
 	materials[2]->BindTexturesAndSamplers();
 
@@ -384,8 +419,8 @@ void Game::CreateGeometry()
 	float offset = 5.0f;
 
 	for (int i = 0; i < meshes.size(); i++) {
-		int materialsCount = i % materials.size();
-		gameEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[materialsCount]));
+		int index = i % materials.size();
+		gameEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[index]));
 		gameEntities[i]->GetTransform()->SetPosition(offset * i, 0.0f, 0.0f);
 	}
 }
@@ -415,7 +450,7 @@ void Game::Update(float deltaTime, float totalTime)
 	float speed = 0.5f;
 	d += speed * deltaTime;
 	for (int i = 0; i < gameEntities.size(); i++) {
-		//gameEntities[i]->GetTransform()->SetRotation(d, d, 1.0f);
+		gameEntities[i]->GetTransform()->SetRotation(d, d, 1.0f);
 	}
 	cameras[currentCamera]->Update(deltaTime);
 }

@@ -52,7 +52,9 @@ private:
 	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> normalsSRV;
 	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> skySRV;
 	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> floor;
-	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> stones;
+	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> metals;
+	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> cobblestoneMaterials;
+
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> textures[6] = {};
 
 	float color[4] = { 0.4f, 0.6f, 0.75f, 1.0f };
