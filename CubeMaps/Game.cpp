@@ -447,11 +447,11 @@ void Game::Update(float deltaTime, float totalTime)
 
 	if (Input::KeyDown(VK_ESCAPE))
 		Window::Quit();
-	float speed = 0.5f;
+	/*float speed = 0.5f;
 	d += speed * deltaTime;
 	for (int i = 0; i < gameEntities.size(); i++) {
 		gameEntities[i]->GetTransform()->SetRotation(d, d, 1.0f);
-	}
+	}*/
 	cameras[currentCamera]->Update(deltaTime);
 }
 

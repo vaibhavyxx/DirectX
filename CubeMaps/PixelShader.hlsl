@@ -41,7 +41,6 @@ float4 main(VertexToPixel input) : SV_TARGET
     
     float roughness = RoughnessMap.Sample(BasicSampler, input.uv).r;
     float metal = MetalnessMap.Sample(BasicSampler, input.uv).r;
-    //return float4(metal, 1.0f);
     
     float3 unpackedNormal = normalize(NormalMap.Sample(BasicSampler, input.uv).xyz * 2.0f -1.0f);
     float3 n = (input.normal);
@@ -53,14 +52,13 @@ float4 main(VertexToPixel input) : SV_TARGET
     input.normal = finalNormal;
     
     //Gamma
-    float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb * useGamma;
-    //surfaceColor = colorTint.rgb;
-    //surfaceColor *= colorTint.rgb;
-    surfaceColor = pow(surfaceColor, 2.2f);
-    float3 specularColor = lerp(0.04f, surfaceColor, metal);
-    float3 totalLight =  surfaceColor;
-
-    for (int i = 0; i < 1; i++)
+    float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb;
+    //surfaceColor = pow(surfaceColor, 2.2f);
+    float3 dielectricF0 = float3(0.04, 0.04, 0.04);
+    float3 specularColor = lerp(dielectricF0, surfaceColor, metal);
+    float3 totalLight = float3(0,0,0);
+    
+    for (int i = 0; i < 5; i++)
     {
         Light light = lights[i];
         light.Direction = normalize(light.Direction);
@@ -76,20 +74,10 @@ float4 main(VertexToPixel input) : SV_TARGET
                 break;
             
             case LIGHT_TYPE_SPOT:
-                float3 toLight = normalize(light.Position - input.worldPos);
-                float pixelAngle = saturate(dot(-toLight, light.Direction));
-            
-                float outerCosAngle = cos(light.SpotOuterAngle);
-                float innerCosAngle = cos(light.SpotInnerAngle);
-                float fallOff = outerCosAngle - innerCosAngle;
-            
-                float spotTerm = saturate((pixelAngle - outerCosAngle) / fallOff);
-                totalLight += PointPBR(light, input.worldPos, input.normal, surfaceColor, roughness, camPos, specularColor, metal) * spotTerm;
+                totalLight += SpotPBR(light, input.worldPos, input.normal, surfaceColor, roughness, camPos, specularColor, metal);
                 break;
         }
     }
-    
-    totalLight = pow(totalLight, 0.45f);
-    
+    //totalLight = pow(totalLight, 0.45f);
     return float4(totalLight, 1.0f);
 }
