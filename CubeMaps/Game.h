@@ -14,6 +14,7 @@
 #include "Shader.h"
 #include "Lights.h"
 #include "Sky.h"
+#include <string>
 
 class Game
 {
@@ -36,6 +37,7 @@ private:
 	void AppDetails();
 	void MeshDetails(std::shared_ptr<Mesh> mesh, const char* name);
 	void EntityValues(std::shared_ptr<GameEntity> entity, unsigned int i);
+	void LoadTextures(std::string filepath, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& srv);
 
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerStateOverlay;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;

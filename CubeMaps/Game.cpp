@@ -57,7 +57,7 @@ Game::Game()
 			dirLight.Direction = XMFLOAT3(0.0f, 1.0f, 1.0f);
 			dirLight.Color = XMFLOAT3(1.0f, 1.0f, 1.0f);
 			dirLight.Intensity = 0.5f;
-			dirLight.Range = 0.5f;
+			dirLight.Range = 2.0f;
 			dirLight.Position = XMFLOAT3(offset * i, 0.0f, 0.0f);
 			dirLight.SpotOuterAngle = XMConvertToRadians(60.0f);
 			dirLight.SpotInnerAngle = XMConvertToRadians(45.0f);
@@ -68,106 +68,21 @@ Game::Game()
 			dirLight.Intensity = 1.0f;
 			dirLight.Position = XMFLOAT3(offset * i, 0.0f, 0.0f);
 		}
-		dirLight.Intensity = 0.8f;
+		
+		dirLight.Intensity = 1.0f;
 		lights[i] = dirLight;
 	}
 
-	//Loads textures
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cobblestone;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cushion;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rock;
-
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cobblestoneNRM;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cushionNRM;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> flatNRM;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rockNRM;
-
-#pragma region Texture files
-	CreateWICTextureFromFile(
-		Graphics::Device.Get(),
-		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/cobblestone.png").c_str(),
-		0,
-		cobblestone.GetAddressOf());
-
-	CreateWICTextureFromFile(
-		Graphics::Device.Get(),
-		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/cushion.png").c_str(),
-		0,
-		cushion.GetAddressOf());
-
-	CreateWICTextureFromFile(
-		Graphics::Device.Get(),
-		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/rock.png").c_str(),
-		0,
-		rock.GetAddressOf());
-
-#pragma endregion
-
-#pragma region Normals
-	CreateWICTextureFromFile(
-		Graphics::Device.Get(),
-		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/cobblestone_normals.png").c_str(),
-		0,
-		cobblestoneNRM.GetAddressOf());
-
-	CreateWICTextureFromFile(
-		Graphics::Device.Get(),
-		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/cushion_normals.png").c_str(),
-		0,
-		cushionNRM.GetAddressOf());
-
-	CreateWICTextureFromFile(
-		Graphics::Device.Get(),
-		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/flat_normals.png").c_str(),
-		0,
-		flatNRM.GetAddressOf());
-
-	CreateWICTextureFromFile(
-		Graphics::Device.Get(),
-		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/rock_normals.png").c_str(),
-		0,
-		rockNRM.GetAddressOf());
-#pragma endregion
 	{
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> color;
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normal;
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rough;
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> metal;
 
-		CreateWICTextureFromFile(
-			Graphics::Device.Get(),
-			Graphics::Context.Get(),
-			FixPath(L"../../Assets/Materials/PBR/floor_albedo.png").c_str(),
-			0,
-			color.GetAddressOf());
-
-		CreateWICTextureFromFile(
-			Graphics::Device.Get(),
-			Graphics::Context.Get(),
-			FixPath(L"../../Assets/Materials/PBR/floor_normals.png").c_str(),
-			0,
-			normal.GetAddressOf());
-
-		CreateWICTextureFromFile(
-			Graphics::Device.Get(),
-			Graphics::Context.Get(),
-			FixPath(L"../../Assets/Materials/PBR/floor_roughness.png").c_str(),
-			0,
-			rough.GetAddressOf());
-
-		CreateWICTextureFromFile(
-			Graphics::Device.Get(),
-			Graphics::Context.Get(),
-			FixPath(L"../../Assets/Materials/PBR/floor_metal.png").c_str(),
-			0,
-			metal.GetAddressOf());
+		LoadTextures("../../Assets/Materials/PBR/floor_albedo.png", color);
+		LoadTextures("../../Assets/Materials/PBR/floor_normals.png", normal);
+		LoadTextures("../../Assets/Materials/PBR/floor_roughness.png", rough);
+		LoadTextures("../../Assets/Materials/PBR/floor_metal.png", metal);
 		floor = { color, rough, normal, metal };
 	}
 	{
@@ -176,33 +91,11 @@ Game::Game()
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rough;
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> metal;
 
-		CreateWICTextureFromFile(
-			Graphics::Device.Get(),
-			Graphics::Context.Get(),
-			FixPath(L"../../Assets/Materials/PBR/scratched_albedo.png").c_str(),
-			0,
-			color.GetAddressOf());
-
-		CreateWICTextureFromFile(
-			Graphics::Device.Get(),
-			Graphics::Context.Get(),
-			FixPath(L"../../Assets/Materials/PBR/scratched_normals.png").c_str(),
-			0,
-			normal.GetAddressOf());
-
-		CreateWICTextureFromFile(
-			Graphics::Device.Get(),
-			Graphics::Context.Get(),
-			FixPath(L"../../Assets/Materials/PBR/scratched_roughness.png").c_str(),
-			0,
-			rough.GetAddressOf());
-
-		CreateWICTextureFromFile(
-			Graphics::Device.Get(),
-			Graphics::Context.Get(),
-			FixPath(L"../../Assets/Materials/PBR/scratched_metal.png").c_str(),
-			0,
-			metal.GetAddressOf());
+		LoadTextures("../../Assets/Materials/PBR/grass_albedo.png", color);
+		LoadTextures("../../Assets/Materials/PBR/grass_normals.png", normal);
+		LoadTextures("../../Assets/Materials/PBR/grass_roughness.png", rough);
+		LoadTextures("../../Assets/Materials/PBR/grass_metal.png", metal);
+		
 		metals = { color, rough, normal, metal };
 	}
 
@@ -293,9 +186,6 @@ Game::Game()
 		up.GetAddressOf());
 #pragma endregion
 
-	srvVector = { cobblestone, cushion, rock };
-	normalsSRV = { cobblestoneNRM, cushionNRM, rockNRM, flatNRM };
-	
 	//Calls PS Set Shader Resources
 	D3D11_SAMPLER_DESC sampDesc = {};
 	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -380,9 +270,9 @@ void Game::CreateGeometry()
 {
 	ambientColor = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	materials = { 
-		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor, normalsSRV[3]),
-		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.5f, ambientColor, normalsSRV[3]),
-		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.25f, ambientColor, normalsSRV[3])};
+		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor, floor[3]),
+		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.5f, ambientColor, floor[3]),
+		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.25f, ambientColor, floor[3])};
 
 	materials[0]->AddTextureSRV(0, floor[0]);
 	materials[0]->AddTextureSRV(1, floor[1]);
@@ -657,6 +547,17 @@ void Game::EntityValues(std::shared_ptr<GameEntity> entity, unsigned int i)
 			ImGui::Image(matSRV2, ImVec2(50.0f, 50.0f));
 		}
 	}
+}
+
+void Game::LoadTextures(std::string filepath, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& srv)
+{
+	std::wstring wideFileName(filepath.begin(), filepath.end());
+	CreateWICTextureFromFile(
+		Graphics::Device.Get(),
+		Graphics::Context.Get(),
+		FixPath(wideFileName).c_str(),
+		0,
+		srv.GetAddressOf());
 }
 
 
