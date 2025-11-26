@@ -134,7 +134,7 @@ float3 surfaceColor, float3 specColor, float metalness)
     F = F_Schlick(toCam, h, specColor);
     
     float3 balancedDiff = DiffuseEnergyConserve(diff, F, metalness);
-    return (balancedDiff + spec) * balancedDiff * light.Color * light.Intensity;
+    return (balancedDiff * surfaceColor + spec) * balancedDiff * light.Color * light.Intensity;
 }
 
 //Calculates attenuation and then multiplies that to the lamberl value
@@ -152,7 +152,7 @@ float3 PointPBR(Light light, float3 worldPos, float3 normal, float3 surfaceColor
     F = F_Schlick(toCam, h, specularColor);
     float3 balancedDiff = DiffuseEnergyConserve(diff, F, metalness);
     
-    return (balancedDiff  + spec) * (light.Color * atten) * light.Intensity;
+    return (balancedDiff * surfaceColor + spec) * (light.Color * atten) * light.Intensity;
 }
 
 float3 SpotPBR(Light light, float3 worldPos, float3 normal, float3 surfaceColor, float roughness, float3 camPos, float3 specularColor,

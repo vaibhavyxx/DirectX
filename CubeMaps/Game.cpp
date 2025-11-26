@@ -68,7 +68,7 @@ Game::Game()
 			dirLight.Intensity = 1.0f;
 			dirLight.Position = XMFLOAT3(offset * i, 0.0f, 0.0f);
 		}
-		dirLight.Intensity = 0.1f;
+		dirLight.Intensity = 0.8f;
 		lights[i] = dirLight;
 	}
 

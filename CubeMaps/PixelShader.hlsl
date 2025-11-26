@@ -41,6 +41,8 @@ float4 main(VertexToPixel input) : SV_TARGET
     
     float roughness = RoughnessMap.Sample(BasicSampler, input.uv).r;
     float metal = MetalnessMap.Sample(BasicSampler, input.uv).r;
+    //metal = 0.0f;
+    //roughness = 0.5f;
     
     float3 unpackedNormal = normalize(NormalMap.Sample(BasicSampler, input.uv).xyz * 2.0f -1.0f);
     float3 n = (input.normal);
@@ -50,13 +52,12 @@ float4 main(VertexToPixel input) : SV_TARGET
     
     float3 finalNormal = mul(tbn, unpackedNormal);
     input.normal = finalNormal;
-    
-    //Gamma
+ 
     float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb;
     //surfaceColor = pow(surfaceColor, 2.2f);
     float3 dielectricF0 = float3(0.04, 0.04, 0.04);
     float3 specularColor = lerp(dielectricF0, surfaceColor, metal);
-    float3 totalLight = float3(0,0,0);
+    float3 totalLight = ambient * surfaceColor;
     
     for (int i = 0; i < 5; i++)
     {
@@ -78,6 +79,6 @@ float4 main(VertexToPixel input) : SV_TARGET
                 break;
         }
     }
-    //totalLight = pow(totalLight, 0.45f);
+    totalLight = pow(totalLight, 0.45f);
     return float4(totalLight, 1.0f);
 }
