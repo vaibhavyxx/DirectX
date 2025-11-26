@@ -134,7 +134,8 @@ float3 surfaceColor, float3 specColor, float metalness)
     F = F_Schlick(toCam, h, specColor);
     
     float3 balancedDiff = DiffuseEnergyConserve(diff, F, metalness);
-    return (balancedDiff * surfaceColor + spec) * balancedDiff * light.Color * light.Intensity;
+    //return spec;
+    return (balancedDiff * surfaceColor + spec) * light.Color * light.Intensity;
 }
 
 //Calculates attenuation and then multiplies that to the lamberl value
@@ -151,7 +152,9 @@ float3 PointPBR(Light light, float3 worldPos, float3 normal, float3 surfaceColor
     float3 spec = MicrofacetBRDF(normal, toLight, toCam, roughness, specularColor, F);
     F = F_Schlick(toCam, h, specularColor);
     float3 balancedDiff = DiffuseEnergyConserve(diff, F, metalness);
-    
+    //balancedDiff = 0;
+    //spec = 0;
+    //return spec;
     return (balancedDiff * surfaceColor + spec) * (light.Color * atten) * light.Intensity;
 }
 

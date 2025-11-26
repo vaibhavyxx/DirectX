@@ -25,6 +25,9 @@ cbuffer ExternalData : register(b0)
     int lightCount; 
     int useGamma;
     int useNormal;
+    
+    int useMetals;
+    float3 pad;
 }
 Texture2D SurfaceTexture : register(t0);
 Texture2D RoughnessMap : register(t1);
@@ -39,10 +42,10 @@ float4 main(VertexToPixel input) : SV_TARGET
     input.tangent = normalize(input.tangent);
     input.uv = input.uv * scale + offset;
     
-    float roughness = RoughnessMap.Sample(BasicSampler, input.uv).r;
+    float rough = RoughnessMap.Sample(BasicSampler, input.uv).r;
     float metal = MetalnessMap.Sample(BasicSampler, input.uv).r;
-    //metal = 0.0f;
-    //roughness = 0.5f;
+    metal *= useMetals; //1- yes and 0-no
+    rough *= roughness;
     
     float3 unpackedNormal = normalize(NormalMap.Sample(BasicSampler, input.uv).xyz * 2.0f -1.0f);
     float3 n = (input.normal);
@@ -57,7 +60,7 @@ float4 main(VertexToPixel input) : SV_TARGET
     //surfaceColor = pow(surfaceColor, 2.2f);
     float3 dielectricF0 = float3(0.04, 0.04, 0.04);
     float3 specularColor = lerp(dielectricF0, surfaceColor, metal);
-    float3 totalLight = ambient * surfaceColor;
+    float3 totalLight = colorTint.rgb * surfaceColor;
     
     for (int i = 0; i < 5; i++)
     {
@@ -79,6 +82,6 @@ float4 main(VertexToPixel input) : SV_TARGET
                 break;
         }
     }
-    totalLight = pow(totalLight, 0.45f);
+    //totalLight = pow(totalLight, 0.45f);
     return float4(totalLight, 1.0f);
 }

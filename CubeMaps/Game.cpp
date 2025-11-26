@@ -270,9 +270,9 @@ void Game::CreateGeometry()
 {
 	ambientColor = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	materials = { 
-		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor, floor[3]),
-		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.5f, ambientColor, floor[3]),
-		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.25f, ambientColor, floor[3])};
+		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor, floor[3], 1.0f),
+		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.5f, ambientColor, floor[3], 1.0f),
+		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.25f, ambientColor, floor[3], 0.5f)};
 
 	materials[0]->AddTextureSRV(0, floor[0]);
 	materials[0]->AddTextureSRV(1, floor[1]);
@@ -358,7 +358,6 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	}
 	
-
 	BuildUI();
 	for (int i = 0; i < gameEntities.size(); i++) {
 		gameEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor);

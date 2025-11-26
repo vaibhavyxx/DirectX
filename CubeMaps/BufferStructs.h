@@ -33,6 +33,9 @@ struct PixelStruct {
 	int lightCount;
 	int useGamma;
 	int useNormal;
+
+	int useMetals;
+	DirectX::XMFLOAT3 pad;
 };
 
 struct Skybox {
