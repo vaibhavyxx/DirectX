@@ -22,7 +22,7 @@
 #include <vector>
 
 Material::Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color, float roughness, DirectX::XMFLOAT3 ambient,
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normal, bool flat)
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normal, float metallic)
 {
 	this->normal = normal;
 	this->shader = shader;
@@ -37,7 +37,7 @@ Material::Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color, floa
 	this->roughness = roughness;
 	this->ambient = ambient;
 	this->normal = normal;
-	this->flat = flat;
+	this->metal = metallic;
 	AddTextureSRV(1, normal);
 }
 
@@ -80,16 +80,15 @@ void Material::SetupPixelStruct(std::shared_ptr<Camera> cam, Light* lights)
 	pixelData.time = GetTime();
 	pixelData.roughness = GetRoughness();
 	pixelData.camPos = cam->GetTransform()->GetPosition();
+	pixelData.ambient = GetAmbient();
+
 	pixelData.type = 0;
 	pixelData.lightCount = 1;
-	//testing
-	pixelData.useAldedo = true;
-	pixelData.useGamma = true;
-	pixelData.useMetals = true;
-	pixelData.useNormals = true;
-	pixelData.useRoughness = true;
+	pixelData.useGamma = 1;
+	pixelData.useNormal = 1;
+	pixelData.useMetals = this->metal;
 
-	for (int i = 0; i < 2; i++) {
+	for (int i = 0; i < 5; i++) {
 		pixelData.lights[i] = lights[i];
 	}
 	Graphics::FillAndBindNextCB(&pixelData, sizeof(PixelStruct), D3D11_PIXEL_SHADER, 0);

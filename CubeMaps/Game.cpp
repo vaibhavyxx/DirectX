@@ -47,17 +47,17 @@ Game::Game()
 		else if (i == 0) {
 			dirLight.Type = LIGHT_TYPE_POINT;
 			dirLight.Position = XMFLOAT3(5.0f, 1.0f, 0.0f);
-			dirLight.Direction = XMFLOAT3(offset * i, offset * i, 0.0f);
+			//dirLight.Direction = XMFLOAT3(offset * i, offset * i, 0.0f);
 			dirLight.Color = XMFLOAT3(1.0f, 1.0f, 1.0f);
-			dirLight.Intensity = 0.0f;
-			dirLight.Range = 0.5f;
+			dirLight.Intensity = 1.0f;
+			dirLight.Range = 5.0f;
 		}
 		else if (i == 2) {
 			dirLight.Type = LIGHT_TYPE_SPOT;
 			dirLight.Direction = XMFLOAT3(0.0f, 1.0f, 1.0f);
 			dirLight.Color = XMFLOAT3(1.0f, 1.0f, 1.0f);
 			dirLight.Intensity = 0.5f;
-			dirLight.Range = 0.5f;
+			dirLight.Range = 2.0f;
 			dirLight.Position = XMFLOAT3(offset * i, 0.0f, 0.0f);
 			dirLight.SpotOuterAngle = XMConvertToRadians(60.0f);
 			dirLight.SpotInnerAngle = XMConvertToRadians(45.0f);
@@ -65,114 +65,76 @@ Game::Game()
 		else{
 			dirLight.Direction = XMFLOAT3(0.0f, 0.0f, 1.0f);
 			dirLight.Color = XMFLOAT3(1.0f, 1.0f, 1.0f);
-			//dirLight.Intensity = 1.0f;
+			dirLight.Intensity = 1.0f;
 			dirLight.Position = XMFLOAT3(offset * i, 0.0f, 0.0f);
 		}
 		
-		dirLight.Intensity = 0.5f;
+		dirLight.Intensity = 1.0f;
 		lights[i] = dirLight;
 	}
 
-	//Loads textures
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cobblestone;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cushion;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rock;
+	{
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> color;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normal;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rough;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> metal;
 
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cobblestoneNRM;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cushionNRM;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> flatNRM;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rockNRM;
+		LoadTextures("../../Assets/Materials/PBR/floor_albedo.png", color);
+		LoadTextures("../../Assets/Materials/PBR/floor_normals.png", normal);
+		LoadTextures("../../Assets/Materials/PBR/floor_roughness.png", rough);
+		LoadTextures("../../Assets/Materials/PBR/floor_metal.png", metal);
+		floor = { color, rough, normal, metal };
+	}
+	{
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> color;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normal;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rough;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> metal;
 
-#pragma region Texture files
-	CreateWICTextureFromFile(
-		Graphics::Device.Get(),
-		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/cobblestone.png").c_str(),
-		0,
-		cobblestone.GetAddressOf());
+		LoadTextures("../../Assets/Materials/PBR/grass_albedo.png", color);
+		LoadTextures("../../Assets/Materials/PBR/grass_normals.png", normal);
+		LoadTextures("../../Assets/Materials/PBR/grass_roughness.png", rough);
+		LoadTextures("../../Assets/Materials/PBR/grass_metal.png", metal);
+		
+		metals = { color, rough, normal, metal };
+	}
 
-	CreateWICTextureFromFile(
-		Graphics::Device.Get(),
-		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/cushion.png").c_str(),
-		0,
-		cushion.GetAddressOf());
+	{
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> color;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normal;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rough;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> metal;
 
-	CreateWICTextureFromFile(
-		Graphics::Device.Get(),
-		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/rock.png").c_str(),
-		0,
-		rock.GetAddressOf());
+		CreateWICTextureFromFile(
+			Graphics::Device.Get(),
+			Graphics::Context.Get(),
+			FixPath(L"../../Assets/Materials/PBR/cobblestone_albedo.png").c_str(),
+			0,
+			color.GetAddressOf());
 
-#pragma endregion
+		CreateWICTextureFromFile(
+			Graphics::Device.Get(),
+			Graphics::Context.Get(),
+			FixPath(L"../../Assets/Materials/PBR/cobblestone_normals.png").c_str(),
+			0,
+			normal.GetAddressOf());
 
-#pragma region Normals
-	CreateWICTextureFromFile(
-		Graphics::Device.Get(),
-		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/cobblestone_normals.png").c_str(),
-		0,
-		cobblestoneNRM.GetAddressOf());
+		CreateWICTextureFromFile(
+			Graphics::Device.Get(),
+			Graphics::Context.Get(),
+			FixPath(L"../../Assets/Materials/PBR/cobblestone_roughness.png").c_str(),
+			0,
+			rough.GetAddressOf());
 
-	CreateWICTextureFromFile(
-		Graphics::Device.Get(),
-		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/cushion_normals.png").c_str(),
-		0,
-		cushionNRM.GetAddressOf());
-
-	CreateWICTextureFromFile(
-		Graphics::Device.Get(),
-		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/flat_normals.png").c_str(),
-		0,
-		flatNRM.GetAddressOf());
-
-	CreateWICTextureFromFile(
-		Graphics::Device.Get(),
-		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/rock_normals.png").c_str(),
-		0,
-		rockNRM.GetAddressOf());
-#pragma endregion
-
-#pragma region Metal
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> color;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normal;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rough;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> metal;
-
-	CreateWICTextureFromFile(
-		Graphics::Device.Get(),
-		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/PBR/floor_albedo.png").c_str(),
-		0,
-		color.GetAddressOf());
+		CreateWICTextureFromFile(
+			Graphics::Device.Get(),
+			Graphics::Context.Get(),
+			FixPath(L"../../Assets/Materials/PBR/cobblestone_metal.png").c_str(),
+			0,
+			metal.GetAddressOf());
+		cobblestoneMaterials = { color, rough, normal, metal };
+	}
 	
-	CreateWICTextureFromFile(
-		Graphics::Device.Get(),
-		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/PBR/floor_normals.png").c_str(),
-		0,
-		normal.GetAddressOf());
-
-	CreateWICTextureFromFile(
-		Graphics::Device.Get(),
-		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/PBR/floor_roughness.png").c_str(),
-		0,
-		rough.GetAddressOf());
-
-	CreateWICTextureFromFile(
-		Graphics::Device.Get(),
-		Graphics::Context.Get(),
-		FixPath(L"../../Assets/Materials/PBR/floor_metal.png").c_str(),
-		0,
-		metal.GetAddressOf());
-#pragma endregion
-
-
 #pragma region Sky
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> back;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> down;
@@ -224,10 +186,6 @@ Game::Game()
 		up.GetAddressOf());
 #pragma endregion
 
-	srvVector = { cobblestone, cushion, rock };
-	normalsSRV = { cobblestoneNRM, cushionNRM, rockNRM, flatNRM };
-	metalTex = { color, normal, rough, metal };
-
 	//Calls PS Set Shader Resources
 	D3D11_SAMPLER_DESC sampDesc = {};
 	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -243,7 +201,7 @@ Game::Game()
 	skyShader = std::make_shared<Shader>();
 
 	shader->LoadVertexShader("VertexShader.cso");
-	shader->LoadPixelShader("PBRPixelShader.cso");
+	shader->LoadPixelShader("PixelShader.cso");
 	shader->CreatePixelBuffer();
 
 	skyShader->LoadVertexShader("SkyVertexShader.cso");
@@ -310,27 +268,32 @@ Game::~Game()
 // --------------------------------------------------------
 void Game::CreateGeometry()
 {
-	ambientColor = DirectX::XMFLOAT3(0.545f, 0.74f, 0.97f);
+	ambientColor = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	materials = { 
-		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor, normalsSRV[3], false),
-		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor, normalsSRV[3], false),
-		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.25f, ambientColor, normalsSRV[3], false)};
+		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f), 0.0f, ambientColor, floor[3], 0.0f),
+		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f), 0.5f, ambientColor, floor[3], 1.0f),
+		std::make_shared<Material>(shader, DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f), 0.25f, ambientColor, floor[3], 0.5f)};
 
-	/*
-	* Texture2D Albedo : register(t0);
-Texture2D RoughnessMap : register(t1);
-Texture2D NormalMap : register(t2);
-Texture2D MetalnessMap : register(t3);
-	*/
+	materials[0]->AddTextureSRV(0, floor[0]);
+	materials[0]->AddTextureSRV(1, floor[1]);
+	materials[0]->AddTextureSRV(2, floor[2]);
+	materials[0]->AddTextureSRV(3, floor[3]);
+	materials[0]->AddSampler(0, samplerState);
+	materials[0]->BindTexturesAndSamplers();
 
-	for (int i = 0; i < 3; i++) {
-		materials[i]->AddTextureSRV(0, metalTex[0]);
-		materials[i]->AddTextureSRV(1, metalTex[2]);
-		materials[i]->AddTextureSRV(2, metalTex[1]);
-		materials[i]->AddTextureSRV(3, metalTex[3]);
-		materials[i]->AddSampler(0, samplerState);
-		materials[i]->BindTexturesAndSamplers();
-	}
+	materials[1]->AddTextureSRV(0, metals[0]);
+	materials[1]->AddTextureSRV(1, metals[1]);
+	materials[1]->AddTextureSRV(2, metals[2]);
+	materials[1]->AddTextureSRV(3, metals[3]);
+	materials[1]->AddSampler(0, samplerState);
+	materials[1]->BindTexturesAndSamplers();
+
+	materials[2]->AddTextureSRV(0, cobblestoneMaterials[0]);
+	materials[2]->AddTextureSRV(1, cobblestoneMaterials[1]);
+	materials[2]->AddTextureSRV(2, cobblestoneMaterials[2]);
+	materials[2]->AddTextureSRV(3, cobblestoneMaterials[3]);
+	materials[2]->AddSampler(0, samplerState);
+	materials[2]->BindTexturesAndSamplers();
 
 	std::shared_ptr<Mesh> sphere = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/sphere.obj").c_str());
 	std::shared_ptr<Mesh> cube = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/cube.obj").c_str());
@@ -346,8 +309,8 @@ Texture2D MetalnessMap : register(t3);
 	float offset = 5.0f;
 
 	for (int i = 0; i < meshes.size(); i++) {
-		int materialsCount = i % materials.size();
-		gameEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[materialsCount]));
+		int index = i % materials.size();
+		gameEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[index]));
 		gameEntities[i]->GetTransform()->SetPosition(offset * i, 0.0f, 0.0f);
 	}
 }
@@ -374,11 +337,11 @@ void Game::Update(float deltaTime, float totalTime)
 
 	if (Input::KeyDown(VK_ESCAPE))
 		Window::Quit();
-	float speed = 0.5f;
+	/*float speed = 0.5f;
 	d += speed * deltaTime;
 	for (int i = 0; i < gameEntities.size(); i++) {
-		//gameEntities[i]->GetTransform()->SetRotation(d, d, 1.0f);
-	}
+		gameEntities[i]->GetTransform()->SetRotation(d, d, 1.0f);
+	}*/
 	cameras[currentCamera]->Update(deltaTime);
 }
 
@@ -395,7 +358,6 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	}
 	
-
 	BuildUI();
 	for (int i = 0; i < gameEntities.size(); i++) {
 		gameEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor);
@@ -586,8 +548,15 @@ void Game::EntityValues(std::shared_ptr<GameEntity> entity, unsigned int i)
 	}
 }
 
-void Game::LoadTextures(std::string path, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv)
+void Game::LoadTextures(std::string filepath, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& srv)
 {
+	std::wstring wideFileName(filepath.begin(), filepath.end());
+	CreateWICTextureFromFile(
+		Graphics::Device.Get(),
+		Graphics::Context.Get(),
+		FixPath(wideFileName).c_str(),
+		0,
+		srv.GetAddressOf());
 }
 
 
