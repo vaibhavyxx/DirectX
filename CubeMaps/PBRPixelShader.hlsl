@@ -8,7 +8,7 @@
 
 cbuffer ExternalData : register(b0)
 {
-    Light lights[2];
+    Light lights[5];
     float4 colorTint;   //16
     
     float2 scale;
@@ -17,10 +17,10 @@ cbuffer ExternalData : register(b0)
     float time;
     float3 camPos;      //48
     
-    float roughness; 
-    int type; 
-    int lightCount; 
-    bool useGamma;      //80
+    float roughness;
+    int type;
+    int lightCount;
+    bool useGamma;
     
     bool useNormals;
     bool useRoughness;
@@ -36,8 +36,6 @@ SamplerState BasicSampler : register(s0);
 
 float4 main(VertexToPixel input) : SV_TARGET
 {
-    //float3 ambient = float3(0.5f, 0.5f, 0.0f);
-    //input.normal = normalize(input.normal);
     float3 nrm = normalize(input.normal);
     float3 tgt = normalize(input.tangent);
     float2 uv = input.uv * scale + offset;
@@ -46,11 +44,6 @@ float4 main(VertexToPixel input) : SV_TARGET
     roughness = useRoughness ? roughness : 0.1f;    //default value
     
     float metalness = MetalnessMap.Sample(BasicSampler, uv).r;
-    //metalness = 1.0f;
-    //useMetals ? metalness : 0.0f;  -- issue here
-    
-    //return float4(metalness, 1);
-    
     float3 unpackedNormal = normalize(NormalMap.Sample(BasicSampler, uv).xyz * 2.0f - 1.0f);
     float3 t = tgt - dot(tgt, nrm) * nrm;
     float3 b = cross(t, nrm);
@@ -58,49 +51,42 @@ float4 main(VertexToPixel input) : SV_TARGET
     
     float3 finalNormal = mul(tbn, unpackedNormal);
     input.normal = finalNormal;
-    //return float4(metalness, 0,0,1.0f);
+
     input.normal = useNormals? finalNormal: input.normal;
     input.tangent = tgt;
     input.uv = uv;
 
-    float3 albedo = Albedo.Sample(BasicSampler, input.uv).rgb;
-    albedo = pow(albedo, 2.2f);
-    //albedo *= ambient;
-    //albedo *= colorTint.rgb;
-    //return (metalness, 0, 0, 0);
+    float3 surfaceColor = Albedo.Sample(BasicSampler, input.uv).rgb;
+    surfaceColor = pow(surfaceColor, 2.2f);
+
+    surfaceColor = useGamma ? pow(surfaceColor, 2.2f) : surfaceColor.rgb; 
+    surfaceColor = useAldedo ? surfaceColor : colorTint.rgb;
     
-    //false - metals
-    //normals - false
-    //roughness - false
-    albedo = useGamma ? pow(albedo, 2.2f) : albedo.rgb; //false
-    albedo = useAldedo ? albedo : colorTint.rgb; //- bug
-    
-    float3 specularColor = lerp(0.04f, albedo, metalness);
-    float3 totalLight = albedo;
-    //return float4(input.normal, 1.0f);
-    for (int i = 0; i < 1; i++)
+    float3 specularColor = lerp(0.04f, surfaceColor, metalness);
+    float3 totalLight = float3(0.0f, 0.0f, 0.0f);
+
+    for (int i = 0; i < lightCount; i++)
     {
         Light light = lights[i];
         light.Direction = normalize(light.Direction);
+        float3 worldPos = input.worldPos;
+        float3 normal = input.normal;
         
         switch (light.Type)
         {
             case LIGHT_TYPE_DIRECTIONAL:
-                totalLight += Directional(light, input.normal, input.worldPos, camPos, roughness, albedo, specularColor, metalness);
+                totalLight += DirectionalPBR(light, normal, worldPos, camPos, roughness, surfaceColor, specularColor, metalness);
                 break;
             
             case LIGHT_TYPE_POINT:
-                totalLight += Point(light, input.worldPos, input.normal, albedo, roughness, camPos, specularColor, metalness);
+                totalLight += PointPBR(light, worldPos, normal, surfaceColor, roughness, camPos, specularColor, metalness);
                 break;
             
             case LIGHT_TYPE_SPOT:
-                totalLight += Spot(light, input.worldPos, input.normal, albedo, roughness, camPos, specularColor, metalness);
+                totalLight += SpotPBR(light, worldPos, normal, surfaceColor, roughness, camPos, specularColor, metalness);
                 break;
-            
         }
     }
-    //totalLight = pow(totalLight, 0.45f);
-    
     totalLight = useGamma ? pow(totalLight, 1.0f / 2.2f):totalLight;
     return float4(totalLight, 1.0f);
 }

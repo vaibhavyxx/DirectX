@@ -75,20 +75,19 @@ void Material::SetupPixelStruct(std::shared_ptr<Camera> cam, Light* lights)
 {
 	PixelStruct pixelData = {};
 	pixelData.colorTint = GetColorTint();
-	pixelData.uvScale = GetScale();
+	pixelData.scale = GetScale();
 	pixelData.offset = GetUVOffset();
 	pixelData.time = GetTime();
 	pixelData.roughness = GetRoughness();
 	pixelData.camPos = cam->GetTransform()->GetPosition();
-	pixelData.ambient = GetAmbient();
 
 	pixelData.type = 0;
-	pixelData.lightCount = 1;
+	pixelData.lightCount = 5;
 	pixelData.useGamma = 1;
-	pixelData.useNormal = 1;
+	pixelData.useNormals = 1;
 	pixelData.useMetals = this->metal;
 
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < pixelData.lightCount; i++) {
 		pixelData.lights[i] = lights[i];
 	}
 	Graphics::FillAndBindNextCB(&pixelData, sizeof(PixelStruct), D3D11_PIXEL_SHADER, 0);
