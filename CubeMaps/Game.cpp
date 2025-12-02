@@ -47,10 +47,10 @@ Game::Game()
 		else if (i == 0) {
 			dirLight.Type = LIGHT_TYPE_POINT;
 			dirLight.Position = XMFLOAT3(5.0f, 1.0f, 0.0f);
-			dirLight.Direction = XMFLOAT3(offset * i, offset * i, 0.0f);
+			//dirLight.Direction = XMFLOAT3(offset * i, offset * i, 0.0f);
 			dirLight.Color = XMFLOAT3(1.0f, 1.0f, 1.0f);
 			dirLight.Intensity = 1.0f;
-			dirLight.Range = 0.5f;
+			dirLight.Range = 5.0f;
 		}
 		else if (i == 2) {
 			dirLight.Type = LIGHT_TYPE_SPOT;
@@ -270,9 +270,9 @@ void Game::CreateGeometry()
 {
 	ambientColor = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	materials = { 
-		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor, floor[3], 0.0f),
-		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.5f, ambientColor, floor[3], 1.0f),
-		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.25f, ambientColor, floor[3], 0.5f)};
+		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f), 0.0f, ambientColor, floor[3], 0.0f),
+		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f), 0.5f, ambientColor, floor[3], 1.0f),
+		std::make_shared<Material>(shader, DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f), 0.25f, ambientColor, floor[3], 0.5f)};
 
 	materials[0]->AddTextureSRV(0, floor[0]);
 	materials[0]->AddTextureSRV(1, floor[1]);

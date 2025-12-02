@@ -44,9 +44,7 @@ float4 main(VertexToPixel input) : SV_TARGET
     
     float rough = RoughnessMap.Sample(BasicSampler, input.uv).r;
     float metal = MetalnessMap.Sample(BasicSampler, input.uv).r;
-    metal *= useMetals; //1- yes and 0-no
-    rough *= roughness;
-    
+   
     float3 unpackedNormal = normalize(NormalMap.Sample(BasicSampler, input.uv).xyz * 2.0f -1.0f);
     float3 n = (input.normal);
     float3 t = normalize(input.tangent - dot(input.tangent, n) * n);
@@ -57,11 +55,12 @@ float4 main(VertexToPixel input) : SV_TARGET
     input.normal = finalNormal;
  
     float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb;
-    surfaceColor = pow(surfaceColor, 2.2f);
+    //surfaceColor = colorTint.rgb;
+    
     float3 dielectricF0 = float3(0.04, 0.04, 0.04);
     float3 specularColor = lerp(dielectricF0, surfaceColor, metal);
-    float3 totalLight = colorTint.rgb * surfaceColor;
-    
+    float3 totalLight = 0; // = surfaceColor; // * ambient;
+    totalLight = pow(totalLight, 2.2f);
     for (int i = 0; i < 5; i++)
     {
         Light light = lights[i];
@@ -81,6 +80,7 @@ float4 main(VertexToPixel input) : SV_TARGET
                 totalLight += SpotPBR(light, input.worldPos, input.normal, surfaceColor, roughness, camPos, specularColor, metal);
                 break;
         }
+        //return totalLight.rgbb;
     }
     totalLight = pow(totalLight, 0.45f);
     return float4(totalLight, 1.0f);
