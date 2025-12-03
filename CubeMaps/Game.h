@@ -30,6 +30,10 @@ public:
 	void Initialize();
 
 private:
+	void LoadLights(float offset);
+	void LoadCameras();
+	void CreateTextures();
+	void CreateMaterials();
 	void CreateGeometry();
 	void FrameReset(float deltaTime);
 	void BuildUI();

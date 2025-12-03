@@ -35,8 +35,52 @@ using namespace DirectX;
 // --------------------------------------------------------
 Game::Game()
 {
-	float offset = 0.5f;
+	LoadLights(0.5f);
+	CreateTextures();
 
+	D3D11_SAMPLER_DESC sampDesc = {};
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+	sampDesc.MaxAnisotropy = 16;
+	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	Graphics::Device->CreateSamplerState(&sampDesc, samplerState.GetAddressOf());
+	Graphics::Device->CreateSamplerState(&sampDesc, samplerStateOverlay.GetAddressOf());
+
+	shader = std::make_shared<Shader>();
+	skyShader = std::make_shared<Shader>();
+
+	shader->LoadVertexShader("VertexShader.cso");
+	shader->LoadPixelShader("PixelShader.cso");
+	shader->CreatePixelBuffer();
+
+	skyShader->LoadVertexShader("SkyVertexShader.cso");
+	skyShader->LoadPixelShader("SkyPS.cso");
+	skyShader->CreatePixelBuffer();
+
+	Initialize();
+	CreateGeometry();
+}
+
+void Game::Initialize() {
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGui_ImplWin32_Init(Window::Handle());
+	ImGui_ImplDX11_Init(Graphics::Device.Get(), Graphics::Context.Get());
+	ImGui::StyleColorsDark();
+	LoadCameras();
+}
+
+Game::~Game()
+{
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
+}
+
+void Game::LoadLights(float offset)
+{
 	for (int i = 0; i < 5; i++) {
 		Light dirLight = {};
 		dirLight.Type = LIGHT_TYPE_DIRECTIONAL;
@@ -63,17 +107,48 @@ Game::Game()
 			dirLight.SpotOuterAngle = XMConvertToRadians(60.0f);
 			dirLight.SpotInnerAngle = XMConvertToRadians(45.0f);
 		}
-		else{
+		else {
 			dirLight.Direction = XMFLOAT3(0.0f, 0.0f, 1.0f);
 			dirLight.Color = XMFLOAT3(1.0f, 1.0f, 1.0f);
 			dirLight.Intensity = 1.0f;
 			dirLight.Position = XMFLOAT3(offset * i, 0.0f, 0.0f);
 		}
-		
+
 		dirLight.Intensity = 1.0f;
 		lights[i] = dirLight;
 	}
+}
 
+void Game::LoadCameras()
+{
+	currentCamera = 0;
+	//Setting up a camera
+	std::shared_ptr<Camera> cam1 = std::make_shared<Camera>(
+		Window::AspectRatio(),
+		DirectX::XMFLOAT3(0.0f, 0.0f, -5.0f),
+		DirectX::XM_PIDIV4,
+		0.01f, 1000.0f, 1.0f, 0.01f, 200.0f, false
+	);
+
+	std::shared_ptr<Camera> cam2 = std::make_shared<Camera>(
+		Window::AspectRatio(),
+		DirectX::XMFLOAT3(0.0f, 0.0f, -5.0f),
+		DirectX::XM_PIDIV4,	//60 degrees
+		0.01f, 1000.0f, 5.0f, 0.5f, 100.0f, true
+	);
+
+	std::shared_ptr<Camera> cam3 = std::make_shared<Camera>(
+		Window::AspectRatio(),
+		DirectX::XMFLOAT3(3.0f, -5.0f, -5.0f),
+		DirectX::XM_PIDIV2,
+		0.01f, 1000.0f, 1.0f, 0.01f, 200.0f, false
+	);
+
+	cameras = { cam1, cam2,cam3 };
+}
+
+void Game::CreateTextures()
+{
 	{
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> color;
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normal;
@@ -96,7 +171,7 @@ Game::Game()
 		LoadTextures("../../Assets/Materials/PBR/grass_normals.png", normal);
 		LoadTextures("../../Assets/Materials/PBR/grass_roughness.png", rough);
 		LoadTextures("../../Assets/Materials/PBR/grass_metal.png", metal);
-		
+
 		metalMaterials = { color, rough, normal, metal };
 	}
 
@@ -112,7 +187,7 @@ Game::Game()
 		LoadTextures("../../Assets/Materials/PBR/cobblestone_metal.png", metal);
 		cobblestoneMaterials = { color, rough, normal, metal };
 	}
-	
+
 #pragma region Sky
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> back;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> down;
@@ -163,94 +238,14 @@ Game::Game()
 		(ID3D11Resource**)textures[2].GetAddressOf(),
 		up.GetAddressOf());
 #pragma endregion
-
-	//Calls PS Set Shader Resources
-	D3D11_SAMPLER_DESC sampDesc = {};
-	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
-	sampDesc.MaxAnisotropy = 16;
-	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	Graphics::Device->CreateSamplerState(&sampDesc, samplerState.GetAddressOf());
-	Graphics::Device->CreateSamplerState(&sampDesc, samplerStateOverlay.GetAddressOf());
-
-	shader = std::make_shared<Shader>();
-	skyShader = std::make_shared<Shader>();
-
-	shader->LoadVertexShader("VertexShader.cso");
-	shader->LoadPixelShader("PixelShader.cso");
-	shader->CreatePixelBuffer();
-
-	skyShader->LoadVertexShader("SkyVertexShader.cso");
-	skyShader->LoadPixelShader("SkyPS.cso");
-	skyShader->CreatePixelBuffer();
-
-	Initialize();
-	CreateGeometry();
 }
 
-void Game::Initialize() {
-
-	currentCamera = 0;
-	// Initialize ImGui itself & platform/renderer backends
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGui_ImplWin32_Init(Window::Handle());
-	ImGui_ImplDX11_Init(Graphics::Device.Get(), Graphics::Context.Get());
-	// Pick a style (uncomment one of these 3)
-	ImGui::StyleColorsDark();
-
-	//Setting up a camera
-	std::shared_ptr<Camera> cam1 = std::make_shared<Camera>(
-		Window::AspectRatio(),
-		DirectX::XMFLOAT3(0.0f, 0.0f, -5.0f),
-		DirectX::XM_PIDIV4,
-		0.01f, 1000.0f, 1.0f, 0.01f, 200.0f, false
-	);
-
-	std::shared_ptr<Camera> cam2 = std::make_shared<Camera>(
-		Window::AspectRatio(),
-		DirectX::XMFLOAT3(0.0f, 0.0f, -5.0f),
-		DirectX::XM_PIDIV4,	//60 degrees
-		0.01f, 1000.0f, 5.0f, 0.5f, 100.0f, true
-	);
-
-	std::shared_ptr<Camera> cam3 = std::make_shared<Camera>(
-		Window::AspectRatio(),
-		DirectX::XMFLOAT3(3.0f, -5.0f, -5.0f),
-		DirectX::XM_PIDIV2,
-		0.01f, 1000.0f, 1.0f, 0.01f, 200.0f, false
-	);
-
-	cameras.push_back(cam1);
-	cameras.push_back(cam2);
-	cameras.push_back(cam3);
-}
-// --------------------------------------------------------
-// Clean up memory or objects created by this class
-// 
-// Note: Using smart pointers means there probably won't
-//       be much to manually clean up here!
-// --------------------------------------------------------
-Game::~Game()
+void Game::CreateMaterials()
 {
-	// ImGui clean up
-	ImGui_ImplDX11_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
-}
-
-// --------------------------------------------------------
-// Creates the geometry we're going to draw
-// --------------------------------------------------------
-void Game::CreateGeometry()
-{
-	ambientColor = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	materials = { 
+	materials = {
 		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f), 0.0f, ambientColor, floorMaterials[3], 0.0f, 1, 1, 1,1),
 		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f), 0.5f, ambientColor, floorMaterials[3], 1.0f, 1,1, 1, 1),
-		std::make_shared<Material>(shader, DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f), 0.25f, ambientColor, floorMaterials[3], 0.5f, 1,1,1,1)};
+		std::make_shared<Material>(shader, DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f), 0.25f, ambientColor, floorMaterials[3], 0.5f, 1,1,1,1) };
 
 	materials[0]->AddTextureSRV(0, floorMaterials[0]);
 	materials[0]->AddTextureSRV(1, floorMaterials[1]);
@@ -277,10 +272,19 @@ void Game::CreateGeometry()
 	{
 		LoadTextures("../../Assets/Materials/PBR/wood_normals.png", floor);
 	}
-	floorMaterial = std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor, floor, 0.0f, 0,0,0, 0);
+	floorMaterial = std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor, floor, 0.0f, 0, 0, 0, 0);
 	floorMaterial->AddTextureSRV(0, floor);
 	floorMaterial->AddSampler(0, samplerState);
 
+}
+
+// --------------------------------------------------------
+// Creates the geometry we're going to draw
+// --------------------------------------------------------
+void Game::CreateGeometry()
+{
+	ambientColor = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	CreateMaterials();
 	std::shared_ptr<Mesh> sphere = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/sphere.obj").c_str());
 	std::shared_ptr<Mesh> cube = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/cube.obj").c_str());
 	std::shared_ptr<Mesh> helix = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/helix.obj").c_str());
@@ -294,8 +298,8 @@ void Game::CreateGeometry()
 	floorGameObject = std::make_shared<GameEntity>(cube, floorMaterial);
 	floorGameObject->GetTransform()->SetPosition(5.0f, -2.0f, 0.0f);
 	floorGameObject->GetTransform()->SetScale(30.0f, 1.0f, 10.0f);
-	float offset = 5.0f;
 
+	float offset = 5.0f;
 	for (int i = 0; i < meshes.size(); i++) {
 		int index = i % materials.size();
 		gameEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[index]));
