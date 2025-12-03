@@ -315,11 +315,6 @@ void Game::Update(float deltaTime, float totalTime)
 
 	if (Input::KeyDown(VK_ESCAPE))
 		Window::Quit();
-	/*float speed = 0.5f;
-	d += speed * deltaTime;
-	for (int i = 0; i < gameEntities.size(); i++) {
-		gameEntities[i]->GetTransform()->SetRotation(d, d, 1.0f);
-	}*/
 	cameras[currentCamera]->Update(deltaTime);
 }
 
@@ -333,7 +328,6 @@ void Game::Draw(float deltaTime, float totalTime)
 		//Graphics::Context->ClearRenderTargetView(Graphics::BackBufferRTV.Get(), color);
 		Graphics::Context->ClearRenderTargetView(Graphics::BackBufferRTV.Get(), color);
 		Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-
 	}
 	
 	BuildUI();
@@ -342,9 +336,6 @@ void Game::Draw(float deltaTime, float totalTime)
 	}
 
 	sky->Draw(deltaTime, cameras[currentCamera]);
-	// Frame END
-	// - These should happen exactly ONCE PER FRAME
-	// - At the very end of the frame (after drawing *everything*)
 	{
 		// Draw the UI after everything else
 		ImGui::Render();
@@ -374,7 +365,7 @@ void Game::FrameReset(float deltaTime) {
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
-	// Determine new input capture
+
 	Input::SetKeyboardCapture(io.WantCaptureKeyboard);
 	Input::SetMouseCapture(io.WantCaptureMouse);
 }

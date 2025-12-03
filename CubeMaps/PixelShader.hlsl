@@ -9,27 +9,19 @@
 cbuffer ExternalData : register(b0)
 {
     Light lights[5];
-    
-    float4 colorTint; //16
-    
+    float4 colorTint;   //16
     float2 scale;
-    float2 offset; //32
-    
+    float2 offset;      //32
     float time;
-    float3 camPos;
-    
-    float roughness; //48
-    float3 ambient;
-    
-    int type; 
-    int lightCount; 
+    float3 camPos;      //48
+    float roughness;
+    int type;
+    int lightCount;
     int useGamma;
-    int useNormal;
-
+    int useNormals;
     int useRoughness;
     int useMetals;
-    int useSurfaceMap; //96
-    float pad;
+    int useSurfaceMap;     //96
 }
 Texture2D SurfaceTexture : register(t0);
 Texture2D RoughnessMap : register(t1);

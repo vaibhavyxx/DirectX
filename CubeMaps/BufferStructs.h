@@ -18,22 +18,18 @@ struct  VertexStruct
 struct PixelStruct {
     Light lights[5];
     DirectX::XMFLOAT4 colorTint;   //16
-
     DirectX::XMFLOAT2 scale;
     DirectX::XMFLOAT2 offset;      //32
-
     float time;
     DirectX::XMFLOAT3 camPos;      //48
-
     float roughness;
     int type;
     int lightCount;
-    bool useGamma;
-
-    bool useNormals;
-    bool useRoughness;
-    bool useMetals;
-    bool useSurfaceMap;     //96
+    int useGamma;
+    int useNormals;
+    int useRoughness;
+    int useMetals;
+    int useSurfaceMap;     //96
 };
 
 struct Skybox {
