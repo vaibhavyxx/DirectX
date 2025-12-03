@@ -38,6 +38,12 @@ Material::Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color, floa
 	this->ambient = ambient;
 	this->normal = normal;
 	this->metal = metallic;
+
+	//Setting up maps
+	this->useGamma = 0;
+	this->useNormals = 0;
+	this->useMetals = 0;
+	this->useSurfaceMap = 0;
 	AddTextureSRV(1, normal);
 }
 
@@ -66,6 +72,31 @@ void Material::SetAmbient(XMFLOAT3 value)
 	this->ambient = value;
 }
 
+void Material::SetGamma(int value)
+{
+	useGamma = std::clamp(value, 0, 1);
+}
+
+void Material::SetNormalMaps(int value)
+{
+	useNormals = std::clamp(value, 0, 1);
+}
+
+void Material::SetMetallicMaps(int value)
+{
+	useMetals = std::clamp(value, 0, 1);
+}
+
+void Material::SetRoughnessMaps(int value)
+{
+	useRoughness = std::clamp(value, 0, 1);
+}
+
+void Material::SetSurfaceMap(int value)
+{
+	useSurfaceMap = std::clamp(value, 0, 1);
+}
+
 XMFLOAT3 Material::GetAmbient()
 {
 	return this->ambient;
@@ -83,9 +114,10 @@ void Material::SetupPixelStruct(std::shared_ptr<Camera> cam, Light* lights)
 
 	pixelData.type = 0;
 	pixelData.lightCount = 5;
-	pixelData.useGamma = 1;
-	pixelData.useNormals = 1;
-	pixelData.useMetals = this->metal;
+	pixelData.useGamma = this->useNormals;
+	pixelData.useNormals = this->useGamma;
+	pixelData.useMetals = this->useMetals;
+	pixelData.useSurfaceMap = this->useSurfaceMap;
 
 	for (int i = 0; i < pixelData.lightCount; i++) {
 		pixelData.lights[i] = lights[i];

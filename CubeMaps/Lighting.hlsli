@@ -159,7 +159,6 @@ float3 PointPBR(Light light, float3 worldPos, float3 normal, float3 surfaceColor
     float3 F;
     float3 spec = MicrofacetBRDF(normal, toLight, toCam, roughness, specularColor, F);
     float3 balancedDiff = DiffuseEnergyConserve(diff, F, metalness);
-
     
     return (balancedDiff * surfaceColor + spec) * (light.Color * atten) * light.Intensity;
 }

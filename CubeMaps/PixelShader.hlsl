@@ -25,9 +25,11 @@ cbuffer ExternalData : register(b0)
     int lightCount; 
     int useGamma;
     int useNormal;
-    
+
+    int useRoughness;
     int useMetals;
-    float3 pad;
+    int useSurfaceMap; //96
+    float pad;
 }
 Texture2D SurfaceTexture : register(t0);
 Texture2D RoughnessMap : register(t1);
@@ -41,9 +43,12 @@ float4 main(VertexToPixel input) : SV_TARGET
     input.normal = normalize(input.normal);
     input.tangent = normalize(input.tangent);
     input.uv = input.uv * scale + offset;
+
+    float rough = RoughnessMap.Sample(BasicSampler, input.uv).r * useRoughness;
+    if (useRoughness == 0) rough = 0.2f;
     
-    float rough = RoughnessMap.Sample(BasicSampler, input.uv).r;
-    float metal = MetalnessMap.Sample(BasicSampler, input.uv).r;
+    float metal = MetalnessMap.Sample(BasicSampler, input.uv).r * useMetals;
+    if (useMetals == 0) metal = 0.0f;
    
     float3 unpackedNormal = normalize(NormalMap.Sample(BasicSampler, input.uv).xyz * 2.0f -1.0f);
     float3 n = (input.normal);
@@ -53,13 +58,13 @@ float4 main(VertexToPixel input) : SV_TARGET
     
     float3 finalNormal = mul(tbn, unpackedNormal);
     input.normal = finalNormal;
- 
-    float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb;
-    //surfaceColor = colorTint.rgb;
+
+    float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb * useSurfaceMap;
+    if (useSurfaceMap == 0) surfaceColor = colorTint.rgb;
     
-    float3 dielectricF0 = float3(0.04, 0.04, 0.04);
+    float3 dielectricF0 = float3(0.04f, 0.04f, 0.04f);
     float3 specularColor = lerp(dielectricF0, surfaceColor, metal);
-    float3 totalLight = 0; // = surfaceColor; // * ambient;
+    float3 totalLight = float3(0.0f, 0.0f, 0.0f); 
     totalLight = pow(totalLight, 2.2f);
     for (int i = 0; i < 5; i++)
     {
@@ -80,7 +85,6 @@ float4 main(VertexToPixel input) : SV_TARGET
                 totalLight += SpotPBR(light, input.worldPos, input.normal, surfaceColor, roughness, camPos, specularColor, metal);
                 break;
         }
-        //return totalLight.rgbb;
     }
     totalLight = pow(totalLight, 0.45f);
     return float4(totalLight, 1.0f);

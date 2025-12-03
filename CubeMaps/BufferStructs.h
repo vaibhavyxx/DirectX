@@ -33,7 +33,7 @@ struct PixelStruct {
     bool useNormals;
     bool useRoughness;
     bool useMetals;
-    bool useAldedo;     //96
+    bool useSurfaceMap;     //96
 };
 
 struct Skybox {

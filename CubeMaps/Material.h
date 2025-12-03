@@ -29,6 +29,12 @@ private:
 	XMFLOAT3 ambient;
 	float metal;
 
+	int useRoughness;
+	int useGamma;
+	int useNormals;
+	int useMetals;
+	int useSurfaceMap;
+
 public:
 	Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color, float roughness, DirectX::XMFLOAT3 ambient, 
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normal, float metallic);
@@ -39,6 +45,12 @@ public:
 	void SetRoughness(float value);
 	void SetAmbient(float x, float y, float z);
 	void SetAmbient(XMFLOAT3 value);
+	void SetGamma(int value);
+	void SetNormalMaps(int value);
+	void SetMetallicMaps(int value);
+	void SetRoughnessMaps(int value);
+	void SetSurfaceMap(int value);
+
 	XMFLOAT3 GetAmbient();
 	void SetupPixelStruct(std::shared_ptr<Camera> cam, Light* lights);
 	void SetNormal(Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> value);
@@ -47,6 +59,7 @@ public:
 
 	float GetTime();
 	void SetTime(float value);
+	
 
 	XMFLOAT2 GetUVOffset();
 	void SetUVOffset(XMFLOAT2 value);

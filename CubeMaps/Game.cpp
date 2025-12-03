@@ -36,6 +36,7 @@ using namespace DirectX;
 Game::Game()
 {
 	float offset = 0.5f;
+
 	for (int i = 0; i < 5; i++) {
 		Light dirLight = {};
 		dirLight.Type = LIGHT_TYPE_DIRECTIONAL;
@@ -105,33 +106,10 @@ Game::Game()
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rough;
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> metal;
 
-		CreateWICTextureFromFile(
-			Graphics::Device.Get(),
-			Graphics::Context.Get(),
-			FixPath(L"../../Assets/Materials/PBR/cobblestone_albedo.png").c_str(),
-			0,
-			color.GetAddressOf());
-
-		CreateWICTextureFromFile(
-			Graphics::Device.Get(),
-			Graphics::Context.Get(),
-			FixPath(L"../../Assets/Materials/PBR/cobblestone_normals.png").c_str(),
-			0,
-			normal.GetAddressOf());
-
-		CreateWICTextureFromFile(
-			Graphics::Device.Get(),
-			Graphics::Context.Get(),
-			FixPath(L"../../Assets/Materials/PBR/cobblestone_roughness.png").c_str(),
-			0,
-			rough.GetAddressOf());
-
-		CreateWICTextureFromFile(
-			Graphics::Device.Get(),
-			Graphics::Context.Get(),
-			FixPath(L"../../Assets/Materials/PBR/cobblestone_metal.png").c_str(),
-			0,
-			metal.GetAddressOf());
+		LoadTextures("../../Assets/Materials/PBR/cobblestone_albedo.png", color);
+		LoadTextures("../../Assets/Materials/PBR/cobblestone_normals.png", normal);
+		LoadTextures("../../Assets/Materials/PBR/cobblestone_roughness.png", rough);
+		LoadTextures("../../Assets/Materials/PBR/cobblestone_metal.png", metal);
 		cobblestoneMaterials = { color, rough, normal, metal };
 	}
 	
