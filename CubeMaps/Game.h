@@ -30,7 +30,6 @@ public:
 	void Initialize();
 
 private:
-	// Initialization helper methods - feel free to customize, combine, remove, etc.
 	void CreateGeometry();
 	void FrameReset(float deltaTime);
 	void BuildUI();
@@ -38,6 +37,7 @@ private:
 	void MeshDetails(std::shared_ptr<Mesh> mesh, const char* name);
 	void EntityValues(std::shared_ptr<GameEntity> entity, unsigned int i);
 	void LoadTextures(std::string filepath, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& srv);
+	void MaterialsUI();
 
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerStateOverlay;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
@@ -53,8 +53,8 @@ private:
 	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> srvVector;
 	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> normalsSRV;
 	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> skySRV;
-	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> floor;
-	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> metals;
+	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> floorMaterials;
+	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> metalMaterials;
 	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> cobblestoneMaterials;
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> textures[6] = {};
@@ -65,5 +65,13 @@ private:
 	DirectX::XMFLOAT3 ambientColor;
 	Light lights[5];
 	
+	std::shared_ptr<GameEntity> floorGameObject;
+	std::shared_ptr<Material> floorMaterial;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> shadowDSV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> shadowSRV;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> shadowRasterizer;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> shadowSampler;
+	DirectX::XMFLOAT4X4 lightViewMatrix;
+	DirectX::XMFLOAT4X4 lightProjectionMatrix;
 };
 

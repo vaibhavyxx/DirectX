@@ -22,7 +22,8 @@
 #include <vector>
 
 Material::Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color, float roughness, DirectX::XMFLOAT3 ambient,
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normal, float metallic)
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normal, float metallic,
+	int setGamma, int setNormals, int setMetals, int setSurface)
 {
 	this->normal = normal;
 	this->shader = shader;
@@ -40,10 +41,10 @@ Material::Material(std::shared_ptr<Shader> shader, DirectX::XMFLOAT4 color, floa
 	this->metal = metallic;
 
 	//Setting up maps
-	this->useGamma = 0;
-	this->useNormals = 0;
-	this->useMetals = 0;
-	this->useSurfaceMap = 0;
+	this->useGamma = setGamma;
+	this->useNormals = setNormals;
+	this->useMetals = setMetals;
+	this->useSurfaceMap = setSurface;
 	AddTextureSRV(1, normal);
 }
 

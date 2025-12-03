@@ -84,7 +84,7 @@ Game::Game()
 		LoadTextures("../../Assets/Materials/PBR/floor_normals.png", normal);
 		LoadTextures("../../Assets/Materials/PBR/floor_roughness.png", rough);
 		LoadTextures("../../Assets/Materials/PBR/floor_metal.png", metal);
-		floor = { color, rough, normal, metal };
+		floorMaterials = { color, rough, normal, metal };
 	}
 	{
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> color;
@@ -97,7 +97,7 @@ Game::Game()
 		LoadTextures("../../Assets/Materials/PBR/grass_roughness.png", rough);
 		LoadTextures("../../Assets/Materials/PBR/grass_metal.png", metal);
 		
-		metals = { color, rough, normal, metal };
+		metalMaterials = { color, rough, normal, metal };
 	}
 
 	{
@@ -248,21 +248,21 @@ void Game::CreateGeometry()
 {
 	ambientColor = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	materials = { 
-		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f), 0.0f, ambientColor, floor[3], 0.0f),
-		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f), 0.5f, ambientColor, floor[3], 1.0f),
-		std::make_shared<Material>(shader, DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f), 0.25f, ambientColor, floor[3], 0.5f)};
+		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f), 0.0f, ambientColor, floorMaterials[3], 0.0f, 1, 1, 1,1),
+		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f), 0.5f, ambientColor, floorMaterials[3], 1.0f, 1,1, 1, 1),
+		std::make_shared<Material>(shader, DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f), 0.25f, ambientColor, floorMaterials[3], 0.5f, 1,1,1,1)};
 
-	materials[0]->AddTextureSRV(0, floor[0]);
-	materials[0]->AddTextureSRV(1, floor[1]);
-	materials[0]->AddTextureSRV(2, floor[2]);
-	materials[0]->AddTextureSRV(3, floor[3]);
+	materials[0]->AddTextureSRV(0, floorMaterials[0]);
+	materials[0]->AddTextureSRV(1, floorMaterials[1]);
+	materials[0]->AddTextureSRV(2, floorMaterials[2]);
+	materials[0]->AddTextureSRV(3, floorMaterials[3]);
 	materials[0]->AddSampler(0, samplerState);
 	materials[0]->BindTexturesAndSamplers();
 
-	materials[1]->AddTextureSRV(0, metals[0]);
-	materials[1]->AddTextureSRV(1, metals[1]);
-	materials[1]->AddTextureSRV(2, metals[2]);
-	materials[1]->AddTextureSRV(3, metals[3]);
+	materials[1]->AddTextureSRV(0, metalMaterials[0]);
+	materials[1]->AddTextureSRV(1, metalMaterials[1]);
+	materials[1]->AddTextureSRV(2, metalMaterials[2]);
+	materials[1]->AddTextureSRV(3, metalMaterials[3]);
 	materials[1]->AddSampler(0, samplerState);
 	materials[1]->BindTexturesAndSamplers();
 
@@ -272,6 +272,14 @@ void Game::CreateGeometry()
 	materials[2]->AddTextureSRV(3, cobblestoneMaterials[3]);
 	materials[2]->AddSampler(0, samplerState);
 	materials[2]->BindTexturesAndSamplers();
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> floor;
+	{
+		LoadTextures("../../Assets/Materials/PBR/wood_normals.png", floor);
+	}
+	floorMaterial = std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor, floor, 0.0f, 0,0,0, 0);
+	floorMaterial->AddTextureSRV(0, floor);
+	floorMaterial->AddSampler(0, samplerState);
 
 	std::shared_ptr<Mesh> sphere = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/sphere.obj").c_str());
 	std::shared_ptr<Mesh> cube = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/cube.obj").c_str());
@@ -283,7 +291,9 @@ void Game::CreateGeometry()
 	meshes = {sphere, cube, quad,cylinder, helix,quadDoubleSided, torus };
 
 	sky = std::make_shared<Sky>(cube, samplerState, textures, skyShader);	//makes a sky
-
+	floorGameObject = std::make_shared<GameEntity>(cube, floorMaterial);
+	floorGameObject->GetTransform()->SetPosition(5.0f, -2.0f, 0.0f);
+	floorGameObject->GetTransform()->SetScale(30.0f, 1.0f, 10.0f);
 	float offset = 5.0f;
 
 	for (int i = 0; i < meshes.size(); i++) {
@@ -331,6 +341,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	}
 	
 	BuildUI();
+	floorGameObject->Draw(cameras[currentCamera], &lights[0], ambientColor);
 	for (int i = 0; i < gameEntities.size(); i++) {
 		gameEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor);
 	}
@@ -526,6 +537,11 @@ void Game::LoadTextures(std::string filepath, Microsoft::WRL::ComPtr<ID3D11Shade
 		FixPath(wideFileName).c_str(),
 		0,
 		srv.GetAddressOf());
+}
+
+void Game::MaterialsUI()
+{
+	//Will focus on this later
 }
 
 

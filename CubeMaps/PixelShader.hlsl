@@ -56,8 +56,10 @@ float4 main(VertexToPixel input) : SV_TARGET
     
     float3 dielectricF0 = float3(0.04f, 0.04f, 0.04f);
     float3 specularColor = lerp(dielectricF0, surfaceColor, metal);
-    float3 totalLight = float3(0.0f, 0.0f, 0.0f); 
-    totalLight = pow(totalLight, 2.2f);
+    float3 totalLight = float3(0.0f, 0.0f, 0.0f);
+    
+    if(useGamma == 1) surfaceColor = pow(surfaceColor, 2.2f);
+    
     for (int i = 0; i < 5; i++)
     {
         Light light = lights[i];
@@ -78,6 +80,6 @@ float4 main(VertexToPixel input) : SV_TARGET
                 break;
         }
     }
-    totalLight = pow(totalLight, 0.45f);
+    if (useGamma) surfaceColor = pow(surfaceColor, 0.45f);
     return float4(totalLight, 1.0f);
 }
