@@ -1,4 +1,5 @@
 ﻿  Game.cpp
+C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\Game.cpp(51,27): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
   Main.cpp
   Mesh.cpp
   Generating Code...
