@@ -437,6 +437,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	ShadowVSData shadowVSData = {};
 	shadowVSData.view = lightViewMatrix;
 	shadowVSData.proj = lightProjectionMatrix;
+
 	// Loop and draw all entities
 	for (auto& e : gameEntities)
 	{
@@ -543,6 +544,10 @@ void Game::BuildUI() {
 			ambientColor = colorRGB;
 		}
 
+	}
+
+	if (ImGui::CollapsingHeader("Shadows")) {
+		ImGui::Image(shadowSRV.Get(), ImVec2(512, 512));
 	}
 
 	ImGui::End();
