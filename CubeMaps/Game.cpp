@@ -145,7 +145,6 @@ void Game::LoadLights(float offset)
 			dirLight.Intensity = 1.0f;
 			dirLight.Position = XMFLOAT3(offset * i, 0.0f, 0.0f);
 		}
-
 		dirLight.Intensity = 1.0f;
 		lights[i] = dirLight;
 	}
@@ -356,7 +355,30 @@ float d = 0;
 //float angleOffset = 0.707f;
 void Game::Update(float deltaTime, float totalTime)
 {
-	//light.Color = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
+	for (int i = 0; i < 5; i++) {
+		switch (lights[i].Type) {
+		case LIGHT_TYPE_DIRECTIONAL:
+			XMVECTOR dir = XMLoadFloat3(&lights[i].Direction);
+			XMMATRIX lightView = XMMatrixLookToLH(
+				dir * -20,
+				dir,
+				XMVectorSet(0, 1, 0, 0));
+
+			break;
+
+		case LIGHT_TYPE_SPOT:
+			XMVECTOR dir = XMLoadFloat3(&lights[i].Direction);
+			XMMATRIX lightView = XMMatrixLookToLH(
+				XMLoadFloat3(&lights[i].Position),
+				dir,
+				XMVectorSet(0, 1, 0, 0));
+			break;
+
+		case LIGHT_TYPE_POINT:
+			break;
+		}
+	}
+	
 	FrameReset(deltaTime);
 
 	if (Input::KeyDown(VK_ESCAPE))
