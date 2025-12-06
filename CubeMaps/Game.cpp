@@ -65,13 +65,13 @@ Game::Game()
 
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> shadowTexture;
 		Graphics::Device->CreateTexture2D(&shadowDesc, 0, shadowTexture.GetAddressOf());
-	
+
 		D3D11_DEPTH_STENCIL_VIEW_DESC shadowDSDesc = {};
 		shadowDSDesc.Format = DXGI_FORMAT_D32_FLOAT;
 		shadowDSDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 		shadowDSDesc.Texture2D.MipSlice = 0;
 		Graphics::Device->CreateDepthStencilView(shadowTexture.Get(), &shadowDSDesc, shadowDSV.GetAddressOf());
-		
+
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = { };
 		srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
 		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
@@ -79,7 +79,7 @@ Game::Game()
 		srvDesc.Texture2D.MostDetailedMip = 0;
 		Graphics::Device->CreateShaderResourceView(shadowTexture.Get(), &srvDesc, shadowSRV.GetAddressOf());
 	}
-	
+
 	shader = std::make_shared<Shader>();
 	skyShader = std::make_shared<Shader>();
 
@@ -91,6 +91,17 @@ Game::Game()
 	skyShader->LoadPixelShader("SkyPS.cso");
 	skyShader->CreatePixelBuffer();
 
+	//shadowShader->LoadVertexShader("ShadowMapVS.cso");
+	{
+		ID3DBlob* vertexShaderBlob;
+		D3DReadFileToBlob(FixPath(L"ShadowMapVS.cso").c_str(), &vertexShaderBlob);
+
+		Graphics::Device->CreateVertexShader(
+			vertexShaderBlob->GetBufferPointer(),	// Get a pointer to the blob's contents
+			vertexShaderBlob->GetBufferSize(),		// How big is that data?
+			0,										// No classes in this shader
+			shadowVertexShader.GetAddressOf());
+	}
 	Initialize();
 	CreateGeometry();
 }
@@ -323,7 +334,7 @@ void Game::CreateGeometry()
 	std::shared_ptr<Mesh> quad = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/quad.obj").c_str());
 	std::shared_ptr<Mesh> quadDoubleSided = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/quad_double_sided.obj").c_str());
 	std::shared_ptr<Mesh> torus = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/torus.obj").c_str());
-	meshes = {sphere, cube, quad,cylinder, helix,quadDoubleSided, torus };
+	meshes = { sphere, cube, quad,cylinder, helix,quadDoubleSided, torus };
 
 	sky = std::make_shared<Sky>(cube, samplerState, textures, skyShader);	//makes a sky
 	floorGameObject = std::make_shared<GameEntity>(cube, floorMaterial);
@@ -358,27 +369,39 @@ void Game::Update(float deltaTime, float totalTime)
 	for (int i = 0; i < 5; i++) {
 		switch (lights[i].Type) {
 		case LIGHT_TYPE_DIRECTIONAL:
+		{
 			XMVECTOR dir = XMLoadFloat3(&lights[i].Direction);
 			XMMATRIX lightView = XMMatrixLookToLH(
 				dir * -20,
 				dir,
 				XMVectorSet(0, 1, 0, 0));
 
-			break;
+			float lightProjSize = 15.0f;
+			XMMATRIX lightProj = XMMatrixOrthographicLH(
+				lightProjSize, lightProjSize, 1.0f, 100.0f
+			);
+		}
+		break;
 
 		case LIGHT_TYPE_SPOT:
+		{
 			XMVECTOR dir = XMLoadFloat3(&lights[i].Direction);
 			XMMATRIX lightView = XMMatrixLookToLH(
 				XMLoadFloat3(&lights[i].Position),
 				dir,
 				XMVectorSet(0, 1, 0, 0));
-			break;
+			XMMATRIX lightProj = XMMatrixPerspectiveFovLH(
+				lights[i].SpotOuterAngle, 1.0f, 1.0f, 100.0f
+			);
+		}
+
+		break;
 
 		case LIGHT_TYPE_POINT:
 			break;
 		}
 	}
-	
+
 	FrameReset(deltaTime);
 
 	if (Input::KeyDown(VK_ESCAPE))
@@ -392,12 +415,45 @@ void Game::Update(float deltaTime, float totalTime)
 void Game::Draw(float deltaTime, float totalTime)
 {
 	{
-		// Clear the back buffer (erase what's on screen) and depth buffer
-		//Graphics::Context->ClearRenderTargetView(Graphics::BackBufferRTV.Get(), color);
+		Graphics::Context->ClearDepthStencilView(shadowDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+		ID3D11RenderTargetView* nullRTV{};
+		Graphics::Context->OMSetRenderTargets(1, &nullRTV, shadowDSV.Get());	//Ignores color output
+		Graphics::Context->PSSetShader(0, 0, 0);	//disables PS for shadows
+	}
+	D3D11_VIEWPORT viewport = {};
+	viewport.Width = (float)shadowMapResolution;
+	viewport.Height = (float)shadowMapResolution;
+	viewport.MaxDepth = 1.0f;
+	Graphics::Context->RSSetViewports(1, &viewport);
+	Graphics::Context->VSSetShader(shadowVertexShader.Get(), 0, 0);
+
+	struct ShadowVSData
+	{
+		XMFLOAT4X4 world;
+		XMFLOAT4X4 view;
+		XMFLOAT4X4 proj;
+	};
+	ShadowVSData shadowVSData = {};
+	shadowVSData.view = lightViewMatrix;
+	shadowVSData.proj = lightProjectionMatrix;
+	// Loop and draw all entities
+	for (auto& e : gameEntities)
+	{
+		shadowVSData.world = e->GetTransform()->GetWorldMatrix();
+		Graphics::FillAndBindNextCB(&shadowVSData, sizeof(ShadowVSData), D3D11_VERTEX_SHADER, 0); 
+		e->Draw(cameras[currentCamera], lights, ambientColor);
+	}
+
+	//Resets back to previous properties
+	viewport.Width = 1280;
+	viewport.Height = 720;
+	{
+		Graphics::Context->RSSetViewports(1, &viewport);
+		Graphics::Context->OMSetRenderTargets( 1, Graphics::BackBufferRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
 		Graphics::Context->ClearRenderTargetView(Graphics::BackBufferRTV.Get(), color);
 		Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
-	
 	BuildUI();
 	floorGameObject->Draw(cameras[currentCamera], &lights[0], ambientColor);
 	for (int i = 0; i < gameEntities.size(); i++) {
@@ -483,10 +539,10 @@ void Game::BuildUI() {
 		std::string ambientLabel = "Ambience";
 		XMFLOAT3 colorRGB = ambientColor;
 		if (ImGui::ColorEdit3(ambientLabel.c_str(), &colorRGB.x)) {
-		
+
 			ambientColor = colorRGB;
 		}
-			
+
 	}
 
 	ImGui::End();

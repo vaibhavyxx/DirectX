@@ -48,8 +48,10 @@ private:
 
 	std::shared_ptr<Shader> shader;
 	std::shared_ptr<Shader> skyShader;
+	//std::shared_ptr<Shader> shadowShader;
 	std::shared_ptr<Sky> sky;
 	std::vector<std::shared_ptr<GameEntity>> gameEntities;
+	Microsoft::WRL::ComPtr<ID3D11VertexShader> shadowVertexShader;
 	
 	std::vector<std::shared_ptr<Camera>> cameras;
 	std::vector<std::shared_ptr<Mesh>> meshes;
