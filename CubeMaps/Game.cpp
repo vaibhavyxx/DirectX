@@ -372,8 +372,13 @@ void Game::CreateGeometry()
 	meshes = { sphere, cube, quad,cylinder, helix,quadDoubleSided, torus };
 
 	std::shared_ptr<Mesh> lightMesh = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/sphere.obj").c_str());
-	lightEntity = std::make_shared<GameEntity>(lightMesh, materials[0]);
-	lightEntity->GetTransform()->SetPosition(lights[0].Position);
+	for (int i = 0; i < 5; i++) {
+		std::shared_ptr<Material> lightMaterial = std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f), 0.0f, ambientColor, floorMaterials[3], 0.0f, 0, 0, 0, 0);
+		std::shared_ptr<GameEntity> lightEntity = std::make_shared<GameEntity>(lightMesh, lightMaterial);
+		lightEntity->GetTransform()->SetPosition(lights[i].Position);
+		lightObjects.push_back(lightEntity);
+	}
+	
 
 	sky = std::make_shared<Sky>(cube, samplerState, textures, skyShader);	//makes a sky
 	floorGameObject = std::make_shared<GameEntity>(cube, floorMaterial);
@@ -495,7 +500,10 @@ void Game::Draw(float deltaTime, float totalTime)
 	BuildUI();
 
 	//floorGameObject->Draw(cameras[currentCamera], &lights[0], ambientColor);
-	lightEntity->Draw(cameras[currentCamera], lights, ambientColor);
+	for (int i = 0; i < 5; i++) {
+		lightObjects[i]->Draw(cameras[currentCamera], lights, ambientColor);
+	}
+
 	for (int i = 0; i < gameEntities.size(); i++) {
 		gameEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor);
 	}

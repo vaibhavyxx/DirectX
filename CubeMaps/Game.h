@@ -73,6 +73,7 @@ private:
 	
 	std::shared_ptr<GameEntity> floorGameObject;
 	std::shared_ptr<Material> floorMaterial;
+	std::vector<std::shared_ptr<GameEntity>> lightObjects;
 
 	/*int shadowMapResolution;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> shadowDSV;
