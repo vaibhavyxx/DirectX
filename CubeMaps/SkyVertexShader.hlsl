@@ -6,7 +6,6 @@ cbuffer ExternalData : register(b0)
     matrix projection;
 }
 
-
 VertexToPixel_SKY main(VertexShaderInput input)
 {
     VertexToPixel_SKY output;

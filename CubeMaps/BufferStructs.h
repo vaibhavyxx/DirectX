@@ -36,3 +36,9 @@ struct Skybox {
 	DirectX::XMFLOAT4X4 view;
 	DirectX::XMFLOAT4X4 projection;
 };
+
+struct ShadowVSData {
+    DirectX::XMFLOAT4X4 world;
+    DirectX::XMFLOAT4X4 view;
+    DirectX::XMFLOAT4X4 proj;
+};

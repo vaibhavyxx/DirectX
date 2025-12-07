@@ -41,8 +41,7 @@ void Shader::LoadVertexShader(std::string fileName) {
 	std::wstring wideFileName(fileName.begin(), fileName.end());
 	ID3DBlob* vertexShaderBlob;
 	D3DReadFileToBlob(FixPath(wideFileName).c_str(), &vertexShaderBlob);
-	//D3DReadFileToBlob(FixPath(L"VertexShader.cso").c_str(), &vertexShaderBlob);
-
+	
 	Graphics::Device->CreateVertexShader(
 		vertexShaderBlob->GetBufferPointer(),	// Get a pointer to the blob's contents
 		vertexShaderBlob->GetBufferSize(),		// How big is that data?
@@ -56,22 +55,18 @@ void Shader::SetInputLayout(ID3DBlob* vertexShaderBlob) {
 	const int size = 4;
 	D3D11_INPUT_ELEMENT_DESC inputElements[size] = {};
 
-	// Set up the first element - a position, which is 3 float values
-	inputElements[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;				// Most formats are described as color channels; really it just means "Three 32-bit floats"
-	inputElements[0].SemanticName = "POSITION";							// This is "POSITION" - needs to match the semantics in our vertex shader input!
-	inputElements[0].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;	// How far into the vertex is this?  Assume it's after the previous element
+	inputElements[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;				
+	inputElements[0].SemanticName = "POSITION";							
+	inputElements[0].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;	
 
-	// Set up the second element - a uv, which is 2 more float values
-	inputElements[1].Format = DXGI_FORMAT_R32G32_FLOAT;					// 2x 32-bit floats
-	inputElements[1].SemanticName = "TEXCOORD";							// Match our vertex shader input!
-	inputElements[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;	// After the previous element
+	inputElements[1].Format = DXGI_FORMAT_R32G32_FLOAT;					
+	inputElements[1].SemanticName = "TEXCOORD";							
+	inputElements[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;	
 
-	// Set up the third element - a normal, which is 3 more float values
-	inputElements[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;				// 3x 32-bit floats
-	inputElements[2].SemanticName = "NORMAL";							// Match our vertex shader input!
-	inputElements[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;	// After the previous element
+	inputElements[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;				
+	inputElements[2].SemanticName = "NORMAL";							
+	inputElements[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;	
 
-	// Set up the fourth element - a tangent, which is 3 more float values
 	inputElements[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 	inputElements[3].SemanticName = "TANGENT";
 	inputElements[3].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;

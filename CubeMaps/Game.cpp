@@ -10,6 +10,7 @@
 #include <iostream>
 #include "Camera.h"
 #include "Shader.h"
+#include "Lights.h"
 
 // Needed for a helper function to load pre-compiled shader files
 #pragma comment(lib, "d3dcompiler.lib")
@@ -24,7 +25,6 @@
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_win32.h"
-#include "Lights.h"
 
 // For the DirectX Math library
 using namespace DirectX;
@@ -48,11 +48,13 @@ Game::Game()
 	Graphics::Device->CreateSamplerState(&sampDesc, samplerState.GetAddressOf());
 	Graphics::Device->CreateSamplerState(&sampDesc, samplerStateOverlay.GetAddressOf());
 
-	shadowMapResolution = pow(2, 8);
+	shadowSettings = {};
+	shadowSettings.ShadowRes = 512;
+	//shadowMapResolution = pow(2, 8);
 	{
 		D3D11_TEXTURE2D_DESC shadowDesc = {};
-		shadowDesc.Width = shadowMapResolution;
-		shadowDesc.Height = shadowMapResolution;
+		shadowDesc.Width = shadowSettings.ShadowRes;
+		shadowDesc.Height = shadowSettings.ShadowRes;
 		shadowDesc.ArraySize = 1;
 		shadowDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D10_BIND_SHADER_RESOURCE;
 		shadowDesc.CPUAccessFlags = 0;
@@ -70,14 +72,14 @@ Game::Game()
 		shadowDSDesc.Format = DXGI_FORMAT_D32_FLOAT;
 		shadowDSDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 		shadowDSDesc.Texture2D.MipSlice = 0;
-		Graphics::Device->CreateDepthStencilView(shadowTexture.Get(), &shadowDSDesc, shadowDSV.GetAddressOf());
+		Graphics::Device->CreateDepthStencilView(shadowTexture.Get(), &shadowDSDesc, shadowSettings.shadowDSV.GetAddressOf());
 
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = { };
 		srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
 		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MipLevels = 1;
 		srvDesc.Texture2D.MostDetailedMip = 0;
-		Graphics::Device->CreateShaderResourceView(shadowTexture.Get(), &srvDesc, shadowSRV.GetAddressOf());
+		Graphics::Device->CreateShaderResourceView(shadowTexture.Get(), &srvDesc, shadowSettings.shadowSRV.GetAddressOf());
 	}
 
 	shader = std::make_shared<Shader>();
@@ -92,6 +94,8 @@ Game::Game()
 	skyShader->CreatePixelBuffer();
 
 	//shadowShader->LoadVertexShader("ShadowMapVS.cso");
+	//shadowSettings = {};
+	//This does not break but calling my shadow shader does?
 	{
 		ID3DBlob* vertexShaderBlob;
 		D3DReadFileToBlob(FixPath(L"ShadowMapVS.cso").c_str(), &vertexShaderBlob);
@@ -101,7 +105,35 @@ Game::Game()
 			vertexShaderBlob->GetBufferSize(),		// How big is that data?
 			0,										// No classes in this shader
 			shadowVertexShader.GetAddressOf());
+
+		const int size = 4;
+		D3D11_INPUT_ELEMENT_DESC inputElements[size] = {};
+
+		inputElements[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+		inputElements[0].SemanticName = "POSITION";
+		inputElements[0].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+
+		inputElements[1].Format = DXGI_FORMAT_R32G32_FLOAT;
+		inputElements[1].SemanticName = "TEXCOORD";
+		inputElements[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+
+		inputElements[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+		inputElements[2].SemanticName = "NORMAL";
+		inputElements[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+
+		inputElements[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+		inputElements[3].SemanticName = "TANGENT";
+		inputElements[3].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+
+		// Create the input layout, verifying our description against actual shader code
+		Graphics::Device->CreateInputLayout(
+			inputElements,							// An array of descriptions
+			size,									// How many elements in that array?
+			vertexShaderBlob->GetBufferPointer(),	// Pointer to the code of a shader that uses this layout
+			vertexShaderBlob->GetBufferSize(),		// Size of the shader code that uses this layout
+			inputLayout.GetAddressOf());
 	}
+
 	Initialize();
 	CreateGeometry();
 }
@@ -375,11 +407,13 @@ void Game::Update(float deltaTime, float totalTime)
 				dir * -20,
 				dir,
 				XMVectorSet(0, 1, 0, 0));
+			XMStoreFloat4x4(&lightViewMatrix, lightView);
 
 			float lightProjSize = 15.0f;
 			XMMATRIX lightProj = XMMatrixOrthographicLH(
 				lightProjSize, lightProjSize, 1.0f, 100.0f
 			);
+			XMStoreFloat4x4(&lightProjectionMatrix, lightProj);
 		}
 		break;
 
@@ -393,6 +427,8 @@ void Game::Update(float deltaTime, float totalTime)
 			XMMATRIX lightProj = XMMatrixPerspectiveFovLH(
 				lights[i].SpotOuterAngle, 1.0f, 1.0f, 100.0f
 			);
+			XMStoreFloat4x4(&lightViewMatrix, lightView);
+			XMStoreFloat4x4(&lightProjectionMatrix, lightProj);
 		}
 
 		break;
@@ -401,7 +437,6 @@ void Game::Update(float deltaTime, float totalTime)
 			break;
 		}
 	}
-
 	FrameReset(deltaTime);
 
 	if (Input::KeyDown(VK_ESCAPE))
@@ -415,43 +450,44 @@ void Game::Update(float deltaTime, float totalTime)
 void Game::Draw(float deltaTime, float totalTime)
 {
 	{
-		Graphics::Context->ClearDepthStencilView(shadowDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+		Graphics::Context->ClearDepthStencilView(shadowSettings.shadowDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 		ID3D11RenderTargetView* nullRTV{};
-		Graphics::Context->OMSetRenderTargets(1, &nullRTV, shadowDSV.Get());	//Ignores color output
+		Graphics::Context->OMSetRenderTargets(1, &nullRTV, shadowSettings.shadowDSV.Get());	//Ignores color output
 		Graphics::Context->PSSetShader(0, 0, 0);	//disables PS for shadows
 	}
 	D3D11_VIEWPORT viewport = {};
-	viewport.Width = (float)shadowMapResolution;
-	viewport.Height = (float)shadowMapResolution;
+	viewport.TopLeftX = 0.0f;
+	viewport.TopLeftY = 0.0f;
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
+	viewport.Width = (float)shadowSettings.ShadowRes;
+	viewport.Height = (float)shadowSettings.ShadowRes;
 	viewport.MaxDepth = 1.0f;
 	Graphics::Context->RSSetViewports(1, &viewport);
 	Graphics::Context->VSSetShader(shadowVertexShader.Get(), 0, 0);
 
-	struct ShadowVSData
-	{
-		XMFLOAT4X4 world;
-		XMFLOAT4X4 view;
-		XMFLOAT4X4 proj;
-	};
-	ShadowVSData shadowVSData = {};
-	shadowVSData.view = lightViewMatrix;
-	shadowVSData.proj = lightProjectionMatrix;
+	ShadowVSData vsData = {};
+	vsData.view =lightViewMatrix ;//shadowSettings.viewMatrix;
+	vsData.proj = lightProjectionMatrix; //shadowSettings.projectionMatrix;
 
-	// Loop and draw all entities
 	for (auto& e : gameEntities)
 	{
-		shadowVSData.world = e->GetTransform()->GetWorldMatrix();
-		Graphics::FillAndBindNextCB(&shadowVSData, sizeof(ShadowVSData), D3D11_VERTEX_SHADER, 0); 
+		
+		vsData.world = e->GetTransform()->GetWorldMatrix();
+		Graphics::FillAndBindNextCB(&vsData, sizeof(ShadowVSData), D3D11_VERTEX_SHADER, 0); // Shortened for space
 		e->Draw(cameras[currentCamera], lights, ambientColor);
 	}
 
+
 	//Resets back to previous properties
-	viewport.Width = 1280;
-	viewport.Height = 720;
+	viewport.Width = (float)Window::Width();
+	viewport.Height = (float)Window::Height();
 	{
+		Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
 		Graphics::Context->RSSetViewports(1, &viewport);
-		Graphics::Context->OMSetRenderTargets( 1, Graphics::BackBufferRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
+		Graphics::Context->RSSetState(0);
+
 		Graphics::Context->ClearRenderTargetView(Graphics::BackBufferRTV.Get(), color);
 		Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
@@ -547,7 +583,7 @@ void Game::BuildUI() {
 	}
 
 	if (ImGui::CollapsingHeader("Shadows")) {
-		ImGui::Image(shadowSRV.Get(), ImVec2(512, 512));
+		ImGui::Image(shadowSettings.shadowSRV.Get(), ImVec2(512, 512));
 	}
 
 	ImGui::End();

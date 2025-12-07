@@ -62,21 +62,24 @@ float4 main(VertexToPixel input) : SV_TARGET
     
     for (int i = 0; i < 5; i++)
     {
+        float3 worldPos = input.worldPos;
+        float3 normal = input.normal;
+        
         Light light = lights[i];
         light.Direction = normalize(light.Direction);
         
         switch (light.Type)
         {
             case LIGHT_TYPE_DIRECTIONAL:
-                totalLight += DirectionalPBR(light, input.normal, input.worldPos, camPos, roughness, surfaceColor, specularColor, metal);
+                totalLight += DirectionalPBR(light, normal, worldPos, camPos, roughness, surfaceColor, specularColor, metal);
                 break;
             
             case LIGHT_TYPE_POINT:
-                totalLight += PointPBR(light, input.worldPos, input.normal, surfaceColor, roughness, camPos,specularColor ,metal);
+                totalLight += PointPBR(light, worldPos, normal, surfaceColor, roughness, camPos,specularColor ,metal);
                 break;
             
             case LIGHT_TYPE_SPOT:
-                totalLight += SpotPBR(light, input.worldPos, input.normal, surfaceColor, roughness, camPos, specularColor, metal);
+                totalLight += SpotPBR(light, worldPos, normal, surfaceColor, roughness, camPos, specularColor, metal);
                 break;
         }
     }

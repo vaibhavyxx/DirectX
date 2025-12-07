@@ -17,3 +17,12 @@ struct  Light
 	float SpotOuterAngle;
 	DirectX::XMFLOAT2 Padding;
 };
+
+struct ShadowOptions {
+	int ShadowRes;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> shadowDSV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> shadowSRV;
+	float projectionSize;
+	DirectX::XMFLOAT4X4 viewMatrix;
+	DirectX::XMFLOAT4X4 projectionMatrix;
+};

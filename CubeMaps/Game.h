@@ -48,7 +48,7 @@ private:
 
 	std::shared_ptr<Shader> shader;
 	std::shared_ptr<Shader> skyShader;
-	//std::shared_ptr<Shader> shadowShader;
+	std::shared_ptr<Shader> shadowShader;
 	std::shared_ptr<Sky> sky;
 	std::vector<std::shared_ptr<GameEntity>> gameEntities;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> shadowVertexShader;
@@ -74,12 +74,14 @@ private:
 	std::shared_ptr<GameEntity> floorGameObject;
 	std::shared_ptr<Material> floorMaterial;
 
-	int shadowMapResolution;
+	/*int shadowMapResolution;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> shadowDSV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> shadowSRV;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> shadowRasterizer;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> shadowSampler;
-	
+	*/
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout;
+	ShadowOptions shadowSettings;
 	DirectX::XMFLOAT4X4 lightViewMatrix;
 	DirectX::XMFLOAT4X4 lightProjectionMatrix;
 };

@@ -6,7 +6,7 @@ struct VertexShaderInput
     float3 localPosition : POSITION; // XYZ position
     float2 uv : TEXCOORD;
     float3 normal : NORMAL;
-    float3 worldPos : POSITION;
+    //float3 worldPos : POSITION;
     float3 tangent : TANGENT;
 };
 
