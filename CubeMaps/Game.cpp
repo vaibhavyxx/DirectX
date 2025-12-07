@@ -46,42 +46,6 @@ Game::Game()
 	sampDesc.MaxAnisotropy = 16;
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	Graphics::Device->CreateSamplerState(&sampDesc, samplerState.GetAddressOf());
-	Graphics::Device->CreateSamplerState(&sampDesc, samplerStateOverlay.GetAddressOf());
-
-	shadowSettings = {};
-	shadowSettings.ShadowRes = 512;
-	{
-		D3D11_TEXTURE2D_DESC shadowDesc = {};
-		shadowDesc.Width = shadowSettings.ShadowRes;
-		shadowDesc.Height = shadowSettings.ShadowRes;
-		shadowDesc.ArraySize = 1;
-		shadowDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D10_BIND_SHADER_RESOURCE;
-		shadowDesc.CPUAccessFlags = 0;
-		shadowDesc.Format = DXGI_FORMAT_R32_TYPELESS;	//Reserves all 32 bits for a single value
-		shadowDesc.MipLevels = 1;
-		shadowDesc.MiscFlags = 0;
-		shadowDesc.SampleDesc.Count = 1;
-		shadowDesc.SampleDesc.Quality = 0;
-		shadowDesc.Usage = D3D11_USAGE_DEFAULT;
-
-		Microsoft::WRL::ComPtr<ID3D11Texture2D> shadowTexture;
-		Graphics::Device->CreateTexture2D(&shadowDesc, 0, shadowTexture.GetAddressOf());
-
-		D3D11_DEPTH_STENCIL_VIEW_DESC shadowDSDesc = {};
-		shadowDSDesc.Format = DXGI_FORMAT_D32_FLOAT;
-		shadowDSDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-		shadowDSDesc.Texture2D.MipSlice = 0;
-		Graphics::Device->CreateDepthStencilView(shadowTexture.Get(), &shadowDSDesc, shadowSettings.shadowDSV.GetAddressOf());
-
-		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = { };
-		srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
-		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-		srvDesc.Texture2D.MipLevels = 1;
-		srvDesc.Texture2D.MostDetailedMip = 0;
-		Graphics::Device->CreateShaderResourceView(shadowTexture.Get(), &srvDesc, shadowSettings.shadowSRV.GetAddressOf());
-	}
-	Graphics::Context->IASetInputLayout(inputLayout.Get());
-
 	shader = std::make_shared<Shader>();
 	skyShader = std::make_shared<Shader>();
 
@@ -93,49 +57,9 @@ Game::Game()
 	skyShader->LoadPixelShader("SkyPS.cso");
 	skyShader->CreatePixelBuffer();
 
-	//shadowShader->LoadVertexShader("ShadowMapVS.cso");
-	//shadowSettings = {};
-	//This does not break but calling my shadow shader does?
-	{
-		ID3DBlob* vertexShaderBlob;
-		D3DReadFileToBlob(FixPath(L"ShadowMapVS.cso").c_str(), &vertexShaderBlob);
-
-		Graphics::Device->CreateVertexShader(
-			vertexShaderBlob->GetBufferPointer(),	// Get a pointer to the blob's contents
-			vertexShaderBlob->GetBufferSize(),		// How big is that data?
-			0,										// No classes in this shader
-			shadowVertexShader.GetAddressOf());
-
-		const int size = 4;
-		D3D11_INPUT_ELEMENT_DESC inputElements[size] = {};
-
-		inputElements[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-		inputElements[0].SemanticName = "POSITION";
-		inputElements[0].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-
-		inputElements[1].Format = DXGI_FORMAT_R32G32_FLOAT;
-		inputElements[1].SemanticName = "TEXCOORD";
-		inputElements[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-
-		inputElements[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-		inputElements[2].SemanticName = "NORMAL";
-		inputElements[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-
-		inputElements[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-		inputElements[3].SemanticName = "TANGENT";
-		inputElements[3].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-
-		// Create the input layout, verifying our description against actual shader code
-		Graphics::Device->CreateInputLayout(
-			inputElements,							// An array of descriptions
-			size,									// How many elements in that array?
-			vertexShaderBlob->GetBufferPointer(),	// Pointer to the code of a shader that uses this layout
-			vertexShaderBlob->GetBufferSize(),		// Size of the shader code that uses this layout
-			inputLayout.GetAddressOf());
-	}
-
 	Initialize();
 	CreateGeometry();
+	CreateShadowResources();
 }
 
 void Game::Initialize() {
@@ -154,6 +78,148 @@ Game::~Game()
 	ImGui::DestroyContext();
 }
 
+void Game::CreateShadowResources()
+{
+	shadowMapResolution = 1024;
+	shadowProjection = 10.0f;
+
+	shadowDSV.Reset();
+	shadowSRV.Reset();
+	shadowSampler.Reset();
+	shadowRasterizer.Reset();
+
+	D3D11_TEXTURE2D_DESC shadowDesc = {};
+	shadowDesc.Width = shadowMapResolution;
+	shadowDesc.Height = shadowMapResolution;
+	shadowDesc.ArraySize = 1;
+	shadowDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D10_BIND_SHADER_RESOURCE;
+	shadowDesc.CPUAccessFlags = 0;
+	shadowDesc.Format = DXGI_FORMAT_R32_TYPELESS;	//Reserves all 32 bits for a single value
+	shadowDesc.MipLevels = 1;
+	shadowDesc.MiscFlags = 0;
+	shadowDesc.SampleDesc.Count = 1;
+	shadowDesc.SampleDesc.Quality = 0;
+	shadowDesc.Usage = D3D11_USAGE_DEFAULT;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> shadowTexture;
+	Graphics::Device->CreateTexture2D(&shadowDesc, 0, shadowTexture.GetAddressOf());
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC shadowDSDesc = {};
+	shadowDSDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	shadowDSDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	shadowDSDesc.Texture2D.MipSlice = 0;
+	Graphics::Device->CreateDepthStencilView(shadowTexture.Get(), &shadowDSDesc, shadowDSV.GetAddressOf());
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = { };
+	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	Graphics::Device->CreateShaderResourceView(shadowTexture.Get(), &srvDesc, shadowSRV.GetAddressOf());
+
+	//Comparision Shader
+	D3D11_SAMPLER_DESC shadowSampDesc = {};
+	shadowSampDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR; // COMPARISON filter!
+	shadowSampDesc.ComparisonFunc = D3D11_COMPARISON_LESS;
+	shadowSampDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	shadowSampDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	shadowSampDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	shadowSampDesc.BorderColor[0] = 1.0f;
+	shadowSampDesc.BorderColor[1] = 1.0f;
+	shadowSampDesc.BorderColor[2] = 1.0f;
+	shadowSampDesc.BorderColor[3] = 1.0f;
+	Graphics::Device->CreateSamplerState(&shadowSampDesc, &shadowSampler);
+
+	//Set up a rasterizer
+	D3D11_RASTERIZER_DESC shadowRastDesc = {};
+	shadowRastDesc.FillMode = D3D11_FILL_SOLID;
+	shadowRastDesc.CullMode = D3D11_CULL_BACK;
+	shadowRastDesc.DepthClipEnable = true;
+	shadowRastDesc.DepthBias = 1000; // Multiplied by (smallest possible positive value storable in the depth buffer)
+	shadowRastDesc.DepthBiasClamp = 0.0f;
+	shadowRastDesc.SlopeScaledDepthBias = 1.0f;
+	Graphics::Device->CreateRasterizerState(&shadowRastDesc, &shadowRasterizer);
+
+	//Set up matrices
+	XMMATRIX shView = XMMatrixLookAtLH(
+		XMVectorSet(0, 30, -30, 0),
+		XMVectorSet(0, 0, 0, 0),
+		XMVectorSet(0, 1, 0, 0));
+	XMStoreFloat4x4(&lightViewMatrix, shView);
+
+	XMMATRIX shProj = XMMatrixOrthographicLH(shadowProjection, shadowProjection, 0.1f, 100.0f);
+	XMStoreFloat4x4(&lightProjectionMatrix, shProj);
+
+	ID3DBlob* vertexShaderBlob;
+	D3DReadFileToBlob(FixPath(L"ShadowMapVS.cso").c_str(), &vertexShaderBlob);
+
+	Graphics::Device->CreateVertexShader(
+		vertexShaderBlob->GetBufferPointer(),	// Get a pointer to the blob's contents
+		vertexShaderBlob->GetBufferSize(),		// How big is that data?
+		0,										// No classes in this shader
+		shadowVertexShader.GetAddressOf());
+
+	const int size = 4;
+	D3D11_INPUT_ELEMENT_DESC inputElements[size] = {};
+
+	inputElements[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	inputElements[0].SemanticName = "POSITION";
+	inputElements[0].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+
+	inputElements[1].Format = DXGI_FORMAT_R32G32_FLOAT;
+	inputElements[1].SemanticName = "TEXCOORD";
+	inputElements[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+
+	inputElements[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	inputElements[2].SemanticName = "NORMAL";
+	inputElements[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+
+	inputElements[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	inputElements[3].SemanticName = "TANGENT";
+	inputElements[3].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+
+	Graphics::Device->CreateInputLayout(
+		inputElements,
+		size,
+		vertexShaderBlob->GetBufferPointer(),
+		vertexShaderBlob->GetBufferSize(),
+		inputLayout.GetAddressOf());
+}
+
+void Game::DrawShadowData()
+{
+	ID3D11RenderTargetView* nullRTV{};
+	Graphics::Context->OMSetRenderTargets(1, &nullRTV, shadowDSV.Get());	//Ignores color output
+	Graphics::Context->ClearDepthStencilView(shadowDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+	Graphics::Context->RSSetState(shadowRasterizer.Get());
+
+	D3D11_VIEWPORT viewport = {};
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
+	viewport.Width = (float)shadowMapResolution;
+	viewport.Height = (float)shadowMapResolution;
+	Graphics::Context->RSSetViewports(1, &viewport);
+	Graphics::Context->VSSetShader(shadowVertexShader.Get(), 0, 0);
+
+	ShadowVSData vsData = {};
+	vsData.view = lightViewMatrix;
+	vsData.proj = lightProjectionMatrix;
+	Graphics::Context->PSSetShader(0, 0, 0);
+
+	for (auto& e : gameEntities)
+	{
+		vsData.world = e->GetTransform()->GetWorldMatrix();
+		Graphics::FillAndBindNextCB(&vsData, sizeof(ShadowVSData), D3D11_VERTEX_SHADER, 0);
+		e->GetMesh()->Draw();
+	}
+
+	Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
+	viewport.Width = (float)Window::Width();
+	viewport.Height = (float)Window::Height();
+
+	Graphics::Context->RSSetViewports(1, &viewport);
+	Graphics::Context->RSSetState(0);
+}
+
 void Game::LoadLights(float offset)
 {
 
@@ -164,7 +230,7 @@ void Game::LoadLights(float offset)
 	dir.Intensity = 1.0f;
 
 	Light spot = {};
-	spot.Type = LIGHT_TYPE_SPOT; 
+	spot.Type = LIGHT_TYPE_SPOT;
 	spot.Color = XMFLOAT3(1.0f, 1.0f, 1.0f);
 	spot.Direction = XMFLOAT3(1.f, -1.0f, 1.0f);
 	spot.Position = XMFLOAT3(5.0f, 2.0f, 0.0f);
@@ -191,7 +257,7 @@ void Game::LoadLights(float offset)
 	Light anotherSpot = spot;
 	anotherSpot.Position = XMFLOAT3(15.0f, 2.0f, 0.0f);
 	anotherSpot.Direction = XMFLOAT3(1.0f, -1.0f, 1.0f);
-	
+
 	lights[0] = dir;
 	lights[1] = spot;
 	lights[2] = point;
@@ -384,14 +450,14 @@ void Game::CreateGeometry()
 		lightEntity->GetTransform()->SetScale(0.5f, 0.5, 0.5f);
 		lightObjects.push_back(lightEntity);
 	}
-	
+
 
 	sky = std::make_shared<Sky>(cube, samplerState, textures, skyShader);	//makes a sky
 	floorGameObject = std::make_shared<GameEntity>(cube, floorMaterial);
 	floorGameObject->GetTransform()->SetPosition(5.0f, -2.0f, 0.0f);
 	floorGameObject->GetTransform()->SetScale(30.0f, 1.0f, 10.0f);
 
-	float offset = 5.0f;
+	float offset = 1.0f;
 	for (int i = 0; i < meshes.size(); i++) {
 		int index = i % materials.size();
 		gameEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[index]));
@@ -417,6 +483,10 @@ float d = 0;
 //float angleOffset = 0.707f;
 void Game::Update(float deltaTime, float totalTime)
 {
+	int oldShadowRes = shadowMapResolution;
+	if (oldShadowRes != shadowMapResolution)
+		CreateShadowResources();
+
 	for (int i = 0; i < 5; i++) {
 		switch (lights[i].Type) {
 		case LIGHT_TYPE_DIRECTIONAL:
@@ -469,53 +539,22 @@ void Game::Update(float deltaTime, float totalTime)
 void Game::Draw(float deltaTime, float totalTime)
 {
 	{
-		Graphics::Context->ClearDepthStencilView(shadowSettings.shadowDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-		ID3D11RenderTargetView* nullRTV{};
-		Graphics::Context->OMSetRenderTargets(1, &nullRTV, shadowSettings.shadowDSV.Get());	//Ignores color output
-		Graphics::Context->PSSetShader(0, 0, 0);	//disables PS for shadows
-	}
-	D3D11_VIEWPORT viewport = {};
-	viewport.MinDepth = 0.0f;
-	viewport.MaxDepth = 1.0f;
-	viewport.Width = (float)shadowSettings.ShadowRes;
-	viewport.Height = (float)shadowSettings.ShadowRes;
-	Graphics::Context->RSSetViewports(1, &viewport);
-	//Graphics::Context->VSSetShader(shadowVertexShader.Get(), 0, 0);
-
-	ShadowVSData vsData = {};
-	vsData.view = lightViewMatrix;//shadowSettings.viewMatrix;
-	vsData.proj = lightProjectionMatrix; //shadowSettings.projectionMatrix;
-
-	for (auto& e : gameEntities)
-	{
-		vsData.world = e->GetTransform()->GetWorldMatrix();
-		e->Draw(cameras[currentCamera], lights, ambientColor);
-		Graphics::FillAndBindNextCB(&vsData, sizeof(ShadowVSData), D3D11_VERTEX_SHADER, 0);
-	}
-	
-	//Resets back to previous properties
-	viewport.Width = (float)Window::Width();
-	viewport.Height = (float)Window::Height();
-	{
-		Graphics::Context->RSSetViewports(1, &viewport);
-		Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
-		Graphics::Context->RSSetState(0);
-
 		Graphics::Context->ClearRenderTargetView(Graphics::BackBufferRTV.Get(), color);
 		Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
-	BuildUI();
-
-	//floorGameObject->Draw(cameras[currentCamera], &lights[0], ambientColor);
-	for (int i = 0; i < 5; i++) {
-		lightObjects[i]->Draw(cameras[currentCamera], lights, ambientColor);
-	}
-
+	DrawShadowData();
 	for (int i = 0; i < gameEntities.size(); i++) {
+
+		//gameEntities[i]->GetMesh()->Draw();
 		gameEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor);
 	}
 
 	sky->Draw(deltaTime, cameras[currentCamera]);
+	BuildUI();
+	//floorGameObject->Draw(cameras[currentCamera], &lights[0], ambientColor);
+	for (int i = 0; i < 5; i++) {
+		lightObjects[i]->Draw(cameras[currentCamera], lights, ambientColor);
+	}
 	{
 		// Draw the UI after everything else
 		ImGui::Render();
@@ -601,7 +640,7 @@ void Game::BuildUI() {
 	}
 
 	if (ImGui::CollapsingHeader("Shadows")) {
-		ImGui::Image(shadowSettings.shadowSRV.Get(), ImVec2(512, 512));
+		ImGui::Image(shadowSRV.Get(), ImVec2(512, 512));
 	}
 
 	ImGui::End();

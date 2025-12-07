@@ -375,8 +375,8 @@ void Mesh::Draw() {
 		Graphics::Context->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), &stride, &offset);
 		Graphics::Context->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 		Graphics::Context->DrawIndexed(
-			this->indicesCount,		// The number of indices to use (we could draw a subset if we wanted)
-			0,					// Offset to the first index we want to use
-			0);					// Offset to add to each index when looking up vertices
+			this->indicesCount,	
+			0,					
+			0);					
 	}
 }

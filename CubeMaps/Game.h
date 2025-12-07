@@ -30,6 +30,8 @@ public:
 	void Initialize();
 
 private:
+	void CreateShadowResources();
+	void DrawShadowData();
 	void LoadLights(float offset);
 	void LoadCameras();
 	void CreateTextures();
@@ -43,7 +45,7 @@ private:
 	void LoadTextures(std::string filepath, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& srv);
 	void MaterialsUI();
 
-	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerStateOverlay;
+	//Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerStateOverlay;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
 
 	std::shared_ptr<Shader> shader;
@@ -75,14 +77,15 @@ private:
 	std::shared_ptr<Material> floorMaterial;
 	std::vector<std::shared_ptr<GameEntity>> lightObjects;
 
-	/*int shadowMapResolution;
+	int shadowMapResolution;
+	float shadowProjection;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> shadowDSV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> shadowSRV;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> shadowRasterizer;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> shadowSampler;
-	*/
+	
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout;
-	ShadowOptions shadowSettings;
+	//ShadowOptions shadowSettings;
 	DirectX::XMFLOAT4X4 lightViewMatrix;
 	DirectX::XMFLOAT4X4 lightProjectionMatrix;
 };
