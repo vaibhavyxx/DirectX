@@ -212,6 +212,13 @@ void Game::DrawShadowData()
 		e->GetMesh()->Draw();
 	}
 
+	for (auto& e : lightObjects)
+	{
+		vsData.world = e->GetTransform()->GetWorldMatrix();
+		Graphics::FillAndBindNextCB(&vsData, sizeof(ShadowVSData), D3D11_VERTEX_SHADER, 0);
+		e->GetMesh()->Draw();
+	}
+
 	Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
 	viewport.Width = (float)Window::Width();
 	viewport.Height = (float)Window::Height();
@@ -222,7 +229,6 @@ void Game::DrawShadowData()
 
 void Game::LoadLights(float offset)
 {
-
 	Light dir = {};
 	dir.Type = LIGHT_TYPE_DIRECTIONAL;
 	dir.Color = XMFLOAT3(1.0f, 1.0f, 1.0f);
@@ -232,12 +238,12 @@ void Game::LoadLights(float offset)
 	Light spot = {};
 	spot.Type = LIGHT_TYPE_SPOT;
 	spot.Color = XMFLOAT3(1.0f, 1.0f, 1.0f);
-	spot.Direction = XMFLOAT3(1.f, -1.0f, 1.0f);
-	spot.Position = XMFLOAT3(5.0f, 2.0f, 0.0f);
+	spot.Direction = XMFLOAT3(0.f, 0.0f, 1.0f);
+	spot.Position = XMFLOAT3(4.0f, 0.0f, 0.0f);
 	spot.Intensity = 1.0f;
-	spot.Range = 1.5f;
-	spot.SpotOuterAngle = XMConvertToRadians(60.0f);
-	spot.SpotInnerAngle = XMConvertToRadians(45.0f);
+	spot.Range = 10.0f;
+	spot.SpotOuterAngle = XMConvertToRadians(80.0f);
+	spot.SpotInnerAngle = XMConvertToRadians(60.0f);
 
 	Light point = {};
 	point.Type = LIGHT_TYPE_POINT;
@@ -258,10 +264,10 @@ void Game::LoadLights(float offset)
 	anotherSpot.Position = XMFLOAT3(15.0f, 2.0f, 0.0f);
 	anotherSpot.Direction = XMFLOAT3(1.0f, -1.0f, 1.0f);
 
-	lights[0] = dir;
+	lights[0] = spot;
 	lights[1] = spot;
 	lights[2] = point;
-	lights[3] = anotherSpot;
+	lights[3] = anotherDir;
 	lights[4] = dir;
 }
 
@@ -454,15 +460,15 @@ void Game::CreateGeometry()
 
 	sky = std::make_shared<Sky>(cube, samplerState, textures, skyShader);	//makes a sky
 	floorGameObject = std::make_shared<GameEntity>(cube, floorMaterial);
-	floorGameObject->GetTransform()->SetPosition(5.0f, -2.0f, 0.0f);
+	floorGameObject->GetTransform()->SetPosition(5.0f, 0.0f, 0.0f);
 	floorGameObject->GetTransform()->SetScale(30.0f, 1.0f, 10.0f);
 
 	float offset = 1.0f;
 	for (int i = 0; i < meshes.size(); i++) {
 		int index = i % materials.size();
 		gameEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[index]));
-		gameEntities[i]->GetTransform()->SetPosition(offset * i, 0.5f, -2.0f);
-		gameEntities[i]->GetTransform()->SetPosition(offset * i, 0.5f, -2.0f);
+		gameEntities[i]->GetTransform()->SetPosition(offset * i, 0.0f, 5.0f);
+		//gameEntities[i]->GetTransform()->SetPosition(offset * i, 0.0f, 0.0f);
 	}
 }
 // --------------------------------------------------------
@@ -479,15 +485,17 @@ void Game::OnResize()
 // --------------------------------------------------------
 // Update your game here - user input, move objects, AI, etc.
 // --------------------------------------------------------
-float d = 0;
+float dist = 0;
+float threshold = 0.005f;
+float speed = 0.001f;
 //float angleOffset = 0.707f;
 void Game::Update(float deltaTime, float totalTime)
 {
 	int oldShadowRes = shadowMapResolution;
-	if (oldShadowRes != shadowMapResolution)
-		CreateShadowResources();
+	//if (oldShadowRes != shadowMapResolution)
+	CreateShadowResources();
 
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < 1; i++) {	//testing
 		switch (lights[i].Type) {
 		case LIGHT_TYPE_DIRECTIONAL:
 		{
@@ -528,6 +536,19 @@ void Game::Update(float deltaTime, float totalTime)
 	}
 	FrameReset(deltaTime);
 
+
+	for (int i = 0; i < gameEntities.size(); i++) {
+		dist += speed * deltaTime;
+		XMFLOAT3 pos = gameEntities[i]->GetTransform()->GetPosition();
+		gameEntities[i]->GetTransform()->SetPosition(dist + pos.x, pos.y, pos.z);
+
+
+
+		if (abs(dist) > threshold) {
+			dist = 0.0f;
+			speed *= -1.0f;
+		}
+	}
 	if (Input::KeyDown(VK_ESCAPE))
 		Window::Quit();
 	cameras[currentCamera]->Update(deltaTime);
@@ -538,19 +559,17 @@ void Game::Update(float deltaTime, float totalTime)
 // --------------------------------------------------------
 void Game::Draw(float deltaTime, float totalTime)
 {
-	{
-		Graphics::Context->ClearRenderTargetView(Graphics::BackBufferRTV.Get(), color);
-		Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-	}
+	Graphics::Context->ClearRenderTargetView(Graphics::BackBufferRTV.Get(), color);
+	Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	DrawShadowData();
-	for (int i = 0; i < gameEntities.size(); i++) {
 
-		//gameEntities[i]->GetMesh()->Draw();
+	for (int i = 0; i < gameEntities.size(); i++) {
 		gameEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor);
 	}
 
 	sky->Draw(deltaTime, cameras[currentCamera]);
 	BuildUI();
+
 	//floorGameObject->Draw(cameras[currentCamera], &lights[0], ambientColor);
 	for (int i = 0; i < 5; i++) {
 		lightObjects[i]->Draw(cameras[currentCamera], lights, ambientColor);
