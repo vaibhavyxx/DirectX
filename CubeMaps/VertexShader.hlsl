@@ -9,7 +9,8 @@ cbuffer ExternalData : register(b0)
     float3 worldPos;
     float pad2;
     matrix worldInvTranspose;
-    //float3 tangent;
+    matrix lightView;
+    matrix lightProjection;
 }
 
 // --------------------------------------------------------
@@ -23,13 +24,15 @@ VertexToPixel main( VertexShaderInput input )
 {
 	// Set up output struct
 	VertexToPixel output;
-    //float3 movedPos = input.localPosition + offset;
    	matrix wvp = mul(projection, mul(view, world));
-    output.screenPosition = mul(wvp, float4(input.localPosition, 1.0f));
+    matrix shadowWVP = mul(lightProjection, mul(lightView, world));
     
+    output.shadowMapPos = mul(shadowWVP, float4(input.localPosition, 1.0f));
+    output.screenPosition = mul(wvp, float4(input.localPosition, 1.0f));
 	output.uv = input.uv;
     output.normal = normalize(mul((float3x3) worldInvTranspose, input.normal));
     output.tangent = normalize(mul((float3x3) world, input.tangent));
     output.worldPos = mul(world, float4(input.localPosition, 1)).xyz;
+    
     return output;
 }

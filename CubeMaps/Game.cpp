@@ -211,13 +211,16 @@ void Game::DrawShadowData()
 		Graphics::FillAndBindNextCB(&vsData, sizeof(ShadowVSData), D3D11_VERTEX_SHADER, 0);
 		e->GetMesh()->Draw();
 	}
+	vsData.world = floorGameObject->GetTransform()->GetWorldMatrix();
+	Graphics::FillAndBindNextCB(&vsData, sizeof(ShadowVSData), D3D11_VERTEX_SHADER, 0);
+	floorGameObject->GetMesh()->Draw();
 
-	for (auto& e : lightObjects)
+	/*for (auto& e : lightObjects)
 	{
 		vsData.world = e->GetTransform()->GetWorldMatrix();
 		Graphics::FillAndBindNextCB(&vsData, sizeof(ShadowVSData), D3D11_VERTEX_SHADER, 0);
 		e->GetMesh()->Draw();
-	}
+	}*/
 
 	Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
 	viewport.Width = (float)Window::Width();
@@ -449,21 +452,21 @@ void Game::CreateGeometry()
 
 	std::shared_ptr<Mesh> lightMesh = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/sphere.obj").c_str());
 	for (int i = 0; i < 5; i++) {
-		XMFLOAT3 color = lights[i].Color;
+		XMFLOAT3 color =XMFLOAT3(1, 1, 1) ;//lights[i].Color;
 		std::shared_ptr<Material> lightMaterial = std::make_shared<Material>(shader, DirectX::XMFLOAT4(color.x, color.y, color.z, 1.0f), 0.0f, ambientColor, floorMaterials[3], 0.0f, 0, 0, 0, 0);
 		std::shared_ptr<GameEntity> lightEntity = std::make_shared<GameEntity>(lightMesh, lightMaterial);
 		lightEntity->GetTransform()->SetPosition(lights[i].Position);
 		lightEntity->GetTransform()->SetScale(0.5f, 0.5, 0.5f);
 		lightObjects.push_back(lightEntity);
+
+		if (i == 4) {
+			floorGameObject = std::make_shared<GameEntity>(cube, lightMaterial);
+			floorGameObject->GetTransform()->SetPosition(0.0f, -3.0f, 0.0f);
+			floorGameObject->GetTransform()->SetScale(30.0f, 1.0f, 30.0f);
+		}
 	}
-
-
 	sky = std::make_shared<Sky>(cube, samplerState, textures, skyShader);	//makes a sky
-	floorGameObject = std::make_shared<GameEntity>(cube, floorMaterial);
-	floorGameObject->GetTransform()->SetPosition(5.0f, 0.0f, 0.0f);
-	floorGameObject->GetTransform()->SetScale(30.0f, 1.0f, 10.0f);
-
-	float offset = 1.0f;
+	float offset = 1.5f;
 	for (int i = 0; i < meshes.size(); i++) {
 		int index = i % materials.size();
 		gameEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[index]));
@@ -536,13 +539,13 @@ void Game::Update(float deltaTime, float totalTime)
 	}
 	FrameReset(deltaTime);
 
-
 	for (int i = 0; i < gameEntities.size(); i++) {
 		dist += speed * deltaTime;
 		XMFLOAT3 pos = gameEntities[i]->GetTransform()->GetPosition();
-		gameEntities[i]->GetTransform()->SetPosition(dist + pos.x, pos.y, pos.z);
-
-
+		XMFLOAT3 newPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		if (i % 2 == 0) newPos = XMFLOAT3(dist + pos.x, pos.y, pos.z);
+		else newPos = XMFLOAT3(pos.x, pos.y, pos.z + dist);
+		gameEntities[i]->GetTransform()->SetPosition(newPos);
 
 		if (abs(dist) > threshold) {
 			dist = 0.0f;
@@ -566,11 +569,9 @@ void Game::Draw(float deltaTime, float totalTime)
 	for (int i = 0; i < gameEntities.size(); i++) {
 		gameEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor);
 	}
-
+	floorGameObject->Draw(cameras[currentCamera], &lights[0], ambientColor);
 	sky->Draw(deltaTime, cameras[currentCamera]);
 	BuildUI();
-
-	//floorGameObject->Draw(cameras[currentCamera], &lights[0], ambientColor);
 	for (int i = 0; i < 5; i++) {
 		lightObjects[i]->Draw(cameras[currentCamera], lights, ambientColor);
 	}
