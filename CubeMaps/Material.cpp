@@ -119,6 +119,7 @@ void Material::SetupPixelStruct(std::shared_ptr<Camera> cam, Light* lights)
 	pixelData.useNormals = this->useGamma;
 	pixelData.useMetals = this->useMetals;
 	pixelData.useSurfaceMap = this->useSurfaceMap;
+	pixelData.usePBR = true;
 
 	for (int i = 0; i < pixelData.lightCount; i++) {
 		pixelData.lights[i] = lights[i];

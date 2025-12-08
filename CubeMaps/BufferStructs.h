@@ -30,6 +30,7 @@ struct PixelStruct {
     int useRoughness;
     int useMetals;
     int useSurfaceMap;     //96
+    bool usePBR;
 };
 
 struct Skybox {

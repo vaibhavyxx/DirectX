@@ -8,20 +8,22 @@
 
 cbuffer ExternalData : register(b0)
 {
-    Light lights[5];
-    float4 colorTint;   //16
+    Light lights[5];    //16
+    float4 colorTint;   //32
     float2 scale;
-    float2 offset;      //32
+    float2 offset;      //48
     float time;
-    float3 camPos;      //48
+    float3 camPos;      //64
     float roughness;
     int type;
     int lightCount;
-    int useGamma;
+    int useGamma;       //80
     int useNormals;
     int useRoughness;
     int useMetals;
-    int useSurfaceMap;     //96
+    int useSurfaceMap;  //96
+    bool usePBR;
+    float3 pad;
 }
 Texture2D SurfaceTexture : register(t0);
 Texture2D RoughnessMap : register(t1);
@@ -46,8 +48,8 @@ float4 main(VertexToPixel input) : SV_TARGET
     input.tangent = normalize(input.tangent);
     input.uv = input.uv * scale + offset;
 
-    float rough = RoughnessMap.Sample(BasicSampler, input.uv).r * useRoughness;
-    if (useRoughness == 0) rough = 0.2f;
+    float roughValue = RoughnessMap.Sample(BasicSampler, input.uv).r * useRoughness;
+    if (useRoughness == 0) roughValue = 0.2f;
     
     float metal = MetalnessMap.Sample(BasicSampler, input.uv).r * useMetals;
     if (useMetals == 0) metal = 0.0f;
@@ -65,7 +67,7 @@ float4 main(VertexToPixel input) : SV_TARGET
     if (useSurfaceMap == 0) surfaceColor = colorTint.rgb;
     
     float3 dielectricF0 = float3(0.04f, 0.04f, 0.04f);
-    float3 specularColor = lerp(dielectricF0, surfaceColor, metal);
+    float specularColor = lerp(dielectricF0, surfaceColor, metal);
     float3 totalLight = float3(0.0f, 0.0f, 0.0f);
     
     if(useGamma == 1) surfaceColor = pow(surfaceColor, 2.2f);
@@ -81,14 +83,21 @@ float4 main(VertexToPixel input) : SV_TARGET
         switch (light.Type)
         {
             case LIGHT_TYPE_DIRECTIONAL:
-                totalLight += DirectionalPBR(light, normal, worldPos, camPos, roughness, surfaceColor, specularColor, metal);
-                break;
+                if(usePBR)
+                totalLight += DirectionalPBR(light, normal, worldPos, camPos, roughValue, surfaceColor, specularColor, metal);
+                else
+                    totalLight += Directional(light, normal, worldPos, camPos, roughValue, surfaceColor, specularColor);
+            break;
             
             case LIGHT_TYPE_POINT:
-                totalLight += PointPBR(light, worldPos, normal, surfaceColor, roughness, camPos,specularColor ,metal);
-                break;
+            if(usePBR)
+                totalLight += PointPBR(light, worldPos, normal, surfaceColor, roughValue, camPos,specularColor ,metal);
+            else
+                    totalLight += Point(light, worldPos, normal, specularColor,surfaceColor,roughValue, camPos);
+            break;
             
             case LIGHT_TYPE_SPOT:
+            if(usePBR)
                 totalLight += SpotPBR(light, worldPos, normal, surfaceColor, roughness, camPos, specularColor, metal);
                 break;
         }
