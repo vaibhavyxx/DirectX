@@ -140,15 +140,15 @@ void Game::CreateShadowResources()
 	Graphics::Device->CreateRasterizerState(&shadowRastDesc, &shadowRasterizer);
 
 	//Set up matrices
-	XMMATRIX shView = XMMatrixLookAtLH(
+	/*XMMATRIX shView = XMMatrixLookAtLH(
 		XMVectorSet(0, 30, -30, 0),
 		XMVectorSet(0, 0, 0, 0),
 		XMVectorSet(0, 1, 0, 0));
-	XMStoreFloat4x4(&lightViewMatrix, shView);
+	XMStoreFloat4x4(&lightViewMatrix[], shView);
 
 	XMMATRIX shProj = XMMatrixOrthographicLH(shadowProjection, shadowProjection, 0.1f, 100.0f);
 	XMStoreFloat4x4(&lightProjectionMatrix, shProj);
-
+	*/
 	ID3DBlob* vertexShaderBlob;
 	D3DReadFileToBlob(FixPath(L"ShadowMapVS.cso").c_str(), &vertexShaderBlob);
 
@@ -201,8 +201,8 @@ void Game::DrawShadowData()
 	Graphics::Context->VSSetShader(shadowVertexShader.Get(), 0, 0);
 
 	ShadowVSData vsData = {};
-	vsData.view = lightViewMatrix;
-	vsData.proj = lightProjectionMatrix;
+	vsData.view = lightViewMatrix[0];	//test
+	vsData.proj = lightProjectionMatrix[0];
 	Graphics::Context->PSSetShader(0, 0, 0);
 
 	for (auto& e : gameEntities)
@@ -241,37 +241,33 @@ void Game::LoadLights(float offset)
 	Light spot = {};
 	spot.Type = LIGHT_TYPE_SPOT;
 	spot.Color = XMFLOAT3(1.0f, 1.0f, 1.0f);
-	spot.Direction = XMFLOAT3(0.f, 0.0f, 1.0f);
+	spot.Direction = XMFLOAT3(-0.1f, -0.4f, 1.0f);
 	spot.Position = XMFLOAT3(4.0f, 0.0f, 0.0f);
 	spot.Intensity = 1.0f;
-	spot.Range = 10.0f;
+	spot.Range = 50.0f;
 	spot.SpotOuterAngle = XMConvertToRadians(80.0f);
 	spot.SpotInnerAngle = XMConvertToRadians(60.0f);
-
-	Light point = {};
-	point.Type = LIGHT_TYPE_POINT;
-	point.Color = XMFLOAT3(1.0f, 1.0f, 1.0f);
-	point.Position = XMFLOAT3(10.0, 1.0f, -2.0f);
-	point.Intensity = 1.0f;
-
 	Light anotherDir = dir;
-	anotherDir.Direction = XMFLOAT3(-1.0f, -1.0f, -1.0f);
+	anotherDir.Direction = XMFLOAT3(0.0f, -1.0f, 1.0f);
 	anotherDir.Intensity = 1.0f;
 	anotherDir.Color = XMFLOAT3(1.0f, 1.0f, 0.5f);
 
-	Light anotherPoint = point;
-	anotherPoint.Position = XMFLOAT3(20.0f, 1.0f, -3.0f);
-	anotherPoint.Color = XMFLOAT3(0.5f, 0.5f, 0.0f);
-
 	Light anotherSpot = spot;
-	anotherSpot.Position = XMFLOAT3(15.0f, 2.0f, 0.0f);
-	anotherSpot.Direction = XMFLOAT3(1.0f, -1.0f, 1.0f);
+	anotherSpot.Position = XMFLOAT3(12.77f, -1.39f, -1.41f);
+	anotherSpot.Direction = XMFLOAT3(-0.3f, -1.0f, -1.0f);
+
+	Light copySpot = spot;
+	copySpot.Direction = XMFLOAT3(1.0f, 1.0f, 1.0f);
+	copySpot.Position = XMFLOAT3(16.49f, 6.09f, -9.77f);
+	copySpot.Range = 100.0f;
 
 	lights[0] = spot;
-	lights[1] = spot;
-	lights[2] = point;
-	lights[3] = anotherDir;
+	lights[1] = anotherSpot;
+	lights[2] = dir;
+	lights[3] = copySpot;
 	lights[4] = dir;
+	//lights[5] = dir;
+	//lights[6] = dir;
 }
 
 void Game::LoadCameras()
@@ -470,7 +466,7 @@ void Game::CreateGeometry()
 	for (int i = 0; i < meshes.size(); i++) {
 		int index = i % materials.size();
 		gameEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[index]));
-		gameEntities[i]->GetTransform()->SetPosition(offset * i, 0.0f, 5.0f);
+		gameEntities[i]->GetTransform()->SetPosition(offset * i, 0.0f, 4.0f);
 		//gameEntities[i]->GetTransform()->SetPosition(offset * i, 0.0f, 0.0f);
 	}
 }
@@ -494,9 +490,14 @@ float speed = 0.001f;
 //float angleOffset = 0.707f;
 void Game::Update(float deltaTime, float totalTime)
 {
+	for (int i = 0; i < lightObjects.size(); i++) {
+		if (lights[i].Type == LIGHT_TYPE_DIRECTIONAL) continue;
+		lights[i].Position = (lightObjects[i]->GetTransform()->GetPosition());
+	}
+
 	int oldShadowRes = shadowMapResolution;
-	//if (oldShadowRes != shadowMapResolution)
-	CreateShadowResources();
+	if (oldShadowRes != shadowMapResolution)
+		CreateShadowResources();
 
 	for (int i = 0; i < 1; i++) {	//testing
 		switch (lights[i].Type) {
@@ -507,13 +508,13 @@ void Game::Update(float deltaTime, float totalTime)
 				dir * -20,
 				dir,
 				XMVectorSet(0, 1, 0, 0));
-			XMStoreFloat4x4(&lightViewMatrix, lightView);
+			XMStoreFloat4x4(&lightViewMatrix[i], lightView);
 
 			float lightProjSize = 15.0f;
 			XMMATRIX lightProj = XMMatrixOrthographicLH(
 				lightProjSize, lightProjSize, 1.0f, 100.0f
 			);
-			XMStoreFloat4x4(&lightProjectionMatrix, lightProj);
+			XMStoreFloat4x4(&lightProjectionMatrix[i], lightProj);
 		}
 		break;
 
@@ -527,8 +528,8 @@ void Game::Update(float deltaTime, float totalTime)
 			XMMATRIX lightProj = XMMatrixPerspectiveFovLH(
 				lights[i].SpotOuterAngle, 1.0f, 1.0f, 100.0f
 			);
-			XMStoreFloat4x4(&lightViewMatrix, lightView);
-			XMStoreFloat4x4(&lightProjectionMatrix, lightProj);
+			XMStoreFloat4x4(&lightViewMatrix[i], lightView);
+			XMStoreFloat4x4(&lightProjectionMatrix[i], lightProj);
 		}
 
 		break;
@@ -573,6 +574,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	sky->Draw(deltaTime, cameras[currentCamera]);
 	BuildUI();
 	for (int i = 0; i < 5; i++) {
+		if (lights[i].Type == LIGHT_TYPE_DIRECTIONAL) continue;
 		lightObjects[i]->Draw(cameras[currentCamera], lights, ambientColor);
 	}
 	{
@@ -615,7 +617,7 @@ void Game::BuildUI() {
 
 	for (unsigned int i = 0; i < gameEntities.size(); i++)
 	{
-		EntityValues(gameEntities[i], i);
+		EntityValues(gameEntities[i], i, "Entities");
 	}
 
 	if (ImGui::CollapsingHeader("Camera"))
@@ -637,26 +639,42 @@ void Game::BuildUI() {
 	}
 	if (ImGui::CollapsingHeader("Lights")) {
 		for (int i = 0; i < 5; i++) {
-			DirectX::XMFLOAT3 colorValue = lights[i].Color;
-			float intensityValue = lights[i].Intensity;
+			std::string heading = "Light No##" + std::to_string(i);
+			if (ImGui::CollapsingHeader(heading.c_str()))
+			{
+				DirectX::XMFLOAT3 colorValue = lights[i].Color;
+				float intensityValue = lights[i].Intensity;
+				DirectX::XMFLOAT3 dir = lights[i].Direction;
+				float range = lights[i].Range;
 
-			std::string label = "Light##" + std::to_string(i);
-			std::string color = "Color##" + std::to_string(i);
-			std::string intensity = "Intensity##" + std::to_string(i);
+				std::string label = "Light##" + std::to_string(i);
+				std::string rangeLabel = "Range##" + std::to_string(i);
+				std::string color = "Color##" + std::to_string(i);
+				std::string intensity = "Intensity##" + std::to_string(i);
+				std::string direction = "Direction##" + std::to_string(i);
 
-			if (ImGui::ColorEdit3(color.c_str(), &colorValue.x))
-				lights[i].Color = colorValue;
+				if (ImGui::DragFloat3(direction.c_str(), &dir.x, 0.1f, -1.0f, 1.0f))
+					lights[i].Direction = dir;
 
-			if (ImGui::DragFloat(intensity.c_str(), &intensityValue, 0.01f, 0.0f, 1.0f))
-				lights[i].Intensity = intensityValue;
+				if (ImGui::ColorEdit3(color.c_str(), &colorValue.x))
+					lights[i].Color = colorValue;
+
+				if (ImGui::DragFloat(intensity.c_str(), &intensityValue, 0.01f, 0.0f, 1.0f))
+					lights[i].Intensity = intensityValue;
+
+				if (ImGui::DragFloat(rangeLabel.c_str(), &range, 0.01f, 0.0f, 1.0f))
+					lights[i].Range = range;
+
+				EntityValues(lightObjects[i], i, "Rot, Pos, Scale");
+			}
+
+			/*std::string ambientLabel = "Ambience";
+			XMFLOAT3 colorRGB = ambientColor;
+			if (ImGui::ColorEdit3(ambientLabel.c_str(), &colorRGB.x)) {
+
+				ambientColor = colorRGB;
+			}*/
 		}
-		std::string ambientLabel = "Ambience";
-		XMFLOAT3 colorRGB = ambientColor;
-		if (ImGui::ColorEdit3(ambientLabel.c_str(), &colorRGB.x)) {
-
-			ambientColor = colorRGB;
-		}
-
 	}
 
 	if (ImGui::CollapsingHeader("Shadows")) {
@@ -710,11 +728,11 @@ void Game::MeshDetails(std::shared_ptr<Mesh> mesh, const char* name) {
 	}
 }
 
-void Game::EntityValues(std::shared_ptr<GameEntity> entity, unsigned int i)
+void Game::EntityValues(std::shared_ptr<GameEntity> entity, unsigned int i, std::string title)
 {
-	std::string title = "Entity " + std::to_string(i + 1) + "##" + std::to_string(i);
+	std::string header = title + std::to_string(i + 1) + "##" + std::to_string(i);
 
-	if (ImGui::CollapsingHeader(title.c_str()))
+	if (ImGui::CollapsingHeader(header.c_str()))
 	{
 		DirectX::XMFLOAT3 pos = entity->GetTransform()->GetPosition();
 		DirectX::XMFLOAT3 rot = entity->GetTransform()->GetPitchYawRoll();
@@ -728,13 +746,13 @@ void Game::EntityValues(std::shared_ptr<GameEntity> entity, unsigned int i)
 		std::string labelOffset = "Offset##" + std::to_string(i);
 		std::string labelMatScale = "Material Scale##" + std::to_string(i);
 
-		if (ImGui::DragFloat3(labelPos.c_str(), &pos.x, 0.01f, -1.0f, 1.0f))
+		if (ImGui::DragFloat3(labelPos.c_str(), &pos.x, 0.01f, -50.0f, 50.0f))
 			entity->GetTransform()->SetPosition(pos);
 
 		if (ImGui::DragFloat3(labelRot.c_str(), &rot.x, 0.01f, -XM_PI, XM_PI))
 			entity->GetTransform()->SetRotation(rot);
 
-		if (ImGui::DragFloat3(labelScale.c_str(), &scale.x, 0.01f, 0.1f, 10.0f))
+		if (ImGui::DragFloat3(labelScale.c_str(), &scale.x, 0.01f, 0.1f, 20.0f))
 			entity->GetTransform()->SetScale(scale);
 
 		std::shared_ptr<Material> mat = entity->GetMaterial();

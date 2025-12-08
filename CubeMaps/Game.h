@@ -41,7 +41,7 @@ private:
 	void BuildUI();
 	void AppDetails();
 	void MeshDetails(std::shared_ptr<Mesh> mesh, const char* name);
-	void EntityValues(std::shared_ptr<GameEntity> entity, unsigned int i);
+	void EntityValues(std::shared_ptr<GameEntity> entity, unsigned int i, std::string title);
 	void LoadTextures(std::string filepath, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& srv);
 	void MaterialsUI();
 
@@ -86,7 +86,7 @@ private:
 	
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout;
 	//ShadowOptions shadowSettings;
-	DirectX::XMFLOAT4X4 lightViewMatrix;
-	DirectX::XMFLOAT4X4 lightProjectionMatrix;
+	DirectX::XMFLOAT4X4 lightViewMatrix[5] = {};
+	DirectX::XMFLOAT4X4 lightProjectionMatrix[5] = {};
 };
 

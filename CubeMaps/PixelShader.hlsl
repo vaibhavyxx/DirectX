@@ -70,7 +70,7 @@ float4 main(VertexToPixel input) : SV_TARGET
     
     if(useGamma == 1) surfaceColor = pow(surfaceColor, 2.2f);
     
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < lightCount; i++)
     {
         float3 worldPos = input.worldPos;
         float3 normal = input.normal;
