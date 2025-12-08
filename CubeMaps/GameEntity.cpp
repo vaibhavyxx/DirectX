@@ -34,17 +34,20 @@ void GameEntity::Update(float deltaTime, float time) {
 	material->SetTime(time);
 }
 
-void GameEntity::Draw(std::shared_ptr<Camera> cam, Light* lights, DirectX::XMFLOAT3 color)
+void GameEntity::Draw(std::shared_ptr<Camera> cam, Light* lights, DirectX::XMFLOAT3 color, DirectX::XMFLOAT4X4 lightView, DirectX::XMFLOAT4X4 lightProjection)
 {
 	material->GetShader()->Setup();
 	material->BindTexturesAndSamplers();
 
 	VertexStruct vsData = {};
-	vsData.worldMatrix = transform->GetWorldMatrix();
-	vsData.viewMatrix = cam->GetView();
-	vsData.projectionMatrix = cam->GetProjection();
+	vsData.world = transform->GetWorldMatrix();
+	vsData.view = cam->GetView();
+	vsData.projection = cam->GetProjection();
 	vsData.worldInvTranspose = transform->GetWorldInverseTransposeMatrix();
-	vsData.worldPos = transform->GetPosition();	
+	vsData.lightView = lightView;
+	vsData.lightProjection = lightProjection;
+	//vsData.lightProjection = 
+	//vsData.worldPos = transform->GetPosition();	
 
 	Graphics::FillAndBindNextCB(&vsData, sizeof(VertexStruct), D3D11_VERTEX_SHADER, 0);
 	

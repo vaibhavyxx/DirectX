@@ -201,8 +201,8 @@ void Game::DrawShadowData()
 	Graphics::Context->VSSetShader(shadowVertexShader.Get(), 0, 0);
 
 	ShadowVSData vsData = {};
-	vsData.view = lightViewMatrix[0];	//test
-	vsData.proj = lightProjectionMatrix[0];
+	vsData.view = lightViewMatrix;// [0] ;	//test
+	vsData.proj = lightProjectionMatrix;// [0] ;
 	Graphics::Context->PSSetShader(0, 0, 0);
 
 	for (auto& e : gameEntities)
@@ -508,13 +508,13 @@ void Game::Update(float deltaTime, float totalTime)
 				dir * -20,
 				dir,
 				XMVectorSet(0, 1, 0, 0));
-			XMStoreFloat4x4(&lightViewMatrix[i], lightView);
+			XMStoreFloat4x4(&lightViewMatrix, lightView);
 
 			float lightProjSize = 15.0f;
 			XMMATRIX lightProj = XMMatrixOrthographicLH(
 				lightProjSize, lightProjSize, 1.0f, 100.0f
 			);
-			XMStoreFloat4x4(&lightProjectionMatrix[i], lightProj);
+			XMStoreFloat4x4(&lightProjectionMatrix, lightProj);
 		}
 		break;
 
@@ -528,8 +528,8 @@ void Game::Update(float deltaTime, float totalTime)
 			XMMATRIX lightProj = XMMatrixPerspectiveFovLH(
 				lights[i].SpotOuterAngle, 1.0f, 1.0f, 100.0f
 			);
-			XMStoreFloat4x4(&lightViewMatrix[i], lightView);
-			XMStoreFloat4x4(&lightProjectionMatrix[i], lightProj);
+			XMStoreFloat4x4(&lightViewMatrix, lightView);
+			XMStoreFloat4x4(&lightProjectionMatrix, lightProj);
 		}
 
 		break;
@@ -568,14 +568,14 @@ void Game::Draw(float deltaTime, float totalTime)
 	DrawShadowData();
 
 	for (int i = 0; i < gameEntities.size(); i++) {
-		gameEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor);
+		gameEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix, lightProjectionMatrix);
 	}
-	floorGameObject->Draw(cameras[currentCamera], &lights[0], ambientColor);
+	floorGameObject->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix, lightProjectionMatrix);
 	sky->Draw(deltaTime, cameras[currentCamera]);
 	BuildUI();
 	for (int i = 0; i < 5; i++) {
 		if (lights[i].Type == LIGHT_TYPE_DIRECTIONAL) continue;
-		lightObjects[i]->Draw(cameras[currentCamera], lights, ambientColor);
+		lightObjects[i]->Draw(cameras[currentCamera], lights, ambientColor, lightViewMatrix, lightProjectionMatrix);
 	}
 	{
 		// Draw the UI after everything else

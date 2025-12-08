@@ -4,15 +4,12 @@
 
 struct  VertexStruct
 {
-	DirectX::XMFLOAT4X4 worldMatrix;
-	DirectX::XMFLOAT4X4 viewMatrix;
-	DirectX::XMFLOAT4X4 projectionMatrix;
-	DirectX::XMFLOAT3 normal;
-	float pad;
-	DirectX::XMFLOAT3 worldPos;
-	float pad2;
-	DirectX::XMFLOAT4X4 worldInvTranspose;
-	DirectX::XMFLOAT3 tanegent;
+    DirectX::XMFLOAT4X4 world;
+    DirectX::XMFLOAT4X4 view;
+    DirectX::XMFLOAT4X4 projection;
+    DirectX::XMFLOAT4X4 worldInvTranspose;
+    DirectX::XMFLOAT4X4 lightView;
+    DirectX::XMFLOAT4X4 lightProjection;
 };
 
 struct PixelStruct {

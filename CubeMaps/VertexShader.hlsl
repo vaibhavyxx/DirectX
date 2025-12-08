@@ -4,10 +4,6 @@ cbuffer ExternalData : register(b0)
     matrix world;
     matrix view;
     matrix projection;
-    float3 normal;
-    float pad;
-    float3 worldPos;
-    float pad2;
     matrix worldInvTranspose;
     matrix lightView;
     matrix lightProjection;

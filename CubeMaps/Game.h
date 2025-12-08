@@ -86,7 +86,7 @@ private:
 	
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout;
 	//ShadowOptions shadowSettings;
-	DirectX::XMFLOAT4X4 lightViewMatrix[5] = {};
-	DirectX::XMFLOAT4X4 lightProjectionMatrix[5] = {};
+	DirectX::XMFLOAT4X4 lightViewMatrix;// [5] = {};
+	DirectX::XMFLOAT4X4 lightProjectionMatrix;// [5] = {};
 };
 
