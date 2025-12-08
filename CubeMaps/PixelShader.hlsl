@@ -54,7 +54,7 @@ float4 main(VertexToPixel input) : SV_TARGET
     float3 b = cross(t, n);
     float3x3 tbn = float3x3(t, b, n);
     
-    float3 finalNormal = mul(tbn, unpackedNormal);
+    float3 finalNormal = mul(unpackedNormal, tbn);
     input.normal = finalNormal;
 
     float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb * useSurfaceMap;
@@ -68,11 +68,13 @@ float4 main(VertexToPixel input) : SV_TARGET
     float2 shadowUV = input.shadowMapPos.xy * 0.5f + 0.5f;
     shadowUV.y = 1 - shadowUV.y; // Flip the Y
     float distToLight = input.shadowMapPos.z;
+    float depthFromLight = input.shadowMapPos.z / input.shadowMapPos.w;
     float distShadowMap = ShadowMap.Sample(BasicSampler, shadowUV).r;
 
-    if (distShadowMap < distToLight)
-        return float4(0, 0, 0, 1);
-    
+    //if (distShadowMap < distToLight)
+    //    return float4(0, 0, 0, 1);
+    float shadowAmount = ShadowMap.SampleCmpLevelZero(ShadowSampler, shadowUV, depthFromLight);
+	
     float3 totalLight = float3(0.0f, 0.0f, 0.0f);
     if (useGamma == 1)
         surfaceColor = pow(surfaceColor, 2.2f);
@@ -88,9 +90,9 @@ float4 main(VertexToPixel input) : SV_TARGET
         switch (light.Type)
         {
             case LIGHT_TYPE_DIRECTIONAL:
-                if (usePBR)
-                    totalLight += DirectionalPBR(light, normal, worldPos, camPos, roughValue, surfaceColor, specularColor, metal);
-             
+                //if (usePBR)
+                float3 dirLight = DirectionalPBR(light, normal, worldPos, camPos, roughValue, surfaceColor, specularColor, metal);
+                totalLight += (dirLight * shadowAmount);
                 break;
             
             case LIGHT_TYPE_POINT:
@@ -101,8 +103,8 @@ float4 main(VertexToPixel input) : SV_TARGET
             
             case LIGHT_TYPE_SPOT:
             //if(usePBR)
-                float3 spotLight = SpotPBR(light, worldPos, normal, surfaceColor, roughness, camPos, specularColor, metal);
-                totalLight = spotLight;
+             float3 spotLight = SpotPBR(light, worldPos, normal, surfaceColor, roughness, camPos, specularColor, metal);
+                totalLight += (spotLight * shadowAmount);
                 break;
         }
     }
