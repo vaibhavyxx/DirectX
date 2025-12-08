@@ -5,6 +5,7 @@ cbuffer ExternalData : register(b0)
     matrix view;
     matrix projection;
     matrix worldInvTranspose;
+    
     matrix lightView;
     matrix lightProjection;
 }

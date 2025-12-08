@@ -208,19 +208,30 @@ void Game::DrawShadowData()
 	for (auto& e : gameEntities)
 	{
 		vsData.world = e->GetTransform()->GetWorldMatrix();
+
+		VertexStruct vertData = {};
+		vertData.world = vsData.world;
+		vertData.worldInvTranspose = e->GetTransform()->GetWorldInverseTransposeMatrix();
+		vertData.view = vsData.view;
+		vertData.lightView = vsData.view;
+		vertData.lightProjection = vsData.proj;
+		
 		Graphics::FillAndBindNextCB(&vsData, sizeof(ShadowVSData), D3D11_VERTEX_SHADER, 0);
-		e->GetMesh()->Draw();
+		Graphics::FillAndBindNextCB(&vertData, sizeof(VertexStruct), D3D11_VERTEX_SHADER, 0);
+		//e->GetMesh()->Draw();
+		e->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix, lightProjectionMatrix);
+
 	}
 	vsData.world = floorGameObject->GetTransform()->GetWorldMatrix();
 	Graphics::FillAndBindNextCB(&vsData, sizeof(ShadowVSData), D3D11_VERTEX_SHADER, 0);
 	floorGameObject->GetMesh()->Draw();
 
-	/*for (auto& e : lightObjects)
+	for (auto& e : lightObjects)
 	{
 		vsData.world = e->GetTransform()->GetWorldMatrix();
 		Graphics::FillAndBindNextCB(&vsData, sizeof(ShadowVSData), D3D11_VERTEX_SHADER, 0);
 		e->GetMesh()->Draw();
-	}*/
+	}
 
 	Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
 	viewport.Width = (float)Window::Width();
