@@ -249,8 +249,8 @@ void Game::LoadLights(float offset)
 	spot.SpotInnerAngle = XMConvertToRadians(60.0f);
 
 	Light anotherDir = dir;
-	anotherDir.Direction = XMFLOAT3(0.0f, -1.0f, 1.0f);
-	anotherDir.Intensity = 1.0f;
+	anotherDir.Direction = XMFLOAT3(-1.0f, 1.0f, 0.8f);
+	//anotherDir.Intensity = 1.0f;
 	anotherDir.Color = XMFLOAT3(1.0f, 1.0f, 0.5f);
 
 	Light oneMoreDir = dir;
@@ -519,7 +519,7 @@ void Game::Update(float deltaTime, float totalTime)
 			XMMATRIX lightView = XMMatrixLookToLH(
 				dir * -20,
 				dir,
-				XMVectorSet(-1, 1, 1, 0));
+				XMVectorSet(0,1,0, 0));
 			XMStoreFloat4x4(&lightViewMatrix, lightView);
 
 			float lightProjSize = 15.0f;

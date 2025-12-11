@@ -70,8 +70,9 @@ float4 main(VertexToPixel input) : SV_TARGET
     float distToLight = input.shadowMapPos.z;
     float distShadowMap = ShadowMap.Sample(BasicSampler, shadowUV).r;
 
-    //if (distShadowMap < distToLight)
-    //    return float4(0, 0, 0, 1);
+    //return float4(distShadowMap, 0, 0, 1);
+    if (distShadowMap < distToLight)
+        return float4(0, 0, 0, 1);
     
     float3 totalLight = float3(0.0f, 0.0f, 0.0f);
     if (useGamma == 1)
