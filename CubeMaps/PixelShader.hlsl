@@ -71,6 +71,8 @@ float4 main(VertexToPixel input) : SV_TARGET
     float depthFromLight = input.shadowMapPos.z / input.shadowMapPos.w;
     float distShadowMap = ShadowMap.Sample(BasicSampler, shadowUV).r;
 
+    //Using this test code to show that objects do render both shadows and themselves
+    //Currently issues with implementing shadows that turns everything black
     //if (distShadowMap < distToLight)
     //    return float4(0, 0, 0, 1);
     float shadowAmount = ShadowMap.SampleCmpLevelZero(ShadowSampler, shadowUV, depthFromLight);
@@ -92,7 +94,7 @@ float4 main(VertexToPixel input) : SV_TARGET
             case LIGHT_TYPE_DIRECTIONAL:
                 //if (usePBR)
                 float3 dirLight = DirectionalPBR(light, normal, worldPos, camPos, roughValue, surfaceColor, specularColor, metal);
-                totalLight += (dirLight * shadowAmount);
+                totalLight += (dirLight);// * shadowAmount); commented out as it breaks
                 break;
             
             case LIGHT_TYPE_POINT:
@@ -104,7 +106,7 @@ float4 main(VertexToPixel input) : SV_TARGET
             case LIGHT_TYPE_SPOT:
             //if(usePBR)
              float3 spotLight = SpotPBR(light, worldPos, normal, surfaceColor, roughness, camPos, specularColor, metal);
-                totalLight += (spotLight * shadowAmount);
+                totalLight += (spotLight);// * shadowAmount);   commented out as it breaks
                 break;
         }
     }

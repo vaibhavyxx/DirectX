@@ -592,7 +592,8 @@ void Game::Draw(float deltaTime, float totalTime)
 	DrawShadowData();
 	for (int k = 0; k < 5; k++) {
 		for (int i = 0; i < gameEntities.size(); i++) {
-			gameEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[k], lightProjectionMatrix[k]);
+			gameEntities[i]->GetMesh()->Draw();
+			//gameEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[k], lightProjectionMatrix[k]);
 		}
 		floorGameObject->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[k], lightProjectionMatrix[k]);
 		
@@ -680,8 +681,13 @@ void Game::BuildUI() {
 				std::string intensity = "Intensity##" + std::to_string(i);
 				std::string direction = "Direction##" + std::to_string(i);
 
-				if (ImGui::DragFloat3(direction.c_str(), &dir.x, 0.1f, -1.0f, 1.0f))
+				if (ImGui::DragFloat3(direction.c_str(), &dir.x, 0.1f, -2.0f, 2.0f)) {
+					XMVECTOR dirVector = XMLoadFloat3(&dir);
+					dirVector = XMVector3Normalize(dirVector);
+					XMStoreFloat3(&dir, dirVector);
 					lights[i].Direction = dir;
+				}
+					
 
 				if (ImGui::ColorEdit3(color.c_str(), &colorValue.x))
 					lights[i].Color = colorValue;
