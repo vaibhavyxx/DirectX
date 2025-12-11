@@ -47,7 +47,7 @@ float4 main(VertexToPixel input) : SV_TARGET
     float metal = MetalnessMap.Sample(BasicSampler, input.uv).r * useMetals;
     if (useMetals == 0)
         metal = 0.0f;
-   
+    
     float3 unpackedNormal = normalize(NormalMap.Sample(BasicSampler, input.uv).xyz * 2.0f - 1.0f);
     float3 n = (input.normal);
     float3 t = normalize(input.tangent - dot(input.tangent, n) * n);
@@ -68,11 +68,9 @@ float4 main(VertexToPixel input) : SV_TARGET
     float2 shadowUV = input.shadowMapPos.xy * 0.5f + 0.5f;
     shadowUV.y = 1 - shadowUV.y; // Flip the Y
     float distToLight = input.shadowMapPos.z;
-    float distShadowMap = ShadowMap.Sample(BasicSampler, shadowUV).r;
-
-    //return float4(distShadowMap, 0, 0, 1);
-    if (distShadowMap < distToLight)
-        return float4(0, 0, 0, 1);
+    float distShadowMap = ShadowMap.Sample(BasicSampler, shadowUV).r;   //ShadowMap is empty, root cause
+    
+    //return float4(distShadowMap,0, 0, 0);
     
     float3 totalLight = float3(0.0f, 0.0f, 0.0f);
     if (useGamma == 1)
@@ -103,11 +101,12 @@ float4 main(VertexToPixel input) : SV_TARGET
             case LIGHT_TYPE_SPOT:
             //if(usePBR)
                 float3 spotLight = SpotPBR(light, worldPos, normal, surfaceColor, roughness, camPos, specularColor, metal);
-                totalLight = spotLight;
+                totalLight += spotLight;
                 break;
         }
     }
     if (useGamma)
-        surfaceColor = pow(surfaceColor, 0.45f);
+        surfaceColor = pow(totalLight, 0.45f);
+    totalLight *= distToLight;  //test out shadow values
     return float4(totalLight, 1.0f);
 }

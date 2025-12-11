@@ -200,6 +200,8 @@ void Game::DrawShadowData()
 	Graphics::Context->RSSetViewports(1, &viewport);
 	Graphics::Context->VSSetShader(shadowVertexShader.Get(), 0, 0);
 
+
+	//Singular loop
 	ShadowVSData vsData = {};
 	vsData.view = lightViewMatrix;// [0] ;	//test
 	vsData.proj = lightProjectionMatrix;// [0] ;
@@ -215,12 +217,12 @@ void Game::DrawShadowData()
 	Graphics::FillAndBindNextCB(&vsData, sizeof(ShadowVSData), D3D11_VERTEX_SHADER, 0);
 	floorGameObject->GetMesh()->Draw();
 
-	/*for (auto& e : lightObjects)
+	for (auto& e : lightObjects)
 	{
 		vsData.world = e->GetTransform()->GetWorldMatrix();
 		Graphics::FillAndBindNextCB(&vsData, sizeof(ShadowVSData), D3D11_VERTEX_SHADER, 0);
 		e->GetMesh()->Draw();
-	}*/
+	}
 
 	Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
 	viewport.Width = (float)Window::Width();
