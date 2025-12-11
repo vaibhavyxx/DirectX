@@ -235,7 +235,7 @@ void Game::LoadLights(float offset)
 	Light dir = {};
 	dir.Type = LIGHT_TYPE_DIRECTIONAL;
 	dir.Color = XMFLOAT3(1.0f, 1.0f, 1.0f);
-	dir.Direction = XMFLOAT3(0.0f, 1.0f, -1.0f);
+	dir.Direction = XMFLOAT3(1.0f, -0.5f, 0.8f);
 	dir.Intensity = 1.0f;
 
 	Light spot = {};
@@ -247,10 +247,16 @@ void Game::LoadLights(float offset)
 	spot.Range = 50.0f;
 	spot.SpotOuterAngle = XMConvertToRadians(80.0f);
 	spot.SpotInnerAngle = XMConvertToRadians(60.0f);
+
 	Light anotherDir = dir;
 	anotherDir.Direction = XMFLOAT3(0.0f, -1.0f, 1.0f);
 	anotherDir.Intensity = 1.0f;
 	anotherDir.Color = XMFLOAT3(1.0f, 1.0f, 0.5f);
+
+	Light oneMoreDir = dir;
+	oneMoreDir.Direction = XMFLOAT3(1.0f, -0.5f, 0.8f);
+	oneMoreDir.Intensity = 1.0f;
+	oneMoreDir.Color = XMFLOAT3(1.0f, 1.0f, 0.5f);
 
 	Light anotherSpot = spot;
 	anotherSpot.Position = XMFLOAT3(12.77f, -1.39f, -1.41f);
@@ -261,10 +267,10 @@ void Game::LoadLights(float offset)
 	copySpot.Position = XMFLOAT3(16.49f, 6.09f, -9.77f);
 	copySpot.Range = 100.0f;
 
-	lights[0] = spot;
-	lights[1] = anotherSpot;
+	lights[0] = dir;
+	lights[1] = dir;
 	lights[2] = dir;
-	lights[3] = copySpot;
+	lights[3] = anotherDir;
 	lights[4] = dir;
 	//lights[5] = dir;
 	//lights[6] = dir;
@@ -451,7 +457,13 @@ void Game::CreateGeometry()
 		XMFLOAT3 color =XMFLOAT3(1, 1, 1) ;//lights[i].Color;
 		std::shared_ptr<Material> lightMaterial = std::make_shared<Material>(shader, DirectX::XMFLOAT4(color.x, color.y, color.z, 1.0f), 0.0f, ambientColor, floorMaterials[3], 0.0f, 0, 0, 0, 0);
 		std::shared_ptr<GameEntity> lightEntity = std::make_shared<GameEntity>(lightMesh, lightMaterial);
-		lightEntity->GetTransform()->SetPosition(lights[i].Position);
+		XMFLOAT3 pos;
+		if (lights[i].Type == LIGHT_TYPE_DIRECTIONAL)
+			pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		else
+			pos = lights[i].Position;
+		
+		lightEntity->GetTransform()->SetPosition(pos);
 		lightEntity->GetTransform()->SetScale(0.5f, 0.5, 0.5f);
 		lightObjects.push_back(lightEntity);
 
@@ -507,7 +519,7 @@ void Game::Update(float deltaTime, float totalTime)
 			XMMATRIX lightView = XMMatrixLookToLH(
 				dir * -20,
 				dir,
-				XMVectorSet(0, 1, 0, 0));
+				XMVectorSet(-1, 1, 1, 0));
 			XMStoreFloat4x4(&lightViewMatrix, lightView);
 
 			float lightProjSize = 15.0f;
@@ -574,7 +586,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	sky->Draw(deltaTime, cameras[currentCamera]);
 	BuildUI();
 	for (int i = 0; i < 5; i++) {
-		if (lights[i].Type == LIGHT_TYPE_DIRECTIONAL) continue;
+		//if (lights[i].Type == LIGHT_TYPE_DIRECTIONAL) continue;
 		lightObjects[i]->Draw(cameras[currentCamera], lights, ambientColor, lightViewMatrix, lightProjectionMatrix);
 	}
 	{
