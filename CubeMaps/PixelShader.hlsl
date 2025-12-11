@@ -69,8 +69,11 @@ float4 main(VertexToPixel input) : SV_TARGET
     shadowUV.y = 1 - shadowUV.y; // Flip the Y
     float distToLight = input.shadowMapPos.z;
     float distShadowMap = ShadowMap.Sample(BasicSampler, shadowUV).r;   //ShadowMap is empty, root cause
-    
     //return float4(distShadowMap,0, 0, 0);
+    //return float4(ShadowMap.Sample(BasicSampler, shadowUV).rgb, 0);
+    
+    if(distToLight > distShadowMap)
+        return 0;
     
     float3 totalLight = float3(0.0f, 0.0f, 0.0f);
     if (useGamma == 1)
@@ -99,7 +102,6 @@ float4 main(VertexToPixel input) : SV_TARGET
                 break;
             
             case LIGHT_TYPE_SPOT:
-            //if(usePBR)
                 float3 spotLight = SpotPBR(light, worldPos, normal, surfaceColor, roughness, camPos, specularColor, metal);
                 totalLight += spotLight;
                 break;

@@ -410,6 +410,7 @@ void Game::CreateMaterials()
 	materials[0]->AddTextureSRV(1, floorMaterials[1]);
 	materials[0]->AddTextureSRV(2, floorMaterials[2]);
 	materials[0]->AddTextureSRV(3, floorMaterials[3]);
+	materials[0]->AddTextureSRV(4, shadowSRV);
 	materials[0]->AddSampler(0, samplerState);
 	materials[0]->BindTexturesAndSamplers();
 
@@ -417,6 +418,7 @@ void Game::CreateMaterials()
 	materials[1]->AddTextureSRV(1, metalMaterials[1]);
 	materials[1]->AddTextureSRV(2, metalMaterials[2]);
 	materials[1]->AddTextureSRV(3, metalMaterials[3]);
+	materials[1]->AddTextureSRV(4, shadowSRV);
 	materials[1]->AddSampler(0, samplerState);
 	materials[1]->BindTexturesAndSamplers();
 
@@ -424,6 +426,7 @@ void Game::CreateMaterials()
 	materials[2]->AddTextureSRV(1, cobblestoneMaterials[1]);
 	materials[2]->AddTextureSRV(2, cobblestoneMaterials[2]);
 	materials[2]->AddTextureSRV(3, cobblestoneMaterials[3]);
+	materials[2]->AddTextureSRV(4, shadowSRV);
 	materials[2]->AddSampler(0, samplerState);
 	materials[2]->BindTexturesAndSamplers();
 
@@ -434,7 +437,7 @@ void Game::CreateMaterials()
 	floorMaterial = std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor, floor, 0.0f, 0, 0, 0, 0);
 	floorMaterial->AddTextureSRV(0, floor);
 	floorMaterial->AddSampler(0, samplerState);
-
+	floorMaterial->AddTextureSRV(4, shadowSRV);
 }
 
 std::shared_ptr<GameEntity> lightEntity;
@@ -582,6 +585,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	DrawShadowData();
 
 	for (int i = 0; i < gameEntities.size(); i++) {
+		gameEntities[i]->GetMaterial()->AddTextureSRV(4, shadowSRV);
 		gameEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix, lightProjectionMatrix);
 	}
 	floorGameObject->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix, lightProjectionMatrix);
@@ -589,6 +593,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	BuildUI();
 	for (int i = 0; i < 5; i++) {
 		//if (lights[i].Type == LIGHT_TYPE_DIRECTIONAL) continue;
+		lightObjects[i]->GetMaterial()->AddTextureSRV(4, shadowSRV);
 		lightObjects[i]->Draw(cameras[currentCamera], lights, ambientColor, lightViewMatrix, lightProjectionMatrix);
 	}
 	{
