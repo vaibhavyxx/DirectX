@@ -60,6 +60,7 @@ Game::Game()
 	Initialize();
 	CreateGeometry();
 	CreateShadowResources();
+	PostProcessSetup();
 }
 
 void Game::Initialize() {
@@ -589,6 +590,14 @@ void Game::Draw(float deltaTime, float totalTime)
 	Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	DrawShadowData();
 
+	//Setting PP
+	Graphics::Context->VSSetShader(postProcessShader->GetVertexShader().Get(),0,0);
+	Graphics::Context->PSSetShader(postProcessShader->GetPixelShader().Get(), 0, 0);
+	Graphics::Context->PSSetShaderResources(0, 1, postProcessSRV.GetAddressOf());
+	Graphics::Context->PSSetSamplers(0, 1, postProcessSampler.GetAddressOf());
+
+	//Adding cbuffer data???
+
 	for (int k = 0; k < 1; k++) {
 		for (int i = 0; i < gameEntities.size(); i++) {
 			gameEntities[i]->GetMaterial()->AddSampler(0, samplerState);
@@ -601,7 +610,6 @@ void Game::Draw(float deltaTime, float totalTime)
 		floorGameObject->GetMaterial()->AddTextureSRV(4, shadowSRV);
 		floorGameObject->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[k], lightProjectionMatrix[k]);
 		sky->Draw(deltaTime, cameras[currentCamera]);
-		BuildUI();
 		for (int i = 0; i < 5; i++) {
 			//if (lights[i].Type == LIGHT_TYPE_DIRECTIONAL) continue;
 			lightObjects[i]->GetMaterial()->AddSampler(0, samplerState);
@@ -610,6 +618,8 @@ void Game::Draw(float deltaTime, float totalTime)
 			lightObjects[i]->Draw(cameras[currentCamera], lights, ambientColor, lightViewMatrix[k], lightProjectionMatrix[k]);
 		}
 	}
+	Graphics::Context->Draw(3, 0);
+	BuildUI();
 	{
 		// Draw the UI after everything else
 		ImGui::Render();
@@ -700,15 +710,8 @@ void Game::BuildUI() {
 				if (ImGui::DragFloat(rangeLabel.c_str(), &range, 0.01f, 0.0f, 1.0f))
 					lights[i].Range = range;
 
-				EntityValues(lightObjects[i], i, "Rot, Pos, Scale");
+				EntityValues(lightObjects[i], i, "Light's Transform Values");
 			}
-
-			/*std::string ambientLabel = "Ambience";
-			XMFLOAT3 colorRGB = ambientColor;
-			if (ImGui::ColorEdit3(ambientLabel.c_str(), &colorRGB.x)) {
-
-				ambientColor = colorRGB;
-			}*/
 		}
 	}
 
@@ -827,6 +830,56 @@ void Game::LoadTextures(std::string filepath, Microsoft::WRL::ComPtr<ID3D11Shade
 void Game::MaterialsUI()
 {
 	//Will focus on this later
+}
+
+void Game::PostProcessSetup()
+{
+	postProcessShader = std::make_shared<Shader>();
+	postProcessShader->LoadVertexShader("PostProcessVS.cso");
+	postProcessShader->LoadPixelShader("PostProcessPS.cso");
+	postProcessShader->Setup();
+
+	// Sampler state for post processing
+	D3D11_SAMPLER_DESC ppSampDesc = {};
+	ppSampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	ppSampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	ppSampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	ppSampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	ppSampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	Graphics::Device->CreateSamplerState(&ppSampDesc, postProcessSampler.GetAddressOf());
+
+	D3D11_TEXTURE2D_DESC textureDesc = {};
+	textureDesc.Width = (unsigned int)(Window::Width());
+	textureDesc.Height = (unsigned int)(Window::Height());
+	textureDesc.ArraySize = 1;
+	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE; // Will render to it and sample from it!
+	textureDesc.CPUAccessFlags = 0;
+	textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	textureDesc.MipLevels = 1;
+	textureDesc.MiscFlags = 0;
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.SampleDesc.Quality = 0;
+	textureDesc.Usage = D3D11_USAGE_DEFAULT;
+
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> ppTexture;
+	Graphics::Device->CreateTexture2D(&textureDesc, 0, ppTexture.GetAddressOf());
+
+	// Create the Render Target View
+	D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = {};
+	rtvDesc.Format = textureDesc.Format;
+	rtvDesc.Texture2D.MipSlice = 0;
+	rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	Graphics::Device->CreateRenderTargetView(
+		ppTexture.Get(),
+		&rtvDesc,
+		postProcessRTV.ReleaseAndGetAddressOf());
+	// Create the Shader Resource View
+	// By passing it a null description for the SRV, we
+	// get a "default" SRV that has access to the entire resource
+	Graphics::Device->CreateShaderResourceView(
+		ppTexture.Get(),
+		0,
+		postProcessSRV.ReleaseAndGetAddressOf());
 }
 
 

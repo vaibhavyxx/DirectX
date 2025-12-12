@@ -22,6 +22,12 @@
       <FullPath>C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\PixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
+      <FullPath>C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\PostProcessPS.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\PostProcessVS.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
       <FullPath>C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\ShadowMapVS.cso</FullPath>
     </ContentFile>
     <ContentFile>

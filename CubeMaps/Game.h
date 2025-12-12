@@ -44,6 +44,7 @@ private:
 	void EntityValues(std::shared_ptr<GameEntity> entity, unsigned int i, std::string title);
 	void LoadTextures(std::string filepath, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& srv);
 	void MaterialsUI();
+	void PostProcessSetup();
 
 	//Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerStateOverlay;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
@@ -87,8 +88,15 @@ private:
 
 
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout;
-	//ShadowOptions shadowSettings;
 	DirectX::XMFLOAT4X4 lightViewMatrix[5] = {};
 	DirectX::XMFLOAT4X4 lightProjectionMatrix[5] = {};
+
+	//Post Processing Setup
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> postProcessSampler;
+	Microsoft::WRL::ComPtr<ID3D11VertexShader> postProcessVS;
+	Microsoft::WRL::ComPtr<ID3D11PixelShader> postProcessPS;
+	std::shared_ptr<Shader> postProcessShader;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> postProcessRTV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> postProcessSRV;
 };
 

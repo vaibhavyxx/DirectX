@@ -23,4 +23,10 @@ struct VertexToPixel_SKY
     float4 position : SV_POSITION; // XYZW position (System Value Position)
     float3 sampleDir : DIRECTION;
 };
+
+struct VertexToPixel_PP
+{
+    float4 position : SV_Position;
+    float2 uv : TEXCOORD0;
+};
 #endif
