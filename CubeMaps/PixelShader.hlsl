@@ -47,14 +47,14 @@ float4 main(VertexToPixel input) : SV_TARGET
     float metal = MetalnessMap.Sample(BasicSampler, input.uv).r * useMetals;
     if (useMetals == 0)
         metal = 0.0f;
-   
+    
     float3 unpackedNormal = normalize(NormalMap.Sample(BasicSampler, input.uv).xyz * 2.0f - 1.0f);
     float3 n = (input.normal);
     float3 t = normalize(input.tangent - dot(input.tangent, n) * n);
     float3 b = cross(t, n);
     float3x3 tbn = float3x3(t, b, n);
     
-    float3 finalNormal = mul(unpackedNormal, tbn);
+    float3 finalNormal = mul(tbn, unpackedNormal);
     input.normal = finalNormal;
 
     float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb * useSurfaceMap;
@@ -68,18 +68,20 @@ float4 main(VertexToPixel input) : SV_TARGET
     float2 shadowUV = input.shadowMapPos.xy * 0.5f + 0.5f;
     shadowUV.y = 1 - shadowUV.y; // Flip the Y
     float distToLight = input.shadowMapPos.z;
-    float depthFromLight = input.shadowMapPos.z / input.shadowMapPos.w;
-    float distShadowMap = ShadowMap.Sample(BasicSampler, shadowUV).r;
-
-    //Using this test code to show that objects do render both shadows and themselves
-    //Currently issues with implementing shadows that turns everything black
-    //if (distShadowMap < distToLight)
-    //    return float4(0, 0, 0, 1);
-    float shadowAmount = ShadowMap.SampleCmpLevelZero(ShadowSampler, shadowUV, depthFromLight);
-	
+    float distShadowMap = ShadowMap.Sample(BasicSampler, shadowUV).r;   //ShadowMap is empty, root cause
+    //return float4(distShadowMap,0, 0, 0);
+    //return float4(ShadowMap.Sample(BasicSampler, shadowUV).rgb, 0);
+    
+    //test code
+    //if(distToLight > distShadowMap)
+    //  return 0;
+    
     float3 totalLight = float3(0.0f, 0.0f, 0.0f);
     if (useGamma == 1)
         surfaceColor = pow(surfaceColor, 2.2f);
+    
+    float shadowAmount = ShadowMap.SampleCmpLevelZero(ShadowSampler, shadowUV, distToLight).r;
+    //return shadowAmount;
     
     for (int i = 0; i < lightCount; i++)
     {
@@ -92,25 +94,25 @@ float4 main(VertexToPixel input) : SV_TARGET
         switch (light.Type)
         {
             case LIGHT_TYPE_DIRECTIONAL:
-                //if (usePBR)
-                float3 dirLight = DirectionalPBR(light, normal, worldPos, camPos, roughValue, surfaceColor, specularColor, metal);
-                totalLight += (dirLight);// * shadowAmount); commented out as it breaks
+                totalLight += DirectionalPBR(light, normal, worldPos, camPos, roughValue, surfaceColor, specularColor, metal);
                 break;
             
             case LIGHT_TYPE_POINT:
-                if (usePBR)
-                    totalLight += PointPBR(light, worldPos, normal, surfaceColor, roughValue, camPos, specularColor, metal);
-           
+                totalLight += PointPBR(light, worldPos, normal, surfaceColor, roughValue, camPos, specularColor, metal);
                 break;
             
             case LIGHT_TYPE_SPOT:
-            //if(usePBR)
-             float3 spotLight = SpotPBR(light, worldPos, normal, surfaceColor, roughness, camPos, specularColor, metal);
-                totalLight += (spotLight);// * shadowAmount);   commented out as it breaks
+                float3 spotLight = SpotPBR(light, worldPos, normal, surfaceColor, roughness, camPos, specularColor, metal);
+                totalLight += spotLight;
                 break;
         }
+        
+        if (i == 0)
+            totalLight *= shadowAmount;
     }
+    totalLight *= shadowAmount;
     if (useGamma)
-        surfaceColor = pow(surfaceColor, 0.45f);
+        surfaceColor = pow(totalLight, 0.45f);
+    //totalLight *= distToLight;  //test out shadow values
     return float4(totalLight, 1.0f);
 }
