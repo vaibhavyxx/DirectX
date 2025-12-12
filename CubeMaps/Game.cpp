@@ -82,7 +82,6 @@ void Game::CreateShadowResources()
 {
 	Graphics::Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	Graphics::Context->VSSetShader(shadowVertexShader.Get(), 0, 0);
-	//Graphics::Context->PSSetShader(pixelShader.Get(), 0, 0);
 
 	shadowMapResolution = 1024;
 	shadowProjection = 10.0f;
@@ -143,7 +142,6 @@ void Game::CreateShadowResources()
 	shadowRastDesc.SlopeScaledDepthBias = 1.0f;
 	Graphics::Device->CreateRasterizerState(&shadowRastDesc, &shadowRasterizer);
 
-
 	D3D11_RASTERIZER_DESC shadowRastDescDepthBias = {};
 	shadowRastDescDepthBias.FillMode = D3D11_FILL_SOLID;
 	shadowRastDescDepthBias.CullMode = D3D11_CULL_BACK;
@@ -153,16 +151,6 @@ void Game::CreateShadowResources()
 	shadowRastDescDepthBias.SlopeScaledDepthBias = 1.0f;
 	Graphics::Device->CreateRasterizerState(&shadowRastDesc, &shadowRasterizerDepthBias);
 
-	//Set up matrices
-	/*XMMATRIX shView = XMMatrixLookAtLH(
-		XMVectorSet(0, 30, -30, 0),
-		XMVectorSet(0, 0, 0, 0),
-		XMVectorSet(0, 1, 0, 0));
-	XMStoreFloat4x4(&lightViewMatrix[], shView);
-
-	XMMATRIX shProj = XMMatrixOrthographicLH(shadowProjection, shadowProjection, 0.1f, 100.0f);
-	XMStoreFloat4x4(&lightProjectionMatrix, shProj);
-	*/
 	ID3DBlob* vertexShaderBlob;
 	D3DReadFileToBlob(FixPath(L"ShadowMapVS.cso").c_str(), &vertexShaderBlob);
 
@@ -217,28 +205,30 @@ void Game::DrawShadowData()
 	Graphics::Context->VSSetShader(shadowVertexShader.Get(), 0, 0);
 
 	//Singular loop
-	ShadowVSData vsData = {};
-	vsData.view = lightViewMatrix;// [0] ;	//test
-	vsData.proj = lightProjectionMatrix;// [0] ;
-	Graphics::Context->PSSetShader(0, 0, 0);
+	for (int i = 0; i < 5; i++) {
+		ShadowVSData vsData = {};
+		vsData.view = lightViewMatrix[i];	
+		vsData.proj = lightProjectionMatrix[i] ;
+		Graphics::Context->PSSetShader(0, 0, 0);
 
-	for (auto& e : gameEntities)
-	{
-		vsData.world = e->GetTransform()->GetWorldMatrix();
+		for (auto& e : gameEntities)
+		{
+			vsData.world = e->GetTransform()->GetWorldMatrix();
+			Graphics::FillAndBindNextCB(&vsData, sizeof(ShadowVSData), D3D11_VERTEX_SHADER, 0);
+			e->GetMesh()->Draw();
+		}
+		vsData.world = floorGameObject->GetTransform()->GetWorldMatrix();
 		Graphics::FillAndBindNextCB(&vsData, sizeof(ShadowVSData), D3D11_VERTEX_SHADER, 0);
-		e->GetMesh()->Draw();
-	}
-	vsData.world = floorGameObject->GetTransform()->GetWorldMatrix();
-	Graphics::FillAndBindNextCB(&vsData, sizeof(ShadowVSData), D3D11_VERTEX_SHADER, 0);
-	floorGameObject->GetMesh()->Draw();
+		floorGameObject->GetMesh()->Draw();
 
-	for (auto& e : lightObjects)
-	{
-		vsData.world = e->GetTransform()->GetWorldMatrix();
-		Graphics::FillAndBindNextCB(&vsData, sizeof(ShadowVSData), D3D11_VERTEX_SHADER, 0);
-		e->GetMesh()->Draw();
+		for (auto& e : lightObjects)
+		{
+			vsData.world = e->GetTransform()->GetWorldMatrix();
+			Graphics::FillAndBindNextCB(&vsData, sizeof(ShadowVSData), D3D11_VERTEX_SHADER, 0);
+			e->GetMesh()->Draw();
+		}
 	}
-
+	
 	Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
 	viewport.Width = (float)Window::Width();
 	viewport.Height = (float)Window::Height();
@@ -540,13 +530,13 @@ void Game::Update(float deltaTime, float totalTime)
 				dir * -20,
 				dir,
 				XMVectorSet(0,1,0, 0));
-			XMStoreFloat4x4(&lightViewMatrix, lightView);
+			XMStoreFloat4x4(&lightViewMatrix[i], lightView);
 
 			float lightProjSize = 15.0f;
 			XMMATRIX lightProj = XMMatrixOrthographicLH(
 				lightProjSize, lightProjSize, 1.0f, 100.0f
 			);
-			XMStoreFloat4x4(&lightProjectionMatrix, lightProj);
+			XMStoreFloat4x4(&lightProjectionMatrix[i], lightProj);
 		}
 		break;
 
@@ -560,8 +550,8 @@ void Game::Update(float deltaTime, float totalTime)
 			XMMATRIX lightProj = XMMatrixPerspectiveFovLH(
 				lights[i].SpotOuterAngle, 1.0f, 1.0f, 100.0f
 			);
-			XMStoreFloat4x4(&lightViewMatrix, lightView);
-			XMStoreFloat4x4(&lightProjectionMatrix, lightProj);
+			XMStoreFloat4x4(&lightViewMatrix[i], lightView);
+			XMStoreFloat4x4(&lightProjectionMatrix[i], lightProj);
 		}
 
 		break;
@@ -599,24 +589,26 @@ void Game::Draw(float deltaTime, float totalTime)
 	Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	DrawShadowData();
 
-	for (int i = 0; i < gameEntities.size(); i++) {
-		gameEntities[i]->GetMaterial()->AddSampler(0, samplerState);
-		gameEntities[i]->GetMaterial()->AddSampler(1, shadowSampler);
-		gameEntities[i]->GetMaterial()->AddTextureSRV(4, shadowSRV);
-		gameEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix, lightProjectionMatrix);
-	}
-	floorGameObject->GetMaterial()->AddSampler(0, samplerState);
-	floorGameObject->GetMaterial()->AddSampler(1, shadowSampler);
-	floorGameObject->GetMaterial()->AddTextureSRV(4, shadowSRV);
-	floorGameObject->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix, lightProjectionMatrix);
-	sky->Draw(deltaTime, cameras[currentCamera]);
-	BuildUI();
-	for (int i = 0; i < 5; i++) {
-		//if (lights[i].Type == LIGHT_TYPE_DIRECTIONAL) continue;
-		lightObjects[i]->GetMaterial()->AddSampler(0, samplerState);
-		lightObjects[i]->GetMaterial()->AddSampler(1, shadowSampler);
-		lightObjects[i]->GetMaterial()->AddTextureSRV(4, shadowSRV);
-		lightObjects[i]->Draw(cameras[currentCamera], lights, ambientColor, lightViewMatrix, lightProjectionMatrix);
+	for (int k = 0; k < 1; k++) {
+		for (int i = 0; i < gameEntities.size(); i++) {
+			gameEntities[i]->GetMaterial()->AddSampler(0, samplerState);
+			gameEntities[i]->GetMaterial()->AddSampler(1, shadowSampler);
+			gameEntities[i]->GetMaterial()->AddTextureSRV(4, shadowSRV);
+			gameEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[k], lightProjectionMatrix[k]);
+		}
+		floorGameObject->GetMaterial()->AddSampler(0, samplerState);
+		floorGameObject->GetMaterial()->AddSampler(1, shadowSampler);
+		floorGameObject->GetMaterial()->AddTextureSRV(4, shadowSRV);
+		floorGameObject->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[k], lightProjectionMatrix[k]);
+		sky->Draw(deltaTime, cameras[currentCamera]);
+		BuildUI();
+		for (int i = 0; i < 5; i++) {
+			//if (lights[i].Type == LIGHT_TYPE_DIRECTIONAL) continue;
+			lightObjects[i]->GetMaterial()->AddSampler(0, samplerState);
+			lightObjects[i]->GetMaterial()->AddSampler(1, shadowSampler);
+			lightObjects[i]->GetMaterial()->AddTextureSRV(4, shadowSRV);
+			lightObjects[i]->Draw(cameras[currentCamera], lights, ambientColor, lightViewMatrix[k], lightProjectionMatrix[k]);
+		}
 	}
 	{
 		// Draw the UI after everything else
