@@ -72,12 +72,16 @@ float4 main(VertexToPixel input) : SV_TARGET
     //return float4(distShadowMap,0, 0, 0);
     //return float4(ShadowMap.Sample(BasicSampler, shadowUV).rgb, 0);
     
-    if(distToLight > distShadowMap)
-        return 0;
+    //test code
+    //if(distToLight > distShadowMap)
+    //  return 0;
     
     float3 totalLight = float3(0.0f, 0.0f, 0.0f);
     if (useGamma == 1)
         surfaceColor = pow(surfaceColor, 2.2f);
+    
+    float shadowAmount = ShadowMap.SampleCmpLevelZero(ShadowSampler, shadowUV, distToLight).r;
+    //return shadowAmount;
     
     for (int i = 0; i < lightCount; i++)
     {
@@ -90,15 +94,11 @@ float4 main(VertexToPixel input) : SV_TARGET
         switch (light.Type)
         {
             case LIGHT_TYPE_DIRECTIONAL:
-                if (usePBR)
-                    totalLight += DirectionalPBR(light, normal, worldPos, camPos, roughValue, surfaceColor, specularColor, metal);
-             
+                totalLight += DirectionalPBR(light, normal, worldPos, camPos, roughValue, surfaceColor, specularColor, metal);
                 break;
             
             case LIGHT_TYPE_POINT:
-                if (usePBR)
-                    totalLight += PointPBR(light, worldPos, normal, surfaceColor, roughValue, camPos, specularColor, metal);
-           
+                totalLight += PointPBR(light, worldPos, normal, surfaceColor, roughValue, camPos, specularColor, metal);
                 break;
             
             case LIGHT_TYPE_SPOT:
@@ -106,9 +106,13 @@ float4 main(VertexToPixel input) : SV_TARGET
                 totalLight += spotLight;
                 break;
         }
+        
+        if (i == 0)
+            totalLight *= shadowAmount;
     }
+    totalLight *= shadowAmount;
     if (useGamma)
         surfaceColor = pow(totalLight, 0.45f);
-    totalLight *= distToLight;  //test out shadow values
+    //totalLight *= distToLight;  //test out shadow values
     return float4(totalLight, 1.0f);
 }

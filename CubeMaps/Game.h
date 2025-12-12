@@ -82,8 +82,10 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> shadowDSV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> shadowSRV;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> shadowRasterizer;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> shadowRasterizerDepthBias;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> shadowSampler;
-	
+
+
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout;
 	//ShadowOptions shadowSettings;
 	DirectX::XMFLOAT4X4 lightViewMatrix;// [5] = {};

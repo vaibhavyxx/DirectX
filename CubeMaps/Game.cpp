@@ -139,6 +139,16 @@ void Game::CreateShadowResources()
 	shadowRastDesc.SlopeScaledDepthBias = 1.0f;
 	Graphics::Device->CreateRasterizerState(&shadowRastDesc, &shadowRasterizer);
 
+
+	D3D11_RASTERIZER_DESC shadowRastDescDepthBias = {};
+	shadowRastDescDepthBias.FillMode = D3D11_FILL_SOLID;
+	shadowRastDescDepthBias.CullMode = D3D11_CULL_BACK;
+	shadowRastDescDepthBias.DepthClipEnable = false;
+	shadowRastDescDepthBias.DepthBias = 10; // Multiplied by (smallest possible positive value storable in the depth buffer)
+	shadowRastDescDepthBias.DepthBiasClamp = 0.0f;
+	shadowRastDescDepthBias.SlopeScaledDepthBias = 1.0f;
+	Graphics::Device->CreateRasterizerState(&shadowRastDesc, &shadowRasterizerDepthBias);
+
 	//Set up matrices
 	/*XMMATRIX shView = XMMatrixLookAtLH(
 		XMVectorSet(0, 30, -30, 0),
@@ -191,6 +201,7 @@ void Game::DrawShadowData()
 	Graphics::Context->OMSetRenderTargets(1, &nullRTV, shadowDSV.Get());	//Ignores color output
 	Graphics::Context->ClearDepthStencilView(shadowDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	Graphics::Context->RSSetState(shadowRasterizer.Get());
+	Graphics::Context->RSSetState(shadowRasterizerDepthBias.Get());
 
 	D3D11_VIEWPORT viewport = {};
 	viewport.MinDepth = 0.0f;
@@ -199,7 +210,6 @@ void Game::DrawShadowData()
 	viewport.Height = (float)shadowMapResolution;
 	Graphics::Context->RSSetViewports(1, &viewport);
 	Graphics::Context->VSSetShader(shadowVertexShader.Get(), 0, 0);
-
 
 	//Singular loop
 	ShadowVSData vsData = {};
@@ -479,7 +489,7 @@ void Game::CreateGeometry()
 		}
 	}
 	sky = std::make_shared<Sky>(cube, samplerState, textures, skyShader);	//makes a sky
-	float offset = 1.5f;
+	float offset = 3.5f;
 	for (int i = 0; i < meshes.size(); i++) {
 		int index = i % materials.size();
 		gameEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[index]));
@@ -585,14 +595,21 @@ void Game::Draw(float deltaTime, float totalTime)
 	DrawShadowData();
 
 	for (int i = 0; i < gameEntities.size(); i++) {
+		gameEntities[i]->GetMaterial()->AddSampler(0, samplerState);
+		gameEntities[i]->GetMaterial()->AddSampler(1, shadowSampler);
 		gameEntities[i]->GetMaterial()->AddTextureSRV(4, shadowSRV);
 		gameEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix, lightProjectionMatrix);
 	}
+	floorGameObject->GetMaterial()->AddSampler(0, samplerState);
+	floorGameObject->GetMaterial()->AddSampler(1, shadowSampler);
+	floorGameObject->GetMaterial()->AddTextureSRV(4, shadowSRV);
 	floorGameObject->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix, lightProjectionMatrix);
 	sky->Draw(deltaTime, cameras[currentCamera]);
 	BuildUI();
 	for (int i = 0; i < 5; i++) {
 		//if (lights[i].Type == LIGHT_TYPE_DIRECTIONAL) continue;
+		lightObjects[i]->GetMaterial()->AddSampler(0, samplerState);
+		lightObjects[i]->GetMaterial()->AddSampler(1, shadowSampler);
 		lightObjects[i]->GetMaterial()->AddTextureSRV(4, shadowSRV);
 		lightObjects[i]->Draw(cameras[currentCamera], lights, ambientColor, lightViewMatrix, lightProjectionMatrix);
 	}
@@ -613,6 +630,8 @@ void Game::Draw(float deltaTime, float totalTime)
 			Graphics::BackBufferRTV.GetAddressOf(),
 			Graphics::DepthBufferDSV.Get());
 	}
+	ID3D11ShaderResourceView* nullSRVs[128] = {};
+	Graphics::Context->PSSetShaderResources(0, 128, nullSRVs);
 }
 
 void Game::FrameReset(float deltaTime) {
