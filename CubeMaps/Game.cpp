@@ -80,6 +80,10 @@ Game::~Game()
 
 void Game::CreateShadowResources()
 {
+	Graphics::Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	Graphics::Context->VSSetShader(shadowVertexShader.Get(), 0, 0);
+	//Graphics::Context->PSSetShader(pixelShader.Get(), 0, 0);
+
 	shadowMapResolution = 1024;
 	shadowProjection = 10.0f;
 
@@ -193,6 +197,7 @@ void Game::CreateShadowResources()
 		vertexShaderBlob->GetBufferPointer(),
 		vertexShaderBlob->GetBufferSize(),
 		inputLayout.GetAddressOf());
+	Graphics::Context->IASetInputLayout(inputLayout.Get());
 }
 
 void Game::DrawShadowData()
