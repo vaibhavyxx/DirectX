@@ -53,6 +53,7 @@ private:
 	std::shared_ptr<Shader> shader;
 	std::shared_ptr<Shader> skyShader;
 	std::shared_ptr<Shader> shadowShader;
+	std::shared_ptr<Shader> toonShader;
 	std::shared_ptr<Sky> sky;
 	std::vector<std::shared_ptr<GameEntity>> gameEntities;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> shadowVertexShader;
@@ -66,6 +67,7 @@ private:
 	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> floorMaterials;
 	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> metalMaterials;
 	std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> cobblestoneMaterials;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rampTexture;
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> textures[6] = {};
 
@@ -89,7 +91,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> shadowRasterizer;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> shadowRasterizerDepthBias;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> shadowSampler;
-
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> RampSampler;
 
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout;
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> shadowInputLayout;

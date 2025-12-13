@@ -23,7 +23,6 @@ cbuffer ExternalData : register(b0)
     int useMetals;
     int useSurfaceMap; //96
     bool usePBR;
-    float3 pad;
 }
 Texture2D SurfaceTexture : register(t0);
 Texture2D RoughnessMap : register(t1);
@@ -40,6 +39,9 @@ float4 main(VertexToPixel input) : SV_TARGET
     input.tangent = normalize(input.tangent);
     input.uv = input.uv * scale + offset;
 
+    //add conditional about ramp
+    //float2 ramp = RampMap.Sample(BasicSampler, input.uv);
+    
     float roughValue = RoughnessMap.Sample(BasicSampler, input.uv).r * useRoughness;
     if (useRoughness == 0)
         roughValue = 0.2f;
@@ -69,19 +71,12 @@ float4 main(VertexToPixel input) : SV_TARGET
     shadowUV.y = 1 - shadowUV.y; // Flip the Y
     float distToLight = input.shadowMapPos.z;
     float distShadowMap = ShadowMap.Sample(BasicSampler, shadowUV).r;   //ShadowMap is empty, root cause
-    //return float4(distShadowMap,0, 0, 0);
-    //return float4(ShadowMap.Sample(BasicSampler, shadowUV).rgb, 0);
-    
-    //test code
-    //if(distToLight > distShadowMap)
-    //  return 0;
-    
+
     float3 totalLight = float3(0.0f, 0.0f, 0.0f);
     if (useGamma == 1)
         surfaceColor = pow(surfaceColor, 2.2f);
     
     float shadowAmount = ShadowMap.SampleCmpLevelZero(ShadowSampler, shadowUV, distToLight).r;
-    //return shadowAmount;
     
     for (int i = 0; i < lightCount; i++)
     {
@@ -109,8 +104,10 @@ float4 main(VertexToPixel input) : SV_TARGET
         
         if (i == 0)
             totalLight *= shadowAmount;
+        //totalLight *= ramp;
     }
     totalLight *= shadowAmount;
+    
     if (useGamma)
         surfaceColor = pow(totalLight, 0.45f);
     //totalLight *= distToLight;  //test out shadow values
