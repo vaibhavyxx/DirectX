@@ -655,7 +655,6 @@ void Game::Draw(float deltaTime, float totalTime)
 	
 	BuildUI();
 
-	// Draw the UI after everything else
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
@@ -885,12 +884,7 @@ void Game::PostProcessSetup()
 		Graphics::Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		Graphics::Context->VSSetShader(postProcessShader->GetVertexShader().Get(), 0, 0);
 		Graphics::Context->PSSetShader(postProcessShader->GetPixelShader().Get(), 0, 0);
-		Graphics::Context->IASetInputLayout(nullptr);
-
-		//Graphics::Context->IASetInputLayout(postProcessShader->GetInputLayout().Get());
 	}
-
-	//postProcessShader->Setup(); //- Causes console errors about linkage issues
 
 	D3D11_TEXTURE2D_DESC textureDesc = {};
 	textureDesc.Width = (unsigned int)(Window::Width());
