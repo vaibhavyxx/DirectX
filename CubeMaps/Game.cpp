@@ -502,7 +502,7 @@ void Game::CreateGeometry()
 	for (int i = 0; i < meshes.size(); i++) {
 		int index = i % materials.size();
 		gameEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[index]));
-		gameEntities[i]->GetTransform()->SetPosition(offset * i, 0.0f, 4.0f);
+		gameEntities[i]->GetTransform()->SetPosition(0.0f, 0.0f, offset * i);
 		//gameEntities[i]->GetTransform()->SetPosition(offset * i, 0.0f, 0.0f);
 	}
 }
@@ -622,7 +622,6 @@ void Game::Draw(float deltaTime, float totalTime)
 		sky->Draw(deltaTime, cameras[currentCamera]);
 
 		for (int i = 0; i < 5; i++) {
-			//if (lights[i].Type == LIGHT_TYPE_DIRECTIONAL) continue;
 			lightObjects[i]->GetMaterial()->AddSampler(0, samplerState);
 			lightObjects[i]->GetMaterial()->AddSampler(1, shadowSampler);
 			lightObjects[i]->GetMaterial()->AddTextureSRV(4, shadowSRV);
@@ -650,11 +649,10 @@ void Game::Draw(float deltaTime, float totalTime)
 		data.pixelWidth = blurAmount;
 		data.pixelHeight = blurAmount;
 		Graphics::FillAndBindNextCB(&data, sizeof(BlurData), D3D11_PIXEL_SHADER, 0);
-
-		Graphics::Context->Draw(3, 0);
-		ID3D11ShaderResourceView* nullSRVs[16] = {};
-		Graphics::Context->PSSetShaderResources(0, 16, nullSRVs);
 	}
+	Graphics::Context->Draw(3, 0);
+	ID3D11ShaderResourceView* nullSRVs[16] = {};
+	Graphics::Context->PSSetShaderResources(0, 16, nullSRVs);
 	BuildUI();
 
 	ImGui::Render();
