@@ -40,3 +40,9 @@ struct ShadowVSData {
     DirectX::XMFLOAT4X4 view;
     DirectX::XMFLOAT4X4 proj;
 };
+
+struct BlurData {
+    int blurRadius;
+    float pixelWidth;
+    float pixelHeight;
+};

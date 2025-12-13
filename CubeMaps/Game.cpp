@@ -635,12 +635,19 @@ void Game::Draw(float deltaTime, float totalTime)
 	Graphics::Context->PSSetShader(postProcessShader->GetPixelShader().Get(), 0, 0);
 	Graphics::Context->PSSetShaderResources(0, 16, nullSRVs);
 	Graphics::Context->PSSetSamplers(0, 1, postProcessSampler.GetAddressOf());
-	{
+	//Graphics::Context->IASetInputLayout(postProcessShader->GetInputLayout().Get());
+	 /* {
 		Graphics::Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		Graphics::Context->IASetInputLayout(inputLayout.Get());
 		Graphics::Context->VSSetShader(postProcessShader->GetVertexShader().Get(), 0, 0);
 		Graphics::Context->PSSetShader(postProcessShader->GetPixelShader().Get(), 0, 0);
-	}
+	}*/
+
+	BlurData data = {};
+	data.blurRadius = 5;
+	data.pixelWidth = 0.5f;
+	data.pixelHeight = 0.5f;
+	Graphics::FillAndBindNextCB(&data, sizeof(BlurData), D3D11_PIXEL_SHADER, 0);
 	Graphics::Context->Draw(3, 0);
 
 	// Draw the UI after everything else

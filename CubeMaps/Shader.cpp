@@ -26,6 +26,11 @@ void Shader::Setup() {
 	Graphics::Context->PSSetShader(pixelShader.Get(), 0, 0);
 }
 
+Microsoft::WRL::ComPtr<ID3D11InputLayout> Shader::GetInputLayout()
+{
+	return inputLayout;
+}
+
 void Shader::LoadPixelShader(std::string fileName) {
 	std::wstring wideFileName(fileName.begin(), fileName.end());
 	ID3DBlob* pixelShaderBlob;
