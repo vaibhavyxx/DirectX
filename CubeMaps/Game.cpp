@@ -596,17 +596,23 @@ void Game::Update(float deltaTime, float totalTime)
 // --------------------------------------------------------
 void Game::Draw(float deltaTime, float totalTime)
 {
-	//BuildUI();
 	Graphics::Context->ClearRenderTargetView(Graphics::BackBufferRTV.Get(), color);
 	Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	DrawShadowData();
 
-	//Setting PP
 	const float rtClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	//Graphics::Context->ClearRenderTargetView(postProcessRTV.Get(), rtClearColor);
-	Graphics::Context->OMSetRenderTargets(1, postProcessRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
+	Graphics::Context->ClearRenderTargetView(postProcessRTV.Get(), rtClearColor);
+	Graphics::Context->OMSetRenderTargets(
+		1,
+		postProcessRTV.GetAddressOf(),
+		Graphics::DepthBufferDSV.Get()
+	);
+	BuildUI();
 
-	UINT stride = sizeof(Vertex);
+	//Setting PP
+//	Graphics::Context->OMSetRenderTargets(1, postProcessRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
+
+/*	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
 	ID3D11Buffer* nothing = 0;
 	Graphics::Context->IASetIndexBuffer(0, DXGI_FORMAT_R32_UINT, 0);
@@ -616,20 +622,14 @@ void Game::Draw(float deltaTime, float totalTime)
 	Graphics::Context->Draw(3, 0);
 
 	ID3D11ShaderResourceView* nullSRVs[16] = {};
-	//Graphics::Context->VSSetShader(postProcessShader->GetVertexShader().Get(),0,0);
-	//Graphics::Context->PSSetShader(postProcessShader->GetPixelShader().Get(), 0, 0);
+	Graphics::Context->VSSetShader(postProcessShader->GetVertexShader().Get(),0,0);
+	Graphics::Context->PSSetShader(postProcessShader->GetPixelShader().Get(), 0, 0);
 	Graphics::Context->PSSetShaderResources(0, 16, nullSRVs);
-	Graphics::Context->OMSetRenderTargets(
-		1,
-		Graphics::BackBufferRTV.GetAddressOf(),
-		Graphics::DepthBufferDSV.Get());
-
-	BuildUI();
-	//Graphics::Context->PSSetSamplers(0, 1, postProcessSampler.GetAddressOf());
+	Graphics::Context->PSSetSamplers(0, 1, postProcessSampler.GetAddressOf());
 
 	//Adding cbuffer data???
-	//Graphics::Context->Draw(3, 0);
-
+	Graphics::Context->Draw(3, 0);
+	*/
 	for (int k = 0; k < 1; k++) {
 		for (int i = 0; i < gameEntities.size(); i++) {
 			gameEntities[i]->GetMaterial()->AddSampler(0, samplerState);
@@ -650,11 +650,17 @@ void Game::Draw(float deltaTime, float totalTime)
 			lightObjects[i]->Draw(cameras[currentCamera], lights, ambientColor, lightViewMatrix[k], lightProjectionMatrix[k]);
 		}
 	}
-	//Graphics::Context->Draw(3, 0);
-	//BuildUI();
+
+	Graphics::Context->Draw(3, 0);
 	{
-		// Re-bind back buffer and depth buffer after presenting
-		//BuildUI();
+		Graphics::Context->OMSetRenderTargets(
+			1,
+			Graphics::BackBufferRTV.GetAddressOf(),
+			nullptr
+		);
+		postProcessShader->Setup();
+		Graphics::Context->Draw(3, 0);
+
 		// Draw the UI after everything else
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
@@ -665,14 +671,12 @@ void Game::Draw(float deltaTime, float totalTime)
 			vsync ? 1 : 0,
 			vsync ? 0 : DXGI_PRESENT_ALLOW_TEARING);
 
-		Graphics::Context->OMSetRenderTargets(
+		/*Graphics::Context->OMSetRenderTargets(
 			1,
 			Graphics::BackBufferRTV.GetAddressOf(),
 			Graphics::DepthBufferDSV.Get());
+			*/
 	}
-	//ID3D11ShaderResourceView* nullSRVs[128] = {};
-	//Graphics::Context->PSSetShaderResources(0, 128, nullSRVs);
-
 }
 
 void Game::FrameReset(float deltaTime) {
