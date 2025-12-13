@@ -371,6 +371,7 @@ void Game::CreateTextures()
 		cobblestoneMaterials = { color, rough, normal, metal };
 	}
 	LoadTextures("../../Assets/Materials/Ramps/toonRamp.png", rampTexture);
+	LoadTextures("../../Assets/Materials/Ramps/toonRampSpecular.png", rampSpecular);
 
 #pragma region Sky
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> back;
@@ -513,7 +514,7 @@ void Game::CreateGeometry()
 	for (int i = 0; i < meshes.size(); i++) {
 		int index = i % materials.size();
 		gameEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[index]));
-		gameEntities[i]->GetTransform()->SetPosition(0.0f, 0.0f, offset * i);
+		gameEntities[i]->GetTransform()->SetPosition(offset * i, 0.0f, 0);
 		//gameEntities[i]->GetTransform()->SetPosition(offset * i, 0.0f, 0.0f);
 	}
 }
@@ -623,7 +624,7 @@ void Game::Draw(float deltaTime, float totalTime)
 			gameEntities[i]->GetMaterial()->AddSampler(0, samplerState);
 			gameEntities[i]->GetMaterial()->AddSampler(1, RampSampler);
 			gameEntities[i]->GetMaterial()->AddTextureSRV(4, rampTexture);
-			//gameEntities[i]->GetMaterial()->AddTextureSRV(5, rampTexture);
+			gameEntities[i]->GetMaterial()->AddTextureSRV(5, rampSpecular);
 
 			gameEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[k], lightProjectionMatrix[k]);
 		}
@@ -631,7 +632,7 @@ void Game::Draw(float deltaTime, float totalTime)
 		floorGameObject->GetMaterial()->AddSampler(0, samplerState);
 		floorGameObject->GetMaterial()->AddSampler(1, RampSampler);
 		floorGameObject->GetMaterial()->AddTextureSRV(4, rampTexture);
-		//floorGameObject->GetMaterial()->AddTextureSRV(5, rampTexture);
+		floorGameObject->GetMaterial()->AddTextureSRV(5, rampSpecular);
 
 		floorGameObject->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[k], lightProjectionMatrix[k]);
 		sky->Draw(deltaTime, cameras[currentCamera]);
@@ -640,7 +641,7 @@ void Game::Draw(float deltaTime, float totalTime)
 			lightObjects[i]->GetMaterial()->AddSampler(0, samplerState);
 			lightObjects[i]->GetMaterial()->AddSampler(1, RampSampler);
 			lightObjects[i]->GetMaterial()->AddTextureSRV(4, rampTexture);
-			//gameEntities[i]->GetMaterial()->AddTextureSRV(5, rampTexture);
+			lightObjects[i]->GetMaterial()->AddTextureSRV(5, rampSpecular);
 			lightObjects[i]->Draw(cameras[currentCamera], lights, ambientColor, lightViewMatrix[k], lightProjectionMatrix[k]);
 		}
 	}

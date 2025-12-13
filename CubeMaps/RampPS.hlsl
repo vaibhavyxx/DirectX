@@ -31,10 +31,8 @@ Texture2D NormalMap : register(t2);
 Texture2D MetalnessMap : register(t3);
 Texture2D ToonRamp : register(t4);
 Texture2D ToonRampSpecular : register(t5);
-//Texture2D ShadowMap : register(t4);
 
 SamplerState BasicSampler : register(s0);
-//SamplerComparisonState ShadowSampler : register(s1);
 SamplerState ClampSampler : register(s1);
 
 float4 main(VertexToPixel input) : SV_TARGET
@@ -42,15 +40,7 @@ float4 main(VertexToPixel input) : SV_TARGET
     input.normal = normalize(input.normal);
     input.tangent = normalize(input.tangent);
     input.uv = input.uv * scale + offset;
-   
-    //float roughValue = RoughnessMap.Sample(BasicSampler, input.uv).r * useRoughness;
-   /* if (useRoughness == 0)
-        roughValue = 0.2f;
-    
-    //float metal = MetalnessMap.Sample(BasicSampler, input.uv).r * useMetals;
-    if (useMetals == 0)
-        metal = 0.0f;
-    */
+ 
     float3 unpackedNormal = normalize(NormalMap.Sample(BasicSampler, input.uv).xyz * 2.0f - 1.0f);
     float3 n = (input.normal);
     float3 t = normalize(input.tangent - dot(input.tangent, n) * n);
@@ -62,24 +52,16 @@ float4 main(VertexToPixel input) : SV_TARGET
 
     float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb * useSurfaceMap;
     surfaceColor *= colorTint.rgb;
-    //if (useSurfaceMap == 0)
-    //float3 surfaceColor = colorTint.rgb;
-    
-    float3 dielectricF0 = float3(0.04f, 0.04f, 0.04f);
-    //float3 specularColor = lerp(dielectricF0, surfaceColor, metal);
-
-    input.shadowMapPos /= input.shadowMapPos.w;
-    float2 shadowUV = input.shadowMapPos.xy * 0.5f + 0.5f;
-    shadowUV.y = 1 - shadowUV.y; // Flip the Y
+    //float3 dielectricF0 = float3(0.04f, 0.04f, 0.04f);
+    //input.shadowMapPos /= input.shadowMapPos.w;
+    //float2 shadowUV = input.shadowMapPos.xy * 0.5f + 0.5f;
+    //shadowUV.y = 1 - shadowUV.y; // Flip the Y
     float distToLight = input.shadowMapPos.z;
-    //float distShadowMap = ShadowMap.Sample(BasicSampler, shadowUV).r; //ShadowMap is empty, root cause
 
     float3 totalLight = float3(0.0f, 0.0f, 0.0f);
     if (useGamma == 1)
         surfaceColor = pow(surfaceColor, 2.2f);
-    
-    //float shadowAmount = ShadowMap.SampleCmpLevelZero(ShadowSampler, shadowUV, distToLight).r;
-    
+
     for (int i = 0; i < 2; i++)
     {
         float3 worldPos = input.worldPos;
@@ -94,19 +76,15 @@ float4 main(VertexToPixel input) : SV_TARGET
         switch (light.Type)
         {
             case LIGHT_TYPE_DIRECTIONAL:
-                //totalLight += DirectionalPBR(light, normal, worldPos, camPos, roughValue, surfaceColor, specularColor, metal);
                 distToLight = normalize(-light.Direction);
             break;
             
             case LIGHT_TYPE_POINT:
                 distToLight = normalize(light.Position - input.worldPos);
                 atten = Attenuate(light, input.worldPos);
-                //totalLight += PointPBR(light, worldPos, normal, surfaceColor, roughValue, camPos, specularColor, metal);
                 break;
             
             case LIGHT_TYPE_SPOT:
-                //float3 spotLight = SpotPBR(light, worldPos, normal, surfaceColor, roughness, camPos, specularColor, metal);
-                //totalLight += spotLight;
                 distToLight = normalize(light.Position - input.worldPos);
                 atten = Attenuate(light, input.worldPos);
                 spot = pow(saturate(dot(-distToLight, normalize(light.Direction))), 0.5f);
@@ -117,13 +95,9 @@ float4 main(VertexToPixel input) : SV_TARGET
         
         diffuse = ApplyToonShadingUsingRamp(diffuse, ToonRamp, ClampSampler);
         spec = ApplyToonShadingUsingRamp(spec, ToonRampSpecular, ClampSampler);
-        
-        totalLight += (diffuse * surfaceColor.rgb + spec) * light.Intensity * light.Color;
-        //return float4(totalLight, 0);
+
+        totalLight = (diffuse * surfaceColor.rgb + spec) * light.Intensity * light.Color;
     }
-    //totalLight *= shadowAmount;
-    
-    if (useGamma)
-        surfaceColor = pow(totalLight, 0.45f);
+    if (useGamma) totalLight = pow(totalLight, 0.45f);
     return float4(totalLight, 1.0f);
 }

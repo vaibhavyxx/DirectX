@@ -92,6 +92,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> shadowRasterizerDepthBias;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> shadowSampler;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> RampSampler;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rampSpecular;
 
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout;
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> shadowInputLayout;
