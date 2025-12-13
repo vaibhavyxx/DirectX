@@ -62,7 +62,7 @@ float4 main(VertexToPixel input) : SV_TARGET
     if (useGamma == 1)
         surfaceColor = pow(surfaceColor, 2.2f);
 
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 1; i++)
     {
         float3 worldPos = input.worldPos;
         float3 normal = input.normal;
@@ -95,7 +95,6 @@ float4 main(VertexToPixel input) : SV_TARGET
         
         diffuse = ApplyToonShadingUsingRamp(diffuse, ToonRamp, ClampSampler);
         spec = ApplyToonShadingUsingRamp(spec, ToonRampSpecular, ClampSampler);
-
         totalLight = (diffuse * surfaceColor.rgb + spec) * light.Intensity * light.Color;
     }
     if (useGamma) totalLight = pow(totalLight, 0.45f);

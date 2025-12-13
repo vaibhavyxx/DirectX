@@ -1,7 +1,2 @@
-﻿C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\RampPS.hlsl(79,17-57): warning X3206: implicit truncation of vector type
-C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\RampPS.hlsl(83,17-72): warning X3206: implicit truncation of vector type
-C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\RampPS.hlsl(88,17-72): warning X3206: implicit truncation of vector type
-C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\Lighting.hlsli(88,20): warning X4000: use of potentially uninitialized variable (SpecularPhong)
-  
-  compilation object save succeeded; see C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\RampPS.cso
+﻿  Game.cpp
   D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\D3D11Starter.exe

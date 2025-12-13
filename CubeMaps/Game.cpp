@@ -294,12 +294,10 @@ void Game::LoadLights(float offset)
 	copySpot.Range = 100.0f;
 
 	lights[0] = dir;
-	lights[1] = dir;
+	lights[1] = copySpot;
 	lights[2] = dir;
 	lights[3] = anotherDir;
 	lights[4] = dir;
-	//lights[5] = dir;
-	//lights[6] = dir;
 }
 
 void Game::LoadCameras()
