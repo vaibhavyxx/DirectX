@@ -38,6 +38,7 @@ using namespace DirectX;
 // --------------------------------------------------------
 Game::Game()
 {
+	applyBlur = true;
 	LoadLights(0.5f);
 	CreateTextures();
 
@@ -64,7 +65,6 @@ Game::Game()
 	CreateGeometry();
 	CreateShadowResources();
 	PostProcessSetup();
-	//Testing
 	// Sampler state for post processing
 	D3D11_SAMPLER_DESC ppSampDesc = {};
 	ppSampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
@@ -629,30 +629,32 @@ void Game::Draw(float deltaTime, float totalTime)
 			lightObjects[i]->Draw(cameras[currentCamera], lights, ambientColor, lightViewMatrix[k], lightProjectionMatrix[k]);
 		}
 	}
+
 	Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), 0);
-	
-	UINT stride = sizeof(Vertex);
-	UINT offset = 0;
-	ID3D11Buffer* nothing = 0;
-	Graphics::Context->IASetIndexBuffer(0, DXGI_FORMAT_R32_UINT, 0);
-	Graphics::Context->IASetVertexBuffers(0, 1, &nothing, &stride, &offset);
+	if (applyBlur) {
 
-	//setting shaders
-	Graphics::Context->VSSetShader(postProcessShader->GetVertexShader().Get(), 0, 0);
-	Graphics::Context->PSSetShader(postProcessShader->GetPixelShader().Get(), 0, 0);
-	Graphics::Context->PSSetShaderResources(0, 1, postProcessSRV.GetAddressOf());
-	Graphics::Context->PSSetSamplers(0, 1, postProcessSampler.GetAddressOf());
+		UINT stride = sizeof(Vertex);
+		UINT offset = 0;
+		ID3D11Buffer* nothing = 0;
+		Graphics::Context->IASetIndexBuffer(0, DXGI_FORMAT_R32_UINT, 0);
+		Graphics::Context->IASetVertexBuffers(0, 1, &nothing, &stride, &offset);
 
-	BlurData data = {};
-	data.blurRadius = blurRadius;
-	data.pixelWidth = blurAmount;
-	data.pixelHeight = blurAmount;
-	Graphics::FillAndBindNextCB(&data, sizeof(BlurData), D3D11_PIXEL_SHADER, 0);
+		//setting shaders
+		Graphics::Context->VSSetShader(postProcessShader->GetVertexShader().Get(), 0, 0);
+		Graphics::Context->PSSetShader(postProcessShader->GetPixelShader().Get(), 0, 0);
+		Graphics::Context->PSSetShaderResources(0, 1, postProcessSRV.GetAddressOf());
+		Graphics::Context->PSSetSamplers(0, 1, postProcessSampler.GetAddressOf());
 
-	Graphics::Context->Draw(3, 0);
-	ID3D11ShaderResourceView* nullSRVs[16] = {};
-	Graphics::Context->PSSetShaderResources(0, 16, nullSRVs);
-	
+		BlurData data = {};
+		data.blurRadius = blurRadius;
+		data.pixelWidth = blurAmount;
+		data.pixelHeight = blurAmount;
+		Graphics::FillAndBindNextCB(&data, sizeof(BlurData), D3D11_PIXEL_SHADER, 0);
+
+		Graphics::Context->Draw(3, 0);
+		ID3D11ShaderResourceView* nullSRVs[16] = {};
+		Graphics::Context->PSSetShaderResources(0, 16, nullSRVs);
+	}
 	BuildUI();
 
 	ImGui::Render();
@@ -750,14 +752,13 @@ void Game::BuildUI() {
 	}
 
 	if (ImGui::CollapsingHeader("Post Processing")) {
+		std::string labelImplement = "Apply Blur";
 		std::string labelBlur = "Blur Amount";
 		std::string labelBlurRadius = "Blur Radius";
 
-		if (ImGui::DragFloat(labelBlur.c_str(), &blurAmount, 0.001f, 0.0f, 0.01f))
-			blurAmount;
-
-		if (ImGui::DragInt(labelBlurRadius.c_str(), &blurRadius, 0, 1, 10))
-			blurRadius;
+		if (ImGui::Checkbox(labelImplement.c_str(), &applyBlur)) applyBlur;
+		if (ImGui::DragFloat(labelBlur.c_str(), &blurAmount, 0.001f, 0.0f, 0.01f)) blurAmount;
+		if (ImGui::DragInt(labelBlurRadius.c_str(), &blurRadius, 0, 1, 10)) blurRadius;
 	}
 
 	ImGui::End();

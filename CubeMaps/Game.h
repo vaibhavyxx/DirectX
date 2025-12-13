@@ -83,7 +83,7 @@ private:
 	float shadowProjection;
 	float blurAmount;
 	int blurRadius;
-
+	bool applyBlur;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> shadowDSV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> shadowSRV;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> shadowRasterizer;
