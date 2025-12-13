@@ -56,8 +56,8 @@ void Shader::LoadVertexShader(std::string fileName, ShaderType type) {
 	SetInputLayout(vertexShaderBlob, type);
 }
 void Shader::SetInputLayout(ID3DBlob* vertexShaderBlob, ShaderType type) {
-	switch (type) {
-	case Regular:	
+	//switch (type) {
+	//case Regular:	
 	{
 		const int size = 4;
 		D3D11_INPUT_ELEMENT_DESC inputElements[size] = {};
@@ -85,7 +85,7 @@ void Shader::SetInputLayout(ID3DBlob* vertexShaderBlob, ShaderType type) {
 			vertexShaderBlob->GetBufferSize(),
 			inputLayout.GetAddressOf());
 	}
-		break;
+	/*	break;
 
 	case PostProcess:	//For PP shaders
 	{
@@ -97,7 +97,7 @@ void Shader::SetInputLayout(ID3DBlob* vertexShaderBlob, ShaderType type) {
 		inputElements[0].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 
 		inputElements[1].Format = DXGI_FORMAT_R32G32_FLOAT;
-		inputElements[1].SemanticName = "TEXCOORD";
+		inputElements[1].SemanticName = "TEXCOORD0";
 		inputElements[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 
 		Graphics::Device->CreateInputLayout(
@@ -108,7 +108,7 @@ void Shader::SetInputLayout(ID3DBlob* vertexShaderBlob, ShaderType type) {
 			inputLayout.GetAddressOf());
 	}
 		break;
-	}		
+	}*/		
 }
 
 void Shader::CreatePixelBuffer()

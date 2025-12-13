@@ -603,6 +603,10 @@ void Game::Draw(float deltaTime, float totalTime)
 	Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	DrawShadowData();
 
+	const float rtClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	Graphics::Context->ClearRenderTargetView(postProcessRTV.Get(), rtClearColor);
+	Graphics::Context->OMSetRenderTargets(1, postProcessRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
+
 	for (int k = 0; k < 1; k++) {
 		for (int i = 0; i < gameEntities.size(); i++) {
 			gameEntities[i]->GetMaterial()->AddSampler(0, samplerState);
@@ -625,31 +629,31 @@ void Game::Draw(float deltaTime, float totalTime)
 			lightObjects[i]->Draw(cameras[currentCamera], lights, ambientColor, lightViewMatrix[k], lightProjectionMatrix[k]);
 		}
 	}
+	//BuildUI();
+	Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), 0);
+	
+	UINT stride = sizeof(Vertex);
+	UINT offset = 0;
+	ID3D11Buffer* nothing = 0;
+	Graphics::Context->IASetIndexBuffer(0, DXGI_FORMAT_R32_UINT, 0);
+	Graphics::Context->IASetVertexBuffers(0, 1, &nothing, &stride, &offset);
 
-	const float rtClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	Graphics::Context->ClearRenderTargetView(postProcessRTV.Get(), rtClearColor);
-	BuildUI();
-
-	ID3D11ShaderResourceView* nullSRVs[16] = {};
+	//setting shaders
 	Graphics::Context->VSSetShader(postProcessShader->GetVertexShader().Get(), 0, 0);
 	Graphics::Context->PSSetShader(postProcessShader->GetPixelShader().Get(), 0, 0);
-	Graphics::Context->PSSetShaderResources(0, 16, nullSRVs);
+	Graphics::Context->PSSetShaderResources(0, 1, postProcessSRV.GetAddressOf());
 	Graphics::Context->PSSetSamplers(0, 1, postProcessSampler.GetAddressOf());
-	//Graphics::Context->IASetInputLayout(postProcessShader->GetInputLayout().Get());
-	 /* {
-		Graphics::Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		Graphics::Context->IASetInputLayout(inputLayout.Get());
-		Graphics::Context->VSSetShader(postProcessShader->GetVertexShader().Get(), 0, 0);
-		Graphics::Context->PSSetShader(postProcessShader->GetPixelShader().Get(), 0, 0);
-	}*/
 
 	BlurData data = {};
 	data.blurRadius = 5;
 	data.pixelWidth = 0.5f;
 	data.pixelHeight = 0.5f;
 	Graphics::FillAndBindNextCB(&data, sizeof(BlurData), D3D11_PIXEL_SHADER, 0);
-	Graphics::Context->Draw(3, 0);
 
+	Graphics::Context->Draw(3, 0);
+	ID3D11ShaderResourceView* nullSRVs[16] = {};
+	Graphics::Context->PSSetShaderResources(0, 16, nullSRVs);
+	
 	// Draw the UI after everything else
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
@@ -659,6 +663,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	Graphics::SwapChain->Present(
 		vsync ? 1 : 0,
 		vsync ? 0 : DXGI_PRESENT_ALLOW_TEARING);
+
 	Graphics::Context->OMSetRenderTargets(
 		1,
 		postProcessRTV.GetAddressOf(),
@@ -860,10 +865,20 @@ void Game::MaterialsUI()
 void Game::PostProcessSetup()
 {
 	postProcessShader = std::make_shared<Shader>();
-	postProcessShader->LoadVertexShader("PostProcessVS.cso", Shader::ShaderType::PostProcess);
+	postProcessShader->LoadVertexShader("PostProcessVS.cso", Shader::ShaderType::Regular);
 	postProcessShader->LoadPixelShader("PostProcessPS.cso");
 	postProcessShader->CreatePixelBuffer();
-	//postProcessShader->Setup(); - Causes console errors about linkage issues
+
+	{
+		Graphics::Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		Graphics::Context->VSSetShader(postProcessShader->GetVertexShader().Get(), 0, 0);
+		Graphics::Context->PSSetShader(postProcessShader->GetPixelShader().Get(), 0, 0);
+		Graphics::Context->IASetInputLayout(nullptr);
+
+		//Graphics::Context->IASetInputLayout(postProcessShader->GetInputLayout().Get());
+	}
+
+	//postProcessShader->Setup(); //- Causes console errors about linkage issues
 
 	D3D11_TEXTURE2D_DESC textureDesc = {};
 	textureDesc.Width = (unsigned int)(Window::Width());
