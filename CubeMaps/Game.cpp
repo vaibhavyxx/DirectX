@@ -629,7 +629,6 @@ void Game::Draw(float deltaTime, float totalTime)
 			lightObjects[i]->Draw(cameras[currentCamera], lights, ambientColor, lightViewMatrix[k], lightProjectionMatrix[k]);
 		}
 	}
-	//BuildUI();
 	Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), 0);
 	
 	UINT stride = sizeof(Vertex);
@@ -645,9 +644,9 @@ void Game::Draw(float deltaTime, float totalTime)
 	Graphics::Context->PSSetSamplers(0, 1, postProcessSampler.GetAddressOf());
 
 	BlurData data = {};
-	data.blurRadius = 5;
-	data.pixelWidth = 0.001f;
-	data.pixelHeight = 0.001f;
+	data.blurRadius = blurRadius;
+	data.pixelWidth = blurAmount;
+	data.pixelHeight = blurAmount;
 	Graphics::FillAndBindNextCB(&data, sizeof(BlurData), D3D11_PIXEL_SHADER, 0);
 
 	Graphics::Context->Draw(3, 0);
@@ -749,6 +748,17 @@ void Game::BuildUI() {
 
 	if (ImGui::CollapsingHeader("Shadows")) {
 		ImGui::Image(shadowSRV.Get(), ImVec2(512, 512));
+	}
+
+	if (ImGui::CollapsingHeader("Post Processing")) {
+		std::string labelBlur = "Blur Amount";
+		std::string labelBlurRadius = "Blur Radius";
+
+		if (ImGui::DragFloat(labelBlur.c_str(), &blurAmount, 0.001f, 0.0f, 0.01f))
+			blurAmount;
+
+		if (ImGui::DragInt(labelBlurRadius.c_str(), &blurRadius, 0, 1, 10))
+			blurRadius;
 	}
 
 	ImGui::End();

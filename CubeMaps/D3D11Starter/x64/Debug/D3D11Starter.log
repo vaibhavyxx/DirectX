@@ -1,2 +1,8 @@
 ﻿  Game.cpp
+  Main.cpp
+  Mesh.cpp
+  Generating Code...
+Window.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'Window.obj' or at 'C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\vc143.pdb'; linking object as if no debug info
+PathHelpers.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'PathHelpers.obj' or at 'C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\vc143.pdb'; linking object as if no debug info
+Graphics.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'Graphics.obj' or at 'C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\vc143.pdb'; linking object as if no debug info
   D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\D3D11Starter.exe
