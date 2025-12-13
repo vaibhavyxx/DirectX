@@ -61,6 +61,16 @@ Game::Game()
 	CreateGeometry();
 	CreateShadowResources();
 	PostProcessSetup();
+	//Testing
+	// Sampler state for post processing
+	D3D11_SAMPLER_DESC ppSampDesc = {};
+	ppSampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	ppSampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	ppSampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	ppSampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	ppSampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	Graphics::Device->CreateSamplerState(&ppSampDesc, postProcessSampler.GetAddressOf());
+
 }
 
 void Game::Initialize() {
@@ -586,17 +596,39 @@ void Game::Update(float deltaTime, float totalTime)
 // --------------------------------------------------------
 void Game::Draw(float deltaTime, float totalTime)
 {
+	//BuildUI();
 	Graphics::Context->ClearRenderTargetView(Graphics::BackBufferRTV.Get(), color);
 	Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	DrawShadowData();
 
 	//Setting PP
-	Graphics::Context->VSSetShader(postProcessShader->GetVertexShader().Get(),0,0);
-	Graphics::Context->PSSetShader(postProcessShader->GetPixelShader().Get(), 0, 0);
-	Graphics::Context->PSSetShaderResources(0, 1, postProcessSRV.GetAddressOf());
-	Graphics::Context->PSSetSamplers(0, 1, postProcessSampler.GetAddressOf());
+	const float rtClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	//Graphics::Context->ClearRenderTargetView(postProcessRTV.Get(), rtClearColor);
+	Graphics::Context->OMSetRenderTargets(1, postProcessRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
+
+	UINT stride = sizeof(Vertex);
+	UINT offset = 0;
+	ID3D11Buffer* nothing = 0;
+	Graphics::Context->IASetIndexBuffer(0, DXGI_FORMAT_R32_UINT, 0);
+	Graphics::Context->IASetVertexBuffers(0, 1, &nothing, &stride, &offset);
+
+	postProcessShader->Setup();
+	Graphics::Context->Draw(3, 0);
+
+	ID3D11ShaderResourceView* nullSRVs[16] = {};
+	//Graphics::Context->VSSetShader(postProcessShader->GetVertexShader().Get(),0,0);
+	//Graphics::Context->PSSetShader(postProcessShader->GetPixelShader().Get(), 0, 0);
+	Graphics::Context->PSSetShaderResources(0, 16, nullSRVs);
+	Graphics::Context->OMSetRenderTargets(
+		1,
+		Graphics::BackBufferRTV.GetAddressOf(),
+		Graphics::DepthBufferDSV.Get());
+
+	BuildUI();
+	//Graphics::Context->PSSetSamplers(0, 1, postProcessSampler.GetAddressOf());
 
 	//Adding cbuffer data???
+	//Graphics::Context->Draw(3, 0);
 
 	for (int k = 0; k < 1; k++) {
 		for (int i = 0; i < gameEntities.size(); i++) {
@@ -618,9 +650,11 @@ void Game::Draw(float deltaTime, float totalTime)
 			lightObjects[i]->Draw(cameras[currentCamera], lights, ambientColor, lightViewMatrix[k], lightProjectionMatrix[k]);
 		}
 	}
-	Graphics::Context->Draw(3, 0);
-	BuildUI();
+	//Graphics::Context->Draw(3, 0);
+	//BuildUI();
 	{
+		// Re-bind back buffer and depth buffer after presenting
+		//BuildUI();
 		// Draw the UI after everything else
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
@@ -631,14 +665,14 @@ void Game::Draw(float deltaTime, float totalTime)
 			vsync ? 1 : 0,
 			vsync ? 0 : DXGI_PRESENT_ALLOW_TEARING);
 
-		// Re-bind back buffer and depth buffer after presenting
 		Graphics::Context->OMSetRenderTargets(
 			1,
 			Graphics::BackBufferRTV.GetAddressOf(),
 			Graphics::DepthBufferDSV.Get());
 	}
-	ID3D11ShaderResourceView* nullSRVs[128] = {};
-	Graphics::Context->PSSetShaderResources(0, 128, nullSRVs);
+	//ID3D11ShaderResourceView* nullSRVs[128] = {};
+	//Graphics::Context->PSSetShaderResources(0, 128, nullSRVs);
+
 }
 
 void Game::FrameReset(float deltaTime) {
@@ -839,15 +873,6 @@ void Game::PostProcessSetup()
 	postProcessShader->LoadPixelShader("PostProcessPS.cso");
 	postProcessShader->Setup();
 
-	// Sampler state for post processing
-	D3D11_SAMPLER_DESC ppSampDesc = {};
-	ppSampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-	ppSampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-	ppSampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-	ppSampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	ppSampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	Graphics::Device->CreateSamplerState(&ppSampDesc, postProcessSampler.GetAddressOf());
-
 	D3D11_TEXTURE2D_DESC textureDesc = {};
 	textureDesc.Width = (unsigned int)(Window::Width());
 	textureDesc.Height = (unsigned int)(Window::Height());
@@ -873,9 +898,7 @@ void Game::PostProcessSetup()
 		ppTexture.Get(),
 		&rtvDesc,
 		postProcessRTV.ReleaseAndGetAddressOf());
-	// Create the Shader Resource View
-	// By passing it a null description for the SRV, we
-	// get a "default" SRV that has access to the entire resource
+
 	Graphics::Device->CreateShaderResourceView(
 		ppTexture.Get(),
 		0,
