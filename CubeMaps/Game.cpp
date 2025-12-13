@@ -29,6 +29,9 @@
 // For the DirectX Math library
 using namespace DirectX;
 
+#define SHADER_TYPE_REGULAR		0;
+#define SHADER_TYPE_POSTPROCESS  1;
+
 // --------------------------------------------------------
 // The constructor is called after the window and graphics API
 // are initialized but before the game loop begins
@@ -49,11 +52,11 @@ Game::Game()
 	shader = std::make_shared<Shader>();
 	skyShader = std::make_shared<Shader>();
 
-	shader->LoadVertexShader("VertexShader.cso");
+	shader->LoadVertexShader("VertexShader.cso", Shader::ShaderType::Regular);
 	shader->LoadPixelShader("PixelShader.cso");
 	shader->CreatePixelBuffer();
 
-	skyShader->LoadVertexShader("SkyVertexShader.cso");
+	skyShader->LoadVertexShader("SkyVertexShader.cso", Shader::ShaderType::Regular);
 	skyShader->LoadPixelShader("SkyPS.cso");
 	skyShader->CreatePixelBuffer();
 
@@ -218,8 +221,8 @@ void Game::DrawShadowData()
 	//Singular loop
 	for (int i = 0; i < 5; i++) {
 		ShadowVSData vsData = {};
-		vsData.view = lightViewMatrix[i];	
-		vsData.proj = lightProjectionMatrix[i] ;
+		vsData.view = lightViewMatrix[i];
+		vsData.proj = lightProjectionMatrix[i];
 		Graphics::Context->PSSetShader(0, 0, 0);
 
 		for (auto& e : gameEntities)
@@ -239,7 +242,7 @@ void Game::DrawShadowData()
 			e->GetMesh()->Draw();
 		}
 	}
-	
+
 	Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
 	viewport.Width = (float)Window::Width();
 	viewport.Height = (float)Window::Height();
@@ -475,7 +478,7 @@ void Game::CreateGeometry()
 
 	std::shared_ptr<Mesh> lightMesh = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/sphere.obj").c_str());
 	for (int i = 0; i < 5; i++) {
-		XMFLOAT3 color =XMFLOAT3(1, 1, 1) ;//lights[i].Color;
+		XMFLOAT3 color = XMFLOAT3(1, 1, 1);//lights[i].Color;
 		std::shared_ptr<Material> lightMaterial = std::make_shared<Material>(shader, DirectX::XMFLOAT4(color.x, color.y, color.z, 1.0f), 0.0f, ambientColor, floorMaterials[3], 0.0f, 0, 0, 0, 0);
 		std::shared_ptr<GameEntity> lightEntity = std::make_shared<GameEntity>(lightMesh, lightMaterial);
 		XMFLOAT3 pos;
@@ -483,7 +486,7 @@ void Game::CreateGeometry()
 			pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		else
 			pos = lights[i].Position;
-		
+
 		lightEntity->GetTransform()->SetPosition(pos);
 		lightEntity->GetTransform()->SetScale(0.5f, 0.5, 0.5f);
 		lightObjects.push_back(lightEntity);
@@ -540,7 +543,7 @@ void Game::Update(float deltaTime, float totalTime)
 			XMMATRIX lightView = XMMatrixLookToLH(
 				dir * -20,
 				dir,
-				XMVectorSet(0,1,0, 0));
+				XMVectorSet(0, 1, 0, 0));
 			XMStoreFloat4x4(&lightViewMatrix[i], lightView);
 
 			float lightProjSize = 15.0f;
@@ -600,36 +603,6 @@ void Game::Draw(float deltaTime, float totalTime)
 	Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	DrawShadowData();
 
-	const float rtClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	Graphics::Context->ClearRenderTargetView(postProcessRTV.Get(), rtClearColor);
-	Graphics::Context->OMSetRenderTargets(
-		1,
-		postProcessRTV.GetAddressOf(),
-		Graphics::DepthBufferDSV.Get()
-	);
-	BuildUI();
-
-	//Setting PP
-//	Graphics::Context->OMSetRenderTargets(1, postProcessRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
-
-/*	UINT stride = sizeof(Vertex);
-	UINT offset = 0;
-	ID3D11Buffer* nothing = 0;
-	Graphics::Context->IASetIndexBuffer(0, DXGI_FORMAT_R32_UINT, 0);
-	Graphics::Context->IASetVertexBuffers(0, 1, &nothing, &stride, &offset);
-
-	postProcessShader->Setup();
-	Graphics::Context->Draw(3, 0);
-
-	ID3D11ShaderResourceView* nullSRVs[16] = {};
-	Graphics::Context->VSSetShader(postProcessShader->GetVertexShader().Get(),0,0);
-	Graphics::Context->PSSetShader(postProcessShader->GetPixelShader().Get(), 0, 0);
-	Graphics::Context->PSSetShaderResources(0, 16, nullSRVs);
-	Graphics::Context->PSSetSamplers(0, 1, postProcessSampler.GetAddressOf());
-
-	//Adding cbuffer data???
-	Graphics::Context->Draw(3, 0);
-	*/
 	for (int k = 0; k < 1; k++) {
 		for (int i = 0; i < gameEntities.size(); i++) {
 			gameEntities[i]->GetMaterial()->AddSampler(0, samplerState);
@@ -637,11 +610,13 @@ void Game::Draw(float deltaTime, float totalTime)
 			gameEntities[i]->GetMaterial()->AddTextureSRV(4, shadowSRV);
 			gameEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[k], lightProjectionMatrix[k]);
 		}
+
 		floorGameObject->GetMaterial()->AddSampler(0, samplerState);
 		floorGameObject->GetMaterial()->AddSampler(1, shadowSampler);
 		floorGameObject->GetMaterial()->AddTextureSRV(4, shadowSRV);
 		floorGameObject->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[k], lightProjectionMatrix[k]);
 		sky->Draw(deltaTime, cameras[currentCamera]);
+
 		for (int i = 0; i < 5; i++) {
 			//if (lights[i].Type == LIGHT_TYPE_DIRECTIONAL) continue;
 			lightObjects[i]->GetMaterial()->AddSampler(0, samplerState);
@@ -651,32 +626,37 @@ void Game::Draw(float deltaTime, float totalTime)
 		}
 	}
 
-	Graphics::Context->Draw(3, 0);
+	const float rtClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	Graphics::Context->ClearRenderTargetView(postProcessRTV.Get(), rtClearColor);
+	BuildUI();
+
+	ID3D11ShaderResourceView* nullSRVs[16] = {};
+	Graphics::Context->VSSetShader(postProcessShader->GetVertexShader().Get(), 0, 0);
+	Graphics::Context->PSSetShader(postProcessShader->GetPixelShader().Get(), 0, 0);
+	Graphics::Context->PSSetShaderResources(0, 16, nullSRVs);
+	Graphics::Context->PSSetSamplers(0, 1, postProcessSampler.GetAddressOf());
 	{
-		Graphics::Context->OMSetRenderTargets(
-			1,
-			Graphics::BackBufferRTV.GetAddressOf(),
-			nullptr
-		);
-		postProcessShader->Setup();
-		Graphics::Context->Draw(3, 0);
-
-		// Draw the UI after everything else
-		ImGui::Render();
-		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-		// Present at the end of the frame
-		bool vsync = Graphics::VsyncState();
-		Graphics::SwapChain->Present(
-			vsync ? 1 : 0,
-			vsync ? 0 : DXGI_PRESENT_ALLOW_TEARING);
-
-		/*Graphics::Context->OMSetRenderTargets(
-			1,
-			Graphics::BackBufferRTV.GetAddressOf(),
-			Graphics::DepthBufferDSV.Get());
-			*/
+		Graphics::Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		Graphics::Context->IASetInputLayout(inputLayout.Get());
+		Graphics::Context->VSSetShader(postProcessShader->GetVertexShader().Get(), 0, 0);
+		Graphics::Context->PSSetShader(postProcessShader->GetPixelShader().Get(), 0, 0);
 	}
+	Graphics::Context->Draw(3, 0);
+
+	// Draw the UI after everything else
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+	// Present at the end of the frame
+	bool vsync = Graphics::VsyncState();
+	Graphics::SwapChain->Present(
+		vsync ? 1 : 0,
+		vsync ? 0 : DXGI_PRESENT_ALLOW_TEARING);
+	Graphics::Context->OMSetRenderTargets(
+		1,
+		postProcessRTV.GetAddressOf(),
+		Graphics::DepthBufferDSV.Get()
+	);
 }
 
 void Game::FrameReset(float deltaTime) {
@@ -873,9 +853,10 @@ void Game::MaterialsUI()
 void Game::PostProcessSetup()
 {
 	postProcessShader = std::make_shared<Shader>();
-	postProcessShader->LoadVertexShader("PostProcessVS.cso");
+	postProcessShader->LoadVertexShader("PostProcessVS.cso", Shader::ShaderType::PostProcess);
 	postProcessShader->LoadPixelShader("PostProcessPS.cso");
-	postProcessShader->Setup();
+	postProcessShader->CreatePixelBuffer();
+	//postProcessShader->Setup(); - Causes console errors about linkage issues
 
 	D3D11_TEXTURE2D_DESC textureDesc = {};
 	textureDesc.Width = (unsigned int)(Window::Width());
@@ -908,7 +889,3 @@ void Game::PostProcessSetup()
 		0,
 		postProcessSRV.ReleaseAndGetAddressOf());
 }
-
-
-
-

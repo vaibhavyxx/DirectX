@@ -37,7 +37,7 @@ void Shader::LoadPixelShader(std::string fileName) {
 		0,										// No classes in this shader
 		pixelShader.GetAddressOf());			// Address of the ID3D11PixelShader pointer
 }
-void Shader::LoadVertexShader(std::string fileName) {
+void Shader::LoadVertexShader(std::string fileName, ShaderType type) {
 	std::wstring wideFileName(fileName.begin(), fileName.end());
 	ID3DBlob* vertexShaderBlob;
 	D3DReadFileToBlob(FixPath(wideFileName).c_str(), &vertexShaderBlob);
@@ -48,36 +48,62 @@ void Shader::LoadVertexShader(std::string fileName) {
 		0,										// No classes in this shader
 		vertexShader.GetAddressOf());			// The address of the ID3D11VertexShader pointer
 
-	SetInputLayout(vertexShaderBlob);
+	SetInputLayout(vertexShaderBlob, type);
 }
-void Shader::SetInputLayout(ID3DBlob* vertexShaderBlob) {
+void Shader::SetInputLayout(ID3DBlob* vertexShaderBlob, ShaderType type) {
+	switch (type) {
+	case Regular:	
+	{
+		const int size = 4;
+		D3D11_INPUT_ELEMENT_DESC inputElements[size] = {};
 
-	const int size = 4;
-	D3D11_INPUT_ELEMENT_DESC inputElements[size] = {};
+		inputElements[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+		inputElements[0].SemanticName = "POSITION";
+		inputElements[0].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 
-	inputElements[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;				
-	inputElements[0].SemanticName = "POSITION";							
-	inputElements[0].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;	
+		inputElements[1].Format = DXGI_FORMAT_R32G32_FLOAT;
+		inputElements[1].SemanticName = "TEXCOORD";
+		inputElements[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 
-	inputElements[1].Format = DXGI_FORMAT_R32G32_FLOAT;					
-	inputElements[1].SemanticName = "TEXCOORD";							
-	inputElements[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;	
+		inputElements[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+		inputElements[2].SemanticName = "NORMAL";
+		inputElements[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 
-	inputElements[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;				
-	inputElements[2].SemanticName = "NORMAL";							
-	inputElements[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;	
+		inputElements[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+		inputElements[3].SemanticName = "TANGENT";
+		inputElements[3].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 
-	inputElements[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	inputElements[3].SemanticName = "TANGENT";
-	inputElements[3].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+		Graphics::Device->CreateInputLayout(
+			inputElements,
+			size,
+			vertexShaderBlob->GetBufferPointer(),
+			vertexShaderBlob->GetBufferSize(),
+			inputLayout.GetAddressOf());
+	}
+		break;
 
-	// Create the input layout, verifying our description against actual shader code
-	Graphics::Device->CreateInputLayout(
-		inputElements,							// An array of descriptions
-		size,									// How many elements in that array?
-		vertexShaderBlob->GetBufferPointer(),	// Pointer to the code of a shader that uses this layout
-		vertexShaderBlob->GetBufferSize(),		// Size of the shader code that uses this layout
-		inputLayout.GetAddressOf());			// Address of the resulting ID3D11InputLayout pointer*/
+	case PostProcess:	//For PP shaders
+	{
+		const int size = 2;
+		D3D11_INPUT_ELEMENT_DESC inputElements[size] = {};
+
+		inputElements[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+		inputElements[0].SemanticName = "SV_POSITION";
+		inputElements[0].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+
+		inputElements[1].Format = DXGI_FORMAT_R32G32_FLOAT;
+		inputElements[1].SemanticName = "TEXCOORD";
+		inputElements[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+
+		Graphics::Device->CreateInputLayout(
+			inputElements,
+			size,
+			vertexShaderBlob->GetBufferPointer(),
+			vertexShaderBlob->GetBufferSize(),
+			inputLayout.GetAddressOf());
+	}
+		break;
+	}		
 }
 
 void Shader::CreatePixelBuffer()

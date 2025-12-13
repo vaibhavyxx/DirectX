@@ -49,6 +49,7 @@ private:
 	//Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerStateOverlay;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
 
+	Shader::ShaderType type;
 	std::shared_ptr<Shader> shader;
 	std::shared_ptr<Shader> skyShader;
 	std::shared_ptr<Shader> shadowShader;
@@ -88,6 +89,7 @@ private:
 
 
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout;
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> shadowInputLayout;
 	DirectX::XMFLOAT4X4 lightViewMatrix[5] = {};
 	DirectX::XMFLOAT4X4 lightProjectionMatrix[5] = {};
 
