@@ -646,14 +646,16 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	BlurData data = {};
 	data.blurRadius = 5;
-	data.pixelWidth = 0.5f;
-	data.pixelHeight = 0.5f;
+	data.pixelWidth = 0.001f;
+	data.pixelHeight = 0.001f;
 	Graphics::FillAndBindNextCB(&data, sizeof(BlurData), D3D11_PIXEL_SHADER, 0);
 
 	Graphics::Context->Draw(3, 0);
 	ID3D11ShaderResourceView* nullSRVs[16] = {};
 	Graphics::Context->PSSetShaderResources(0, 16, nullSRVs);
 	
+	BuildUI();
+
 	// Draw the UI after everything else
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
