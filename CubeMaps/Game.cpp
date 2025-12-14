@@ -72,7 +72,7 @@ Game::Game()
 	outlineShader = std::make_shared<Shader>();
 
 	shader->LoadVertexShader("VertexShader.cso", Shader::ShaderType::Regular);
-	shader->LoadPixelShader("PixelShader.cso");
+	shader->LoadPixelShader("RampPS.cso");
 	shader->CreatePixelBuffer();
 
 	skyShader->LoadVertexShader("SkyVertexShader.cso", Shader::ShaderType::Regular);
@@ -478,7 +478,7 @@ void Game::CreateMaterials()
 	floorMaterial->AddSampler(0, samplerState);
 	floorMaterial->AddSampler(1, RampSampler);
 	floorMaterial->AddTextureSRV(4, rampTexture);
-
+	floorMaterial->AddTextureSRV(5, rampSpecular);
 }
 
 std::shared_ptr<GameEntity> lightEntity;
@@ -626,8 +626,11 @@ void Game::PostRender()
 
 	Graphics::Context->RSSetState(outlineRasterizer.Get());
 	//Data goes here for populating outlines
+
+
 	Graphics::Context->RSSetState(0);
 
+	/* Causes black screen
 	if (applyBlur) {
 		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
@@ -650,7 +653,7 @@ void Game::PostRender()
 		Graphics::Context->Draw(3, 0);
 		ID3D11ShaderResourceView* nullSRVs[16] = {};
 		Graphics::Context->PSSetShaderResources(0, 16, nullSRVs);
-	}
+	}*/
 	BuildUI();
 
 }
@@ -662,21 +665,21 @@ void Game::Draw(float deltaTime, float totalTime)
 	for (int i = 0; i < gameEntities.size(); i++) {
 
 		gameEntities[i]->GetMaterial()->AddSampler(0, samplerState);
-		gameEntities[i]->GetMaterial()->AddSampler(1, shadowSampler);
-		gameEntities[i]->GetMaterial()->AddTextureSRV(4, shadowSRV);
-		//gameEntities[i]->GetMaterial()->AddTextureSRV(5, rampSpecular);
+		gameEntities[i]->GetMaterial()->AddSampler(1, RampSampler);
+		gameEntities[i]->GetMaterial()->AddTextureSRV(4, rampTexture);
+		gameEntities[i]->GetMaterial()->AddTextureSRV(5, rampSpecular);
 		gameEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[0], lightProjectionMatrix[0]);
 	}
 
 	floorGameObject->GetMaterial()->AddSampler(0, samplerState);
-	floorGameObject->GetMaterial()->AddSampler(1, shadowSampler);
-	floorGameObject->GetMaterial()->AddTextureSRV(4, shadowSRV);
-	//floorGameObject->GetMaterial()->AddTextureSRV(5, rampSpecular);
+	floorGameObject->GetMaterial()->AddSampler(1, RampSampler);
+	floorGameObject->GetMaterial()->AddTextureSRV(4, rampTexture);
+	floorGameObject->GetMaterial()->AddTextureSRV(5, rampSpecular);
 
 	floorGameObject->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[0], lightProjectionMatrix[0]);
 	sky->Draw(deltaTime, cameras[currentCamera]);
 	
-	//PostRender();
+	PostRender();
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
