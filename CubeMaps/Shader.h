@@ -26,7 +26,7 @@ public:
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> GetInputLayout();
 	void LoadPixelShader(std::string fileName);
 	void LoadVertexShader(std::string fileName, ShaderType type);
-	void SetInputLayout(ID3DBlob* vertexShaderBlob, ShaderType type);
+	void SetInputLayout(ID3DBlob* vertexShaderBlob);
 	void CreatePixelBuffer();
 
 };

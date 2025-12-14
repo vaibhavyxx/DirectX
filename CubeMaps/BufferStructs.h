@@ -28,7 +28,6 @@ struct PixelStruct {
     int useMetals;
     int useSurfaceMap;     //96
     bool usePBR;
-    int silhouetteID;
 };
 
 struct Skybox {
@@ -47,3 +46,4 @@ struct BlurData {
     float pixelWidth;
     float pixelHeight;
 };
+

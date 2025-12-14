@@ -48,13 +48,13 @@ private:
 
 	//Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerStateOverlay;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
-	int silhouetteID;
 
 	Shader::ShaderType type;
 	std::shared_ptr<Shader> shader;
 	std::shared_ptr<Shader> skyShader;
 	std::shared_ptr<Shader> shadowShader;
-	std::shared_ptr<Shader> toonShader;
+	std::shared_ptr<Shader> outlineShader;
+	std::shared_ptr<Material> outlineMaterial;
 	std::shared_ptr<Sky> sky;
 	std::vector<std::shared_ptr<GameEntity>> gameEntities;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> shadowVertexShader;

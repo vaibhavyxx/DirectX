@@ -23,16 +23,8 @@ cbuffer ExternalData : register(b0)
     int useRoughness;
     int useMetals;
     int useSurfaceMap; //96
-    bool usePBR;        
-    int silhouetteID;      
+    bool usePBR;          
 }
-
-struct OutlineOutput
-{
-    float4 color : SV_TARGET0;
-    float4 normals : SV_TARGET1;
-    float depth : SV_TARGET2;
-};
 
 Texture2D SurfaceTexture : register(t0);
 Texture2D RoughnessMap : register(t1);
@@ -44,7 +36,14 @@ Texture2D ToonRampSpecular : register(t5);
 SamplerState BasicSampler : register(s0);
 SamplerState ClampSampler : register(s1);
 
-float4 main(VertexToPixel input) : SV_TARGET
+struct PS_Output
+{
+    float4 color : SV_Target0;
+    float4 normals : SV_Target1;
+    float4 depth : SV_Target2;
+};
+
+PS_Output main(VertexToPixel input) : SV_TARGET
 {
     input.normal = normalize(input.normal);
     input.tangent = normalize(input.tangent);
@@ -59,13 +58,14 @@ float4 main(VertexToPixel input) : SV_TARGET
     float3 finalNormal = mul(tbn, unpackedNormal);
     input.normal = finalNormal;
 
-    float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb * useSurfaceMap;
-    surfaceColor *= colorTint.rgb;
+    //float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb * useSurfaceMap;
+    float3 surfaceColor = colorTint.rgb;
     float distToLight = input.shadowMapPos.z;
 
     float3 totalLight = float3(0.0f, 0.0f, 0.0f);
-
-    for (int i = 0; i < 1; i++)
+    float diffuse = 0;
+    float spec = 0;
+    for (int i = 0; i < 5; i++)
     {
         float3 worldPos = input.worldPos;
         float3 normal = input.normal;
@@ -93,20 +93,17 @@ float4 main(VertexToPixel input) : SV_TARGET
                 spot = pow(saturate(dot(-distToLight, normalize(light.Direction))), 0.5f);
                 break;
         }
-        float diffuse = Diffuse(input.normal, distToLight);
-        float spec = SpecularPhong(input.normal, distToLight, toCam, roughness);
+        diffuse = Diffuse(input.normal, distToLight);
+        spec = SpecularPhong(input.normal, distToLight, toCam, roughness);
         
         diffuse = ApplyToonShadingUsingRamp(diffuse, ToonRamp, ClampSampler);
         spec = ApplyToonShadingUsingRamp(spec, ToonRampSpecular, ClampSampler);
-        totalLight += (diffuse * surfaceColor.rgb + spec) * light.Intensity * light.Color;
+        totalLight = (diffuse * surfaceColor.rgb + spec) * light.Intensity * light.Color;
     }
-    float4 finalColor = float4(totalLight, silhouetteID / 256.0f);
-    
-    return float4(silhouetteID / 256.0f, 0, 0, 0);
-    
-    OutlineOutput output;
-    output.color = finalColor;
-    output.normals = float4(input.normal, 1);
+    PS_Output output;
+    output.color = float4(totalLight, 0);
+    output.normals = float4(input.normal * 0.5f + 0.5f, 1);
     output.depth = input.screenPosition.z;
-    //return output;
+    return output;
+    
 }

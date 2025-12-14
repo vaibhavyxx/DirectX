@@ -34,7 +34,7 @@ void GameEntity::Update(float deltaTime, float time) {
 	material->SetTime(time);
 }
 
-void GameEntity::Draw(std::shared_ptr<Camera> cam, Light* lights, DirectX::XMFLOAT3 color, DirectX::XMFLOAT4X4 lightView, DirectX::XMFLOAT4X4 lightProjection, int& id)
+void GameEntity::Draw(std::shared_ptr<Camera> cam, Light* lights, DirectX::XMFLOAT3 color, DirectX::XMFLOAT4X4 lightView, DirectX::XMFLOAT4X4 lightProjection)
 {
 	material->GetShader()->Setup();
 	material->BindTexturesAndSamplers();
@@ -52,6 +52,6 @@ void GameEntity::Draw(std::shared_ptr<Camera> cam, Light* lights, DirectX::XMFLO
 	Graphics::FillAndBindNextCB(&vsData, sizeof(VertexStruct), D3D11_VERTEX_SHADER, 0);
 	
 	material->SetAmbient(color);
-	material->SetupPixelStruct(cam, lights, id);
+	material->SetupPixelStruct(cam, lights);
 	mesh->Draw();
 }

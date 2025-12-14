@@ -53,7 +53,7 @@ public:
 	void SetSurfaceMap(int value);
 
 	XMFLOAT3 GetAmbient();
-	void SetupPixelStruct(std::shared_ptr<Camera> cam, Light* lights, int& id);
+	void SetupPixelStruct(std::shared_ptr<Camera> cam, Light* lights);
 	void SetNormal(Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> value);
 	void SetVertexBuffer(Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader);
 	void SetPixelBuffer(Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader);

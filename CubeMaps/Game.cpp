@@ -62,6 +62,7 @@ Game::Game()
 
 	shader = std::make_shared<Shader>();
 	skyShader = std::make_shared<Shader>();
+	outlineShader = std::make_shared<Shader>();
 
 	shader->LoadVertexShader("VertexShader.cso", Shader::ShaderType::Regular);
 	shader->LoadPixelShader("RampPS.cso");
@@ -71,10 +72,10 @@ Game::Game()
 	skyShader->LoadPixelShader("SkyPS.cso");
 	skyShader->CreatePixelBuffer();
 
-	/*shader->LoadVertexShader("VertexShader.cso", Shader::ShaderType::Regular);
-	shader->LoadPixelShader("PixelShader.cso");
-	shader->CreatePixelBuffer();
-	*/
+	outlineShader->LoadVertexShader("VertexShader.cso", Shader::ShaderType::Regular);
+	outlineShader->LoadPixelShader("DepthNormalOutlinePS.cso");
+	outlineShader->CreatePixelBuffer();
+
 	Initialize();
 	CreateGeometry();
 	CreateShadowResources();
@@ -434,7 +435,7 @@ void Game::CreateMaterials()
 	materials[0]->AddTextureSRV(1, floorMaterials[1]);
 	materials[0]->AddTextureSRV(2, floorMaterials[2]);
 	materials[0]->AddTextureSRV(3, floorMaterials[3]);
-	materials[0]->AddTextureSRV(4, shadowSRV);
+	materials[0]->AddTextureSRV(4, rampTexture);
 	materials[0]->AddSampler(0, samplerState);
 	materials[0]->AddSampler(1, RampSampler);
 	materials[0]->BindTexturesAndSamplers();
@@ -443,7 +444,7 @@ void Game::CreateMaterials()
 	materials[1]->AddTextureSRV(1, metalMaterials[1]);
 	materials[1]->AddTextureSRV(2, metalMaterials[2]);
 	materials[1]->AddTextureSRV(3, metalMaterials[3]);
-	materials[1]->AddTextureSRV(4, shadowSRV);
+	materials[1]->AddTextureSRV(4, rampTexture);
 	materials[1]->AddSampler(0, samplerState);
 	materials[1]->AddSampler(1, RampSampler);
 	materials[1]->BindTexturesAndSamplers();
@@ -452,7 +453,7 @@ void Game::CreateMaterials()
 	materials[2]->AddTextureSRV(1, cobblestoneMaterials[1]);
 	materials[2]->AddTextureSRV(2, cobblestoneMaterials[2]);
 	materials[2]->AddTextureSRV(3, cobblestoneMaterials[3]);
-	materials[2]->AddTextureSRV(4, shadowSRV);
+	materials[2]->AddTextureSRV(4, rampTexture);
 	materials[2]->AddSampler(0, samplerState);
 	materials[2]->AddSampler(1, RampSampler);
 	materials[2]->BindTexturesAndSamplers();
@@ -508,7 +509,7 @@ void Game::CreateGeometry()
 		}
 	}
 	sky = std::make_shared<Sky>(cube, samplerState, textures, skyShader);	//makes a sky
-	float offset = 0.5f;
+	float offset = 3.5f;
 	for (int i = 0; i < meshes.size(); i++) {
 		int index = i % materials.size();
 		gameEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[index]));
@@ -612,7 +613,6 @@ void Game::Draw(float deltaTime, float totalTime)
 	Graphics::Context->ClearRenderTargetView(Graphics::BackBufferRTV.Get(), color);
 	Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	DrawShadowData();
-	silhouetteID = 0;
 
 	const float rtClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	Graphics::Context->ClearRenderTargetView(postProcessRTV.Get(), rtClearColor);
@@ -620,33 +620,33 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	for (int i = 0; i < gameEntities.size(); i++) {
 
-
 		gameEntities[i]->GetMaterial()->AddSampler(0, samplerState);
 		gameEntities[i]->GetMaterial()->AddSampler(1, RampSampler);
 		gameEntities[i]->GetMaterial()->AddTextureSRV(4, rampTexture);
 		gameEntities[i]->GetMaterial()->AddTextureSRV(5, rampSpecular);
-
-		gameEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[0], lightProjectionMatrix[0], silhouetteID);
-		//silhouetteID++;
+		gameEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[0], lightProjectionMatrix[0]);
 	}
 
-	/*floorGameObject->GetMaterial()->AddSampler(0, samplerState);
+	floorGameObject->GetMaterial()->AddSampler(0, samplerState);
 	floorGameObject->GetMaterial()->AddSampler(1, RampSampler);
 	floorGameObject->GetMaterial()->AddTextureSRV(4, rampTexture);
 	floorGameObject->GetMaterial()->AddTextureSRV(5, rampSpecular);
 
-	floorGameObject->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[0], lightProjectionMatrix[0], silhouetteID);*/
+	floorGameObject->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[0], lightProjectionMatrix[0]);
 	sky->Draw(deltaTime, cameras[currentCamera]);
 
-	/*for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < 5; i++) {
 		lightObjects[i]->GetMaterial()->AddSampler(0, samplerState);
 		lightObjects[i]->GetMaterial()->AddSampler(1, RampSampler);
 		lightObjects[i]->GetMaterial()->AddTextureSRV(4, rampTexture);
 		lightObjects[i]->GetMaterial()->AddTextureSRV(5, rampSpecular);
-		lightObjects[i]->Draw(cameras[currentCamera], lights, ambientColor, lightViewMatrix[0], lightProjectionMatrix[0], silhouetteID);
-	}*/
+		//lightObjects[i]->Draw(cameras[currentCamera], lights, ambientColor, lightViewMatrix[0], lightProjectionMatrix[0]);
+	}
 
+	//Renders items on screen
 	Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), 0);
+
+
 	if (applyBlur) {
 		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
@@ -662,13 +662,14 @@ void Game::Draw(float deltaTime, float totalTime)
 
 		BlurData data = {};
 		data.blurRadius = blurRadius;
-		data.pixelWidth = blurAmount;
-		data.pixelHeight = blurAmount;
+		data.pixelWidth = 1.0f/ Window::Width();
+		data.pixelHeight = 1.0f/ Window::Height();
 		Graphics::FillAndBindNextCB(&data, sizeof(BlurData), D3D11_PIXEL_SHADER, 0);
+
+		Graphics::Context->Draw(3, 0);
+		ID3D11ShaderResourceView* nullSRVs[16] = {};
+		Graphics::Context->PSSetShaderResources(0, 16, nullSRVs);
 	}
-	Graphics::Context->Draw(3, 0);
-	ID3D11ShaderResourceView* nullSRVs[16] = {};
-	Graphics::Context->PSSetShaderResources(0, 16, nullSRVs);
 
 	//POST RENDER
 	BuildUI();
@@ -682,7 +683,8 @@ void Game::Draw(float deltaTime, float totalTime)
 		vsync ? 1 : 0,
 		vsync ? 0 : DXGI_PRESENT_ALLOW_TEARING);
 
-	Graphics::Context->OMSetRenderTargets(1, postProcessRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
+	if(applyBlur) Graphics::Context->OMSetRenderTargets(1, postProcessRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
+	//else Graphics::Context->OMSetRenderTargets(1, 0, Graphics::DepthBufferDSV.Get());
 }
 
 void Game::FrameReset(float deltaTime) {
