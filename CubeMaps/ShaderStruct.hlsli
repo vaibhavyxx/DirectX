@@ -29,4 +29,9 @@ struct VertexToPixel_PP
     float4 position : SV_Position;
     float2 uv : TEXCOORD0;
 };
+
+struct VertexToPixel_Outline
+{
+    float4 position : SV_Position;
+};
 #endif
