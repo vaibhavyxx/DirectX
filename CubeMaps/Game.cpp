@@ -60,12 +60,19 @@ Game::Game()
 	sampDescRamp.MaxLOD = D3D11_FLOAT32_MAX;
 	Graphics::Device->CreateSamplerState(&sampDescRamp, RampSampler.GetAddressOf());
 
+	//Settting outline's rasterizer
+	D3D11_RASTERIZER_DESC outlineRastData = {};
+	outlineRastData.CullMode = D3D11_CULL_FRONT;
+	outlineRastData.FillMode = D3D11_FILL_SOLID;
+	outlineRastData.DepthClipEnable = true;
+	Graphics::Device->CreateRasterizerState(&outlineRastData, outlineRasterizer.GetAddressOf());
+
 	shader = std::make_shared<Shader>();
 	skyShader = std::make_shared<Shader>();
 	outlineShader = std::make_shared<Shader>();
 
 	shader->LoadVertexShader("VertexShader.cso", Shader::ShaderType::Regular);
-	shader->LoadPixelShader("RampPS.cso");
+	shader->LoadPixelShader("PixelShader.cso");
 	shader->CreatePixelBuffer();
 
 	skyShader->LoadVertexShader("SkyVertexShader.cso", Shader::ShaderType::Regular);
@@ -102,9 +109,11 @@ void Game::PreRender()
 {
 	Graphics::Context->ClearRenderTargetView(Graphics::BackBufferRTV.Get(), color);
 	Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-	const float rtClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	DrawShadowData();
+	/*const float rtClearColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 	Graphics::Context->ClearRenderTargetView(postProcessRTV.Get(), rtClearColor);
-	Graphics::Context->OMSetRenderTargets(1, postProcessRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
+	Graphics::Context->OMSetRenderTargets(1, postProcessRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());*/
+
 }
 
 void Game::CreateShadowResources()
@@ -249,13 +258,6 @@ void Game::DrawShadowData()
 		vsData.world = floorGameObject->GetTransform()->GetWorldMatrix();
 		Graphics::FillAndBindNextCB(&vsData, sizeof(ShadowVSData), D3D11_VERTEX_SHADER, 0);
 		floorGameObject->GetMesh()->Draw();
-
-		for (auto& e : lightObjects)
-		{
-			vsData.world = e->GetTransform()->GetWorldMatrix();
-			Graphics::FillAndBindNextCB(&vsData, sizeof(ShadowVSData), D3D11_VERTEX_SHADER, 0);
-			e->GetMesh()->Draw();
-		}
 	}
 
 	Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
@@ -622,6 +624,10 @@ void Game::PostRender()
 	//Renders items on screen
 	Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), 0);
 
+	Graphics::Context->RSSetState(outlineRasterizer.Get());
+	//Data goes here for populating outlines
+	Graphics::Context->RSSetState(0);
+
 	if (applyBlur) {
 		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
@@ -656,21 +662,21 @@ void Game::Draw(float deltaTime, float totalTime)
 	for (int i = 0; i < gameEntities.size(); i++) {
 
 		gameEntities[i]->GetMaterial()->AddSampler(0, samplerState);
-		gameEntities[i]->GetMaterial()->AddSampler(1, RampSampler);
-		gameEntities[i]->GetMaterial()->AddTextureSRV(4, rampTexture);
-		gameEntities[i]->GetMaterial()->AddTextureSRV(5, rampSpecular);
+		gameEntities[i]->GetMaterial()->AddSampler(1, shadowSampler);
+		gameEntities[i]->GetMaterial()->AddTextureSRV(4, shadowSRV);
+		//gameEntities[i]->GetMaterial()->AddTextureSRV(5, rampSpecular);
 		gameEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[0], lightProjectionMatrix[0]);
 	}
 
 	floorGameObject->GetMaterial()->AddSampler(0, samplerState);
-	floorGameObject->GetMaterial()->AddSampler(1, RampSampler);
-	floorGameObject->GetMaterial()->AddTextureSRV(4, rampTexture);
-	floorGameObject->GetMaterial()->AddTextureSRV(5, rampSpecular);
+	floorGameObject->GetMaterial()->AddSampler(1, shadowSampler);
+	floorGameObject->GetMaterial()->AddTextureSRV(4, shadowSRV);
+	//floorGameObject->GetMaterial()->AddTextureSRV(5, rampSpecular);
 
 	floorGameObject->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[0], lightProjectionMatrix[0]);
 	sky->Draw(deltaTime, cameras[currentCamera]);
 	
-	PostRender();
+	//PostRender();
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 

@@ -28,7 +28,7 @@ Texture2D SurfaceTexture : register(t0);
 Texture2D RoughnessMap : register(t1);
 Texture2D NormalMap : register(t2);
 Texture2D MetalnessMap : register(t3);
-Texture2D ShadowMap : register(t6);
+Texture2D ShadowMap : register(t4);
 
 SamplerState BasicSampler : register(s0);
 SamplerComparisonState ShadowSampler : register(s1);
