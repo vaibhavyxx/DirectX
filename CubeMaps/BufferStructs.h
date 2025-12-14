@@ -47,3 +47,13 @@ struct BlurData {
     float pixelHeight;
 };
 
+struct SolidColor {
+    DirectX::XMFLOAT3 Color;
+};
+
+struct OutlineVSData {
+    DirectX::XMFLOAT4X4 world;
+    DirectX::XMFLOAT4X4 view;
+    DirectX::XMFLOAT4X4 projection;
+    float outlineSize;
+};

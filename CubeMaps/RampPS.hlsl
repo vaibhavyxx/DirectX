@@ -36,14 +36,14 @@ Texture2D ToonRampSpecular : register(t5);
 SamplerState BasicSampler : register(s0);
 SamplerState ClampSampler : register(s1);
 
-struct PS_Output
+/*struct PS_Output
 {
     float4 color : SV_Target0;
     float4 normals : SV_Target1;
     float4 depth : SV_Target2;
-};
+};*/
 
-PS_Output main(VertexToPixel input) : SV_TARGET
+float4 main(VertexToPixel input) : SV_TARGET
 {
     input.normal = normalize(input.normal);
     input.tangent = normalize(input.tangent);
@@ -100,10 +100,5 @@ PS_Output main(VertexToPixel input) : SV_TARGET
         spec = ApplyToonShadingUsingRamp(spec, ToonRampSpecular, ClampSampler);
         totalLight = (diffuse * surfaceColor.rgb + spec) * light.Intensity * light.Color;
     }
-    PS_Output output;
-    output.color = float4(totalLight, 0);
-    output.normals = float4(input.normal * 0.5f + 0.5f, 1);
-    output.depth = input.screenPosition.z;
-    return output;
-    
+    return float4(totalLight, 0.0f);
 }

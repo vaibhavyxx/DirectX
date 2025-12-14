@@ -30,6 +30,10 @@ public:
 	void Initialize();
 
 private:
+	void PreRender();
+	void Render();
+	void PostRender();
+
 	void CreateShadowResources();
 	void DrawShadowData();
 	void LoadLights(float offset);
