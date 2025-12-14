@@ -103,7 +103,7 @@ XMFLOAT3 Material::GetAmbient()
 	return this->ambient;
 }
 
-void Material::SetupPixelStruct(std::shared_ptr<Camera> cam, Light* lights)
+void Material::SetupPixelStruct(std::shared_ptr<Camera> cam, Light* lights, int& id)
 {
 	PixelStruct pixelData = {};
 	pixelData.colorTint = GetColorTint();
@@ -112,6 +112,8 @@ void Material::SetupPixelStruct(std::shared_ptr<Camera> cam, Light* lights)
 	pixelData.time = GetTime();
 	pixelData.roughness = GetRoughness();
 	pixelData.camPos = cam->GetTransform()->GetPosition();
+	pixelData.silhouetteID = id;
+	id++;
 
 	pixelData.type = 0;
 	pixelData.lightCount = 5;

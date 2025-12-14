@@ -48,6 +48,7 @@ private:
 
 	//Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerStateOverlay;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
+	int silhouetteID;
 
 	Shader::ShaderType type;
 	std::shared_ptr<Shader> shader;

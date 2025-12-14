@@ -19,7 +19,7 @@ public:
 	std::shared_ptr<Mesh> GetMesh();
 	std::shared_ptr<Transform> GetTransform();
 	std::shared_ptr<Material> GetMaterial();
-	void Draw(std::shared_ptr<Camera> cam, Light* lights, XMFLOAT3 color, DirectX::XMFLOAT4X4 lightView, DirectX::XMFLOAT4X4 lightProjection);
+	void Draw(std::shared_ptr<Camera> cam, Light* lights, XMFLOAT3 color, DirectX::XMFLOAT4X4 lightView, DirectX::XMFLOAT4X4 lightProjection, int& id);
 	void Update(float deltaTime, float totalTime);
 	
 private:

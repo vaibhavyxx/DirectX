@@ -466,7 +466,7 @@ void Game::CreateMaterials()
 	floorMaterial->AddSampler(0, samplerState);
 	floorMaterial->AddSampler(1, RampSampler);
 	floorMaterial->AddTextureSRV(4, rampTexture);
-	
+
 }
 
 std::shared_ptr<GameEntity> lightEntity;
@@ -508,7 +508,7 @@ void Game::CreateGeometry()
 		}
 	}
 	sky = std::make_shared<Sky>(cube, samplerState, textures, skyShader);	//makes a sky
-	float offset = 3.5f;
+	float offset = 0.5f;
 	for (int i = 0; i < meshes.size(); i++) {
 		int index = i % materials.size();
 		gameEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[index]));
@@ -612,37 +612,39 @@ void Game::Draw(float deltaTime, float totalTime)
 	Graphics::Context->ClearRenderTargetView(Graphics::BackBufferRTV.Get(), color);
 	Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	DrawShadowData();
+	silhouetteID = 0;
 
 	const float rtClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	Graphics::Context->ClearRenderTargetView(postProcessRTV.Get(), rtClearColor);
 	Graphics::Context->OMSetRenderTargets(1, postProcessRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
 
-	for (int k = 0; k < 1; k++) {
-		for (int i = 0; i < gameEntities.size(); i++) {
-			gameEntities[i]->GetMaterial()->AddSampler(0, samplerState);
-			gameEntities[i]->GetMaterial()->AddSampler(1, RampSampler);
-			gameEntities[i]->GetMaterial()->AddTextureSRV(4, rampTexture);
-			gameEntities[i]->GetMaterial()->AddTextureSRV(5, rampSpecular);
+	for (int i = 0; i < gameEntities.size(); i++) {
 
-			gameEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[k], lightProjectionMatrix[k]);
-		}
 
-		floorGameObject->GetMaterial()->AddSampler(0, samplerState);
-		floorGameObject->GetMaterial()->AddSampler(1, RampSampler);
-		floorGameObject->GetMaterial()->AddTextureSRV(4, rampTexture);
-		floorGameObject->GetMaterial()->AddTextureSRV(5, rampSpecular);
+		gameEntities[i]->GetMaterial()->AddSampler(0, samplerState);
+		gameEntities[i]->GetMaterial()->AddSampler(1, RampSampler);
+		gameEntities[i]->GetMaterial()->AddTextureSRV(4, rampTexture);
+		gameEntities[i]->GetMaterial()->AddTextureSRV(5, rampSpecular);
 
-		floorGameObject->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[k], lightProjectionMatrix[k]);
-		sky->Draw(deltaTime, cameras[currentCamera]);
-
-		for (int i = 0; i < 5; i++) {
-			lightObjects[i]->GetMaterial()->AddSampler(0, samplerState);
-			lightObjects[i]->GetMaterial()->AddSampler(1, RampSampler);
-			lightObjects[i]->GetMaterial()->AddTextureSRV(4, rampTexture);
-			lightObjects[i]->GetMaterial()->AddTextureSRV(5, rampSpecular);
-			lightObjects[i]->Draw(cameras[currentCamera], lights, ambientColor, lightViewMatrix[k], lightProjectionMatrix[k]);
-		}
+		gameEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[0], lightProjectionMatrix[0], silhouetteID);
+		//silhouetteID++;
 	}
+
+	/*floorGameObject->GetMaterial()->AddSampler(0, samplerState);
+	floorGameObject->GetMaterial()->AddSampler(1, RampSampler);
+	floorGameObject->GetMaterial()->AddTextureSRV(4, rampTexture);
+	floorGameObject->GetMaterial()->AddTextureSRV(5, rampSpecular);
+
+	floorGameObject->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[0], lightProjectionMatrix[0], silhouetteID);*/
+	sky->Draw(deltaTime, cameras[currentCamera]);
+
+	/*for (int i = 0; i < 5; i++) {
+		lightObjects[i]->GetMaterial()->AddSampler(0, samplerState);
+		lightObjects[i]->GetMaterial()->AddSampler(1, RampSampler);
+		lightObjects[i]->GetMaterial()->AddTextureSRV(4, rampTexture);
+		lightObjects[i]->GetMaterial()->AddTextureSRV(5, rampSpecular);
+		lightObjects[i]->Draw(cameras[currentCamera], lights, ambientColor, lightViewMatrix[0], lightProjectionMatrix[0], silhouetteID);
+	}*/
 
 	Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), 0);
 	if (applyBlur) {
@@ -919,7 +921,7 @@ void Game::PostProcessSetup()
 	rtvDesc.Texture2D.MipSlice = 0;
 	rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	Graphics::Device->CreateRenderTargetView(ppTexture.Get(), &rtvDesc, postProcessRTV.ReleaseAndGetAddressOf());
-	Graphics::Device->CreateShaderResourceView( ppTexture.Get(), 0, postProcessSRV.ReleaseAndGetAddressOf());
+	Graphics::Device->CreateShaderResourceView(ppTexture.Get(), 0, postProcessSRV.ReleaseAndGetAddressOf());
 
 	// Sampler state for post processing
 	D3D11_SAMPLER_DESC ppSampDesc = {};

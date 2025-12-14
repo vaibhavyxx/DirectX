@@ -23,8 +23,17 @@ cbuffer ExternalData : register(b0)
     int useRoughness;
     int useMetals;
     int useSurfaceMap; //96
-    bool usePBR;
+    bool usePBR;        
+    int silhouetteID;      
 }
+
+struct OutlineOutput
+{
+    float4 color : SV_TARGET0;
+    float4 normals : SV_TARGET1;
+    float depth : SV_TARGET2;
+};
+
 Texture2D SurfaceTexture : register(t0);
 Texture2D RoughnessMap : register(t1);
 Texture2D NormalMap : register(t2);
@@ -52,14 +61,9 @@ float4 main(VertexToPixel input) : SV_TARGET
 
     float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb * useSurfaceMap;
     surfaceColor *= colorTint.rgb;
-    //float3 dielectricF0 = float3(0.04f, 0.04f, 0.04f);
-    //input.shadowMapPos /= input.shadowMapPos.w;
-    //float2 shadowUV = input.shadowMapPos.xy * 0.5f + 0.5f;
-    //shadowUV.y = 1 - shadowUV.y; // Flip the Y
     float distToLight = input.shadowMapPos.z;
 
     float3 totalLight = float3(0.0f, 0.0f, 0.0f);
-    //surfaceColor = pow(surfaceColor, 2.2f);
 
     for (int i = 0; i < 1; i++)
     {
@@ -94,8 +98,15 @@ float4 main(VertexToPixel input) : SV_TARGET
         
         diffuse = ApplyToonShadingUsingRamp(diffuse, ToonRamp, ClampSampler);
         spec = ApplyToonShadingUsingRamp(spec, ToonRampSpecular, ClampSampler);
-        totalLight = (diffuse * surfaceColor.rgb + spec) * light.Intensity * light.Color;
+        totalLight += (diffuse * surfaceColor.rgb + spec) * light.Intensity * light.Color;
     }
-    //if (useGamma) totalLight = pow(totalLight, 0.45f);
-    return float4(totalLight, 1.0f);
+    float4 finalColor = float4(totalLight, silhouetteID / 256.0f);
+    
+    return float4(silhouetteID / 256.0f, 0, 0, 0);
+    
+    OutlineOutput output;
+    output.color = finalColor;
+    output.normals = float4(input.normal, 1);
+    output.depth = input.screenPosition.z;
+    //return output;
 }
