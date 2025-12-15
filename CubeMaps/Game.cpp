@@ -113,7 +113,7 @@ void Game::PreRender()
 	DrawShadowData();
 
 	//Without nothing on the post process will show up
-	const float rtClearColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+	const float rtClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	Graphics::Context->ClearRenderTargetView(postProcessRTV.Get(), rtClearColor);
 	Graphics::Context->OMSetRenderTargets(1, postProcessRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
 }
@@ -632,12 +632,34 @@ void Game::Update(float deltaTime, float totalTime)
 // --------------------------------------------------------
 void Game::PostRender()
 {
-	//Renders items on screen
 	Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), 0);
-	//Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
+	UINT stride = sizeof(Vertex);
+	UINT offset = 0;
+	ID3D11Buffer* nothing = 0;
+	Graphics::Context->IASetIndexBuffer(0, DXGI_FORMAT_R32_UINT, 0);
+	Graphics::Context->IASetVertexBuffers(0, 1, &nothing, &stride, &offset);
 
+	//setting shaders
+	Graphics::Context->VSSetShader(postProcessShader->GetVertexShader().Get(), 0, 0);
+	Graphics::Context->PSSetShader(postProcessShader->GetPixelShader().Get(), 0, 0);
+	Graphics::Context->PSSetShaderResources(0, 1, postProcessSRV.GetAddressOf());
+	Graphics::Context->PSSetSamplers(0, 1, postProcessSampler.GetAddressOf());
+
+	BlurData data = {};
+	data.blurRadius = blurRadius;
+	data.pixelWidth = 1.0f / Window::Width();
+	data.pixelHeight = 1.0f / Window::Height();
+	Graphics::FillAndBindNextCB(&data, sizeof(BlurData), D3D11_PIXEL_SHADER, 0);
+	Graphics::Context->Draw(3, 0);
+	ID3D11ShaderResourceView* nullSRVs[16] = {};
+	Graphics::Context->PSSetShaderResources(0, 16, nullSRVs);
+	//ID3D11ShaderResourceView* nullSRVs[128] = {};
+	//Renders items on screen
+	//Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), 0);
+
+	Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
 	OutlineVSData vsData = {};
-	vsData.lineThickness = 1.0f;
+	vsData.lineThickness = 0.05f;
 	vsData.view = cameras[currentCamera]->GetView();
 	vsData.projection = cameras[currentCamera]->GetProjection();
 	for (auto e : outlinedEntities) {
@@ -650,40 +672,12 @@ void Game::PostRender()
 		Graphics::Context->RSSetState(outlineRasterizer.Get());
 		e->GetMesh()->Draw();
 
-		outlineMaterial->GetShader()->Setup();
 		Graphics::Context->VSSetShader(outlineMaterial->GetShader()->GetVertexShader().Get(), 0, 0);
 		Graphics::Context->PSSetShader(outlineMaterial->GetShader()->GetPixelShader().Get(), 0, 0);
+		outlineMaterial->GetShader()->Setup();
 		Graphics::Context->RSSetState(0);
-		//Graphics::Context->PSSetShaderResources(0, 1, postProcessSRV.GetAddressOf());
-		//Graphics::Context->PSSetSamplers(0, 1, postProcessSampler.GetAddressOf());
 	}
-
-	/*if (applyBlur) {
-		UINT stride = sizeof(Vertex);
-		UINT offset = 0;
-		ID3D11Buffer* nothing = 0;
-		Graphics::Context->IASetIndexBuffer(0, DXGI_FORMAT_R32_UINT, 0);
-		Graphics::Context->IASetVertexBuffers(0, 1, &nothing, &stride, &offset);
-
-		//setting shaders
-		Graphics::Context->VSSetShader(postProcessShader->GetVertexShader().Get(), 0, 0);
-		Graphics::Context->PSSetShader(postProcessShader->GetPixelShader().Get(), 0, 0);
-		Graphics::Context->PSSetShaderResources(0, 1, postProcessSRV.GetAddressOf());
-		Graphics::Context->PSSetSamplers(0, 1, postProcessSampler.GetAddressOf());
-
-		BlurData data = {};
-		data.blurRadius = blurRadius;
-		data.pixelWidth = 1.0f / Window::Width();
-		data.pixelHeight = 1.0f / Window::Height();
-		Graphics::FillAndBindNextCB(&data, sizeof(BlurData), D3D11_PIXEL_SHADER, 0);
-
-		Graphics::Context->Draw(3, 0);
-		ID3D11ShaderResourceView* nullSRVs[16] = {};
-		Graphics::Context->PSSetShaderResources(0, 16, nullSRVs);
-	}
-	*/
 	BuildUI();
-
 }
 
 void Game::Draw(float deltaTime, float totalTime)
@@ -706,7 +700,7 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	floorGameObject->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[0], lightProjectionMatrix[0]);
 	sky->Draw(deltaTime, cameras[currentCamera]);
-	
+
 	PostRender();
 
 	ImGui::Render();
