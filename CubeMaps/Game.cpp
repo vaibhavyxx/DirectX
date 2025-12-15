@@ -438,9 +438,9 @@ void Game::CreateTextures()
 void Game::CreateMaterials()
 {
 	materials = {
-		std::make_shared<Material>(outlineShader, DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f), 0.0f, ambientColor, floorMaterials[3], 0.0f, 1, 1, 1,1),
-		std::make_shared<Material>(outlineShader, DirectX::XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f), 0.5f, ambientColor, floorMaterials[3], 1.0f, 1,1, 1, 1),
-		std::make_shared<Material>(outlineShader, DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f), 0.25f, ambientColor, floorMaterials[3], 0.5f, 1,1,1,1) };
+		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f), 0.0f, ambientColor, floorMaterials[3], 0.0f, 1, 1, 1,1),
+		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f), 0.5f, ambientColor, floorMaterials[3], 1.0f, 1,1, 1, 1),
+		std::make_shared<Material>(shader, DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f), 0.25f, ambientColor, floorMaterials[3], 0.5f, 1,1,1,1) };
 
 	materials[0]->AddTextureSRV(0, floorMaterials[0]);
 	materials[0]->AddTextureSRV(1, floorMaterials[1]);
@@ -474,6 +474,8 @@ void Game::CreateMaterials()
 		LoadTextures("../../Assets/Materials/PBR/wood_normals.png", floor);
 	}
 	floorMaterial = std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor, floor, 0.0f, 0, 0, 0, 0);
+	outlineMaterial = std::make_shared<Material>(outlineShader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor, floor, 0.0f, 0, 0, 0, 0);
+
 	floorMaterial->AddTextureSRV(0, floor);
 	floorMaterial->AddSampler(0, samplerState);
 	floorMaterial->AddSampler(1, RampSampler);
@@ -502,7 +504,7 @@ void Game::CreateGeometry()
 	for (int i = 0; i < 5; i++) {
 		XMFLOAT3 color = XMFLOAT3(1, 1, 1);//lights[i].Color;
 		std::shared_ptr<Material> lightMaterial = std::make_shared<Material>(shader, DirectX::XMFLOAT4(color.x, color.y, color.z, 1.0f), 0.0f, ambientColor, floorMaterials[3], 0.0f, 0, 0, 0, 0);
-		std::shared_ptr<GameEntity> lightEntity = std::make_shared<GameEntity>(lightMesh, lightMaterial);
+		std::shared_ptr<GameEntity> lightEntity = std::make_shared<GameEntity>(sphere, lightMaterial);
 		XMFLOAT3 pos;
 		if (lights[i].Type == LIGHT_TYPE_DIRECTIONAL)
 			pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -525,6 +527,7 @@ void Game::CreateGeometry()
 		int index = i % materials.size();
 		gameEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[index]));
 		gameEntities[i]->GetTransform()->SetPosition(offset * i, 0.0f, 0);
+		outlinedEntities.push_back(std::make_shared<GameEntity>(meshes[i], outlineMaterial));
 		//gameEntities[i]->GetTransform()->SetPosition(offset * i, 0.0f, 0.0f);
 	}
 }
@@ -605,6 +608,7 @@ void Game::Update(float deltaTime, float totalTime)
 		if (i % 2 == 0) newPos = XMFLOAT3(dist + pos.x, pos.y, pos.z);
 		else newPos = XMFLOAT3(pos.x, pos.y, pos.z + dist);
 		gameEntities[i]->GetTransform()->SetPosition(newPos);
+		outlinedEntities[i]->GetTransform()->SetPosition(newPos);
 
 		if (abs(dist) > threshold) {
 			dist = 0.0f;
@@ -631,7 +635,7 @@ void Game::PostRender()
 	vsData.outlineSize = 1.0f;
 	vsData.view = cameras[currentCamera]->GetView();
 	vsData.projection = cameras[currentCamera]->GetProjection();
-	for (auto e : gameEntities) {
+	for (auto e : outlinedEntities) {
 		vsData.world = e->GetTransform()->GetWorldMatrix();
 		Graphics::FillAndBindNextCB(&vsData, sizeof(OutlineVSData), D3D11_VERTEX_SHADER, 0);
 	}
@@ -674,12 +678,13 @@ void Game::Draw(float deltaTime, float totalTime)
 	//DrawShadowData();
 	PreRender();
 	for (int i = 0; i < gameEntities.size(); i++) {
-
 		gameEntities[i]->GetMaterial()->AddSampler(0, samplerState);
 		gameEntities[i]->GetMaterial()->AddSampler(1, RampSampler);
 		gameEntities[i]->GetMaterial()->AddTextureSRV(4, rampTexture);
 		gameEntities[i]->GetMaterial()->AddTextureSRV(5, rampSpecular);
 		gameEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[0], lightProjectionMatrix[0]);
+
+		outlinedEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[0], lightProjectionMatrix[0]);
 	}
 
 	floorGameObject->GetMaterial()->AddSampler(0, samplerState);
