@@ -67,20 +67,24 @@ Game::Game()
 	outlineRastData.DepthClipEnable = true;
 	Graphics::Device->CreateRasterizerState(&outlineRastData, outlineRasterizer.GetAddressOf());
 
-	shader = std::make_shared<Shader>();
+	toonShader = std::make_shared<Shader>();
 	skyShader = std::make_shared<Shader>();
 	outlineShader = std::make_shared<Shader>();
+	pbrShader = std::make_shared<Shader>();
 
-	shader->LoadVertexShader("VertexShader.cso", Shader::ShaderType::Regular);
-	shader->LoadPixelShader("RampPS.cso");
-	shader->CreatePixelBuffer();
+	pbrShader->LoadVertexShader("VertexShader.cso");
+	pbrShader->LoadPixelShader("PixelShader.cso");
+	pbrShader->CreatePixelBuffer();
 
-	skyShader->LoadVertexShader("SkyVertexShader.cso", Shader::ShaderType::Regular);
+	toonShader->LoadVertexShader("VertexShader.cso");
+	toonShader->LoadPixelShader("RampPS.cso");
+	toonShader->CreatePixelBuffer();
+
+	skyShader->LoadVertexShader("SkyVertexShader.cso");
 	skyShader->LoadPixelShader("SkyPS.cso");
 	skyShader->CreatePixelBuffer();
 
-	//gives input layout breakage
-	outlineShader->LoadVertexShader("OutlineVS.cso", Shader::ShaderType::Regular);
+	outlineShader->LoadVertexShader("OutlineVS.cso");
 	outlineShader->LoadPixelShader("OutlinePSColor.cso");
 	outlineShader->CreatePixelBuffer();
 	outlineShader->Setup();
@@ -111,7 +115,7 @@ void Game::PreRender()
 {
 	Graphics::Context->ClearRenderTargetView(Graphics::BackBufferRTV.Get(), color);
 	Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-	//DrawShadowData();
+	DrawShadowData();
 
 	//Without nothing on the post process will show up
 	const float rtClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -258,9 +262,9 @@ void Game::DrawShadowData()
 			Graphics::FillAndBindNextCB(&vsData, sizeof(ShadowVSData), D3D11_VERTEX_SHADER, 0);
 			e->GetMesh()->Draw();
 		}
-		vsData.world = floorGameObject->GetTransform()->GetWorldMatrix();
+		vsData.world = floorEntity->GetTransform()->GetWorldMatrix();
 		Graphics::FillAndBindNextCB(&vsData, sizeof(ShadowVSData), D3D11_VERTEX_SHADER, 0);
-		floorGameObject->GetMesh()->Draw();
+		floorEntity->GetMesh()->Draw();
 	}
 
 	Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
@@ -441,9 +445,9 @@ void Game::CreateTextures()
 void Game::CreateMaterials()
 {
 	materials = {
-		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f), 0.0f, ambientColor, floorMaterials[3], 0.0f, 1, 1, 1,1),
-		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f), 0.5f, ambientColor, floorMaterials[3], 1.0f, 1,1, 1, 1),
-		std::make_shared<Material>(shader, DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f), 0.25f, ambientColor, floorMaterials[3], 0.5f, 1,1,1,1) };
+		std::make_shared<Material>(toonShader, DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f), 0.0f, ambientColor, floorMaterials[3], 0.0f, 1, 1, 1,1),
+		std::make_shared<Material>(toonShader, DirectX::XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f), 0.5f, ambientColor, floorMaterials[3], 1.0f, 1,1, 1, 1),
+		std::make_shared<Material>(toonShader, DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f), 0.25f, ambientColor, floorMaterials[3], 0.5f, 1,1,1,1) };
 
 	materials[0]->AddTextureSRV(0, floorMaterials[0]);
 	materials[0]->AddTextureSRV(1, floorMaterials[1]);
@@ -479,16 +483,16 @@ void Game::CreateMaterials()
 	{
 		LoadTextures("../../Assets/Materials/PBR/wood_normals.png", floor);
 	}
-	floorMaterial = std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor, floor, 0.0f, 0, 0, 0, 0);
+	floorMaterial = std::make_shared<Material>(pbrShader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor, floor, 0.0f, 0, 0, 0, 0);
 	outlineMaterial = std::make_shared<Material>(outlineShader, DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f), 0.0f, ambientColor, floor, 0.0f, 0, 0, 0, 0);
-	//outlineMaterial->AddTextureSRV(0, cobblestoneMaterials[2]);
-	//outlineMaterial->AddSampler(0, samplerState);
 
-	floorMaterial->AddTextureSRV(0, floor);
+	floorMaterial->AddTextureSRV(0, cobblestoneMaterials[0]);
+	floorMaterial->AddTextureSRV(1, cobblestoneMaterials[1]);
+	floorMaterial->AddTextureSRV(2, cobblestoneMaterials[2]);
+	floorMaterial->AddTextureSRV(3, cobblestoneMaterials[3]);
 	floorMaterial->AddSampler(0, samplerState);
-	floorMaterial->AddSampler(1, RampSampler);
-	floorMaterial->AddTextureSRV(4, rampTexture);
-	//floorMaterial->AddTextureSRV(5, rampSpecular);
+	floorMaterial->AddSampler(1, shadowSampler);
+	floorMaterial->AddTextureSRV(4, shadowSRV);
 }
 
 std::shared_ptr<GameEntity> lightEntity;
@@ -511,7 +515,7 @@ void Game::CreateGeometry()
 	std::shared_ptr<Mesh> lightMesh = std::make_shared<Mesh>(FixPath("../../Assets/Meshes/sphere.obj").c_str());
 	for (int i = 0; i < 5; i++) {
 		XMFLOAT3 color = XMFLOAT3(1, 1, 1);//lights[i].Color;
-		std::shared_ptr<Material> lightMaterial = std::make_shared<Material>(shader, DirectX::XMFLOAT4(color.x, color.y, color.z, 1.0f), 0.0f, ambientColor, floorMaterials[3], 0.0f, 0, 0, 0, 0);
+		std::shared_ptr<Material> lightMaterial = std::make_shared<Material>(toonShader, DirectX::XMFLOAT4(color.x, color.y, color.z, 1.0f), 0.0f, ambientColor, floorMaterials[3], 0.0f, 0, 0, 0, 0);
 		std::shared_ptr<GameEntity> lightEntity = std::make_shared<GameEntity>(sphere, lightMaterial);
 		XMFLOAT3 pos;
 		if (lights[i].Type == LIGHT_TYPE_DIRECTIONAL)
@@ -524,9 +528,9 @@ void Game::CreateGeometry()
 		//lightObjects.push_back(lightEntity);
 
 		if (i == 4) {
-			floorGameObject = std::make_shared<GameEntity>(cube, lightMaterial);
-			floorGameObject->GetTransform()->SetPosition(0.0f, -3.0f, 0.0f);
-			floorGameObject->GetTransform()->SetScale(30.0f, 1.0f, 30.0f);
+			floorEntity = std::make_shared<GameEntity>(cube, lightMaterial);
+			floorEntity->GetTransform()->SetPosition(0.0f, -3.0f, 0.0f);
+			floorEntity->GetTransform()->SetScale(30.0f, 1.0f, 30.0f);
 		}
 	}
 	sky = std::make_shared<Sky>(cube, samplerState, textures, skyShader);	//makes a sky
@@ -535,8 +539,9 @@ void Game::CreateGeometry()
 		int index = i % materials.size();
 		gameEntities.push_back(std::make_shared<GameEntity>(meshes[i], materials[index]));
 		gameEntities[i]->GetTransform()->SetPosition(offset * i, 0.0f, 0);
+
 		outlinedEntities.push_back(std::make_shared<GameEntity>(meshes[i], outlineMaterial));
-		//gameEntities[i]->GetTransform()->SetPosition(offset * i, 0.0f, 0.0f);
+		outlinedEntities[i]->GetTransform()->SetScale(1.01f, 1.01f, 1.01f);
 	}
 }
 // --------------------------------------------------------
@@ -655,8 +660,8 @@ void Game::PostRender()
 	ID3D11ShaderResourceView* nullSRVs[16] = {};
 	Graphics::Context->PSSetShaderResources(0, 16, nullSRVs);
 
-	//Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
-	//BuildUI();
+	Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
+	BuildUI();
 }
 
 void Game::Draw(float deltaTime, float totalTime)
@@ -671,18 +676,11 @@ void Game::Draw(float deltaTime, float totalTime)
 		gameEntities[i]->GetMaterial()->AddTextureSRV(5, rampSpecular);
 		gameEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[0], lightProjectionMatrix[0]);
 	}
-
-	floorGameObject->GetMaterial()->AddSampler(0, samplerState);
-	floorGameObject->GetMaterial()->AddSampler(1, RampSampler);
-	floorGameObject->GetMaterial()->AddTextureSRV(4, rampTexture);
-	floorGameObject->GetMaterial()->AddTextureSRV(5, rampSpecular);
-
-	floorGameObject->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[0], lightProjectionMatrix[0]);
+	//floorEntity->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[0], lightProjectionMatrix[0]);
 	sky->Draw(deltaTime, cameras[currentCamera]);
 
 	DrawInsideOutline();
 	PostRender();
-	BuildUI();
 
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
@@ -736,48 +734,17 @@ void Game::BuildUI() {
 		if (ImGui::Button("Camera 2")) currentCamera = 1;
 		if (ImGui::Button("Camera 3")) currentCamera = 2;
 	}
-	if (ImGui::CollapsingHeader("Lights")) {
-		for (int i = 0; i < 5; i++) {
-			std::string heading = "Light No##" + std::to_string(i);
-			if (ImGui::CollapsingHeader(heading.c_str()))
-			{
-				DirectX::XMFLOAT3 colorValue = lights[i].Color;
-				float intensityValue = lights[i].Intensity;
-				DirectX::XMFLOAT3 dir = lights[i].Direction;
-				float range = lights[i].Range;
-
-				std::string label = "Light##" + std::to_string(i);
-				std::string rangeLabel = "Range##" + std::to_string(i);
-				std::string color = "Color##" + std::to_string(i);
-				std::string intensity = "Intensity##" + std::to_string(i);
-				std::string direction = "Direction##" + std::to_string(i);
-
-				if (ImGui::DragFloat3(direction.c_str(), &dir.x, 0.1f, -1.0f, 1.0f))
-					lights[i].Direction = dir;
-
-				if (ImGui::ColorEdit3(color.c_str(), &colorValue.x))
-					lights[i].Color = colorValue;
-
-				if (ImGui::DragFloat(intensity.c_str(), &intensityValue, 0.01f, 0.0f, 1.0f))
-					lights[i].Intensity = intensityValue;
-
-				if (ImGui::DragFloat(rangeLabel.c_str(), &range, 0.01f, 0.0f, 1.0f))
-					lights[i].Range = range;
-
-				EntityValues(lightObjects[i], i, "Light's Transform Values");
-			}
-		}
-	}
 
 	if (ImGui::CollapsingHeader("Shadows")) {
 		ImGui::Image(shadowSRV.Get(), ImVec2(512, 512));
 	}
 
 	if (ImGui::CollapsingHeader("Post Processing")) {
-		std::string labelImplement = "Apply Blur";
-		std::string labelBlur = "Blur Amount";
 		std::string labelBlurRadius = "Blur Radius";
 		if (ImGui::DragInt(labelBlurRadius.c_str(), &blurRadius, 0, 0, 10)) blurRadius;
+
+		std::string labelOutline = "Toon Outline";
+		if (ImGui::DragFloat(labelOutline.c_str(), &lineThickness, 0.01f, 0.0f, 10.0f)) lineThickness;
 	}
 
 	ImGui::End();
@@ -896,7 +863,7 @@ void Game::MaterialsUI()
 void Game::PostProcessSetup()
 {
 	postProcessShader = std::make_shared<Shader>();
-	postProcessShader->LoadVertexShader("PostProcessVS.cso", Shader::ShaderType::Regular);
+	postProcessShader->LoadVertexShader("PostProcessVS.cso");
 	postProcessShader->LoadPixelShader("PostProcessPS.cso");
 	postProcessShader->CreatePixelBuffer();
 
@@ -938,10 +905,11 @@ void Game::PostProcessSetup()
 	Graphics::Device->CreateSamplerState(&ppSampDesc, postProcessSampler.GetAddressOf());
 }
 
+//Uses InsideOut and renders those borders
 void Game::DrawInsideOutline()
 {
 	OutlineVSData vsData = {};
-	vsData.lineThickness = 0.05f;
+	vsData.lineThickness = lineThickness;
 	vsData.view = cameras[currentCamera]->GetView();
 	vsData.projection = cameras[currentCamera]->GetProjection();
 

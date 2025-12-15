@@ -55,7 +55,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
 
 	Shader::ShaderType type;
-	std::shared_ptr<Shader> shader;
+	std::shared_ptr<Shader> pbrShader;
+	std::shared_ptr<Shader> toonShader;
 	std::shared_ptr<Shader> skyShader;
 	std::shared_ptr<Shader> shadowShader;
 	std::shared_ptr<Shader> outlineShader;
@@ -84,13 +85,14 @@ private:
 	DirectX::XMFLOAT3 ambientColor;
 	Light lights[5];
 	
-	std::shared_ptr<GameEntity> floorGameObject;
+	std::shared_ptr<GameEntity> floorEntity;
 	std::shared_ptr<Material> floorMaterial;
 	std::vector<std::shared_ptr<GameEntity>> lightObjects;
 
 	int shadowMapResolution;
 	float shadowProjection;
 	float blurAmount;
+	float lineThickness;
 	int blurRadius;
 	bool applyBlur;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> shadowDSV;

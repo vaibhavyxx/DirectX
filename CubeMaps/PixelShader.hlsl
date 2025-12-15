@@ -39,9 +39,6 @@ float4 main(VertexToPixel input) : SV_TARGET
     input.tangent = normalize(input.tangent);
     input.uv = input.uv * scale + offset;
 
-    //add conditional about ramp
-    //float2 ramp = RampMap.Sample(BasicSampler, input.uv);
-    
     float roughValue = RoughnessMap.Sample(BasicSampler, input.uv).r * useRoughness;
     if (useRoughness == 0)
         roughValue = 0.2f;
@@ -104,12 +101,10 @@ float4 main(VertexToPixel input) : SV_TARGET
         
         if (i == 0)
             totalLight *= shadowAmount;
-        //totalLight *= ramp;
     }
     totalLight *= shadowAmount;
     
     if (useGamma)
         surfaceColor = pow(totalLight, 0.45f);
-    //totalLight *= distToLight;  //test out shadow values
     return float4(totalLight, 1.0f);
 }
