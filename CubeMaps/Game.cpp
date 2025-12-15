@@ -79,10 +79,11 @@ Game::Game()
 	skyShader->LoadPixelShader("SkyPS.cso");
 	skyShader->CreatePixelBuffer();
 
+	//gives input layout breakage
 	outlineShader->LoadVertexShader("OutlineVS.cso", Shader::ShaderType::Regular);
 	outlineShader->LoadPixelShader("OutlinePSColor.cso");
 	outlineShader->CreatePixelBuffer();
-	outlineShader->Setup();
+	//outlineShader->Setup();
 
 	Initialize();
 	CreateGeometry();
@@ -480,8 +481,8 @@ void Game::CreateMaterials()
 	}
 	floorMaterial = std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor, floor, 0.0f, 0, 0, 0, 0);
 	outlineMaterial = std::make_shared<Material>(outlineShader, DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f), 0.0f, ambientColor, floor, 0.0f, 0, 0, 0, 0);
-	outlineMaterial->AddTextureSRV(0, cobblestoneMaterials[2]);
-	outlineMaterial->AddSampler(0, samplerState);
+	//outlineMaterial->AddTextureSRV(0, cobblestoneMaterials[2]);
+	//outlineMaterial->AddSampler(0, samplerState);
 
 	floorMaterial->AddTextureSRV(0, floor);
 	floorMaterial->AddSampler(0, samplerState);
@@ -520,7 +521,7 @@ void Game::CreateGeometry()
 
 		lightEntity->GetTransform()->SetPosition(pos);
 		lightEntity->GetTransform()->SetScale(0.5f, 0.5, 0.5f);
-		lightObjects.push_back(lightEntity);
+		//lightObjects.push_back(lightEntity);
 
 		if (i == 4) {
 			floorGameObject = std::make_shared<GameEntity>(cube, lightMaterial);
@@ -898,11 +899,9 @@ void Game::PostProcessSetup()
 	postProcessShader->LoadPixelShader("PostProcessPS.cso");
 	postProcessShader->CreatePixelBuffer();
 
-	{
-		Graphics::Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		Graphics::Context->VSSetShader(postProcessShader->GetVertexShader().Get(), 0, 0);
-		Graphics::Context->PSSetShader(postProcessShader->GetPixelShader().Get(), 0, 0);
-	}
+	Graphics::Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	Graphics::Context->VSSetShader(postProcessShader->GetVertexShader().Get(), 0, 0);
+	Graphics::Context->PSSetShader(postProcessShader->GetPixelShader().Get(), 0, 0);
 
 	D3D11_TEXTURE2D_DESC textureDesc = {};
 	textureDesc.Width = (unsigned int)(Window::Width());

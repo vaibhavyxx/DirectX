@@ -1,2 +1,0 @@
-C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\D3D11Starter.exe.lastcodeanalysissucceeded
-C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\D3D11Starter\x64\Debug\NativeCodeAnalysis.read.1.tlog

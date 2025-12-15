@@ -11,7 +11,6 @@ cbuffer ExternalData : register(b0)
 
 VertexToPixel_Outline main(VertexShaderInput input)
 {
-	// Set up output struct
     VertexToPixel_Outline output;
     float3 posWorld = mul(world, float4(input.localPosition, 1.0f)).xyz;
     float3 normalWorld = normalize(mul((float3x3) world, input.normal));
