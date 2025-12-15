@@ -7,8 +7,6 @@ cbuffer ExternalData : register(b0)
     matrix projection;
     float lineThickness;
 }
-Texture2D NormalMap : register(t0);
-SamplerState BasicSampler : register(s0);
 
 VertexToPixel_Outline main(VertexShaderInput input)
 {

@@ -110,10 +110,11 @@ void Game::PreRender()
 	Graphics::Context->ClearRenderTargetView(Graphics::BackBufferRTV.Get(), color);
 	Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	DrawShadowData();
-	/*const float rtClearColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
-	Graphics::Context->ClearRenderTargetView(postProcessRTV.Get(), rtClearColor);
-	Graphics::Context->OMSetRenderTargets(1, postProcessRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());*/
 
+	//Without nothing on the post process will show up
+	const float rtClearColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+	Graphics::Context->ClearRenderTargetView(postProcessRTV.Get(), rtClearColor);
+	Graphics::Context->OMSetRenderTargets(1, postProcessRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
 }
 
 void Game::CreateShadowResources()
@@ -630,7 +631,7 @@ void Game::PostRender()
 	//Renders items on screen
 	Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), 0);
 
-	Graphics::Context->RSSetState(outlineRasterizer.Get());
+	//Graphics::Context->RSSetState(outlineRasterizer.Get());
 	//Data goes here for populating outlines
 	//Update color and outline VS data
 	/*
@@ -649,11 +650,11 @@ void Game::PostRender()
 		Graphics::FillAndBindNextCB(&color, sizeof(SolidColor), D3D11_PIXEL_SHADER, 0);
 
 		e->GetMesh()->Draw();
-	}
-	Graphics::Context->RSSetState(0);*/
+	}*/
+	Graphics::Context->RSSetState(0);
 
 	// Causes black screen
-	/*if (applyBlur) {
+	if (applyBlur) {
 		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
 		ID3D11Buffer* nothing = 0;
@@ -675,7 +676,7 @@ void Game::PostRender()
 		Graphics::Context->Draw(3, 0);
 		ID3D11ShaderResourceView* nullSRVs[16] = {};
 		Graphics::Context->PSSetShaderResources(0, 16, nullSRVs);
-	}*/
+	}
 	BuildUI();
 
 }
@@ -703,6 +704,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	sky->Draw(deltaTime, cameras[currentCamera]);
 	
 	PostRender();
+
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
