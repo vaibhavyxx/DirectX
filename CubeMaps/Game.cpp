@@ -653,30 +653,8 @@ void Game::PostRender()
 	Graphics::Context->Draw(3, 0);
 	ID3D11ShaderResourceView* nullSRVs[16] = {};
 	Graphics::Context->PSSetShaderResources(0, 16, nullSRVs);
-	//ID3D11ShaderResourceView* nullSRVs[128] = {};
-	//Renders items on screen
-	//Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), 0);
 
 	Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
-	OutlineVSData vsData = {};
-	vsData.lineThickness = 0.05f;
-	vsData.view = cameras[currentCamera]->GetView();
-	vsData.projection = cameras[currentCamera]->GetProjection();
-	for (auto e : outlinedEntities) {
-		vsData.world = e->GetTransform()->GetWorldMatrix();
-		Graphics::FillAndBindNextCB(&vsData, sizeof(OutlineVSData), D3D11_VERTEX_SHADER, 0);
-
-		SolidColor color = {};
-		color.Color = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-		Graphics::FillAndBindNextCB(&color, sizeof(SolidColor), D3D11_PIXEL_SHADER, 0);
-		Graphics::Context->RSSetState(outlineRasterizer.Get());
-		e->GetMesh()->Draw();
-
-		Graphics::Context->VSSetShader(outlineMaterial->GetShader()->GetVertexShader().Get(), 0, 0);
-		Graphics::Context->PSSetShader(outlineMaterial->GetShader()->GetPixelShader().Get(), 0, 0);
-		outlineMaterial->GetShader()->Setup();
-		Graphics::Context->RSSetState(0);
-	}
 	BuildUI();
 }
 
@@ -701,6 +679,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	floorGameObject->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[0], lightProjectionMatrix[0]);
 	sky->Draw(deltaTime, cameras[currentCamera]);
 
+	DrawInsideOutline();
 	PostRender();
 
 	ImGui::Render();
@@ -711,9 +690,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	Graphics::SwapChain->Present(
 		vsync ? 1 : 0,
 		vsync ? 0 : DXGI_PRESENT_ALLOW_TEARING);
-
 	Graphics::Context->OMSetRenderTargets(1, postProcessRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
-	//Graphics::Context->OMSetRenderTargets(1, 0, Graphics::DepthBufferDSV.Get());
 }
 
 void Game::FrameReset(float deltaTime) {
@@ -959,4 +936,27 @@ void Game::PostProcessSetup()
 	ppSampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 	ppSampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	Graphics::Device->CreateSamplerState(&ppSampDesc, postProcessSampler.GetAddressOf());
+}
+
+void Game::DrawInsideOutline()
+{
+	OutlineVSData vsData = {};
+	vsData.lineThickness = 0.05f;
+	vsData.view = cameras[currentCamera]->GetView();
+	vsData.projection = cameras[currentCamera]->GetProjection();
+	for (auto e : outlinedEntities) {
+		vsData.world = e->GetTransform()->GetWorldMatrix();
+		Graphics::FillAndBindNextCB(&vsData, sizeof(OutlineVSData), D3D11_VERTEX_SHADER, 0);
+
+		SolidColor color = {};
+		color.Color = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+		Graphics::FillAndBindNextCB(&color, sizeof(SolidColor), D3D11_PIXEL_SHADER, 0);
+		Graphics::Context->RSSetState(outlineRasterizer.Get());
+		e->GetMesh()->Draw();
+
+		Graphics::Context->VSSetShader(outlineMaterial->GetShader()->GetVertexShader().Get(), 0, 0);
+		Graphics::Context->PSSetShader(outlineMaterial->GetShader()->GetPixelShader().Get(), 0, 0);
+		outlineMaterial->GetShader()->Setup();
+		Graphics::Context->RSSetState(0);
+	}
 }

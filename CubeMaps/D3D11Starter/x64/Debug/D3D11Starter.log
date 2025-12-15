@@ -1,3 +1,7 @@
 ﻿  Game.cpp
+  Main.cpp
+  Mesh.cpp
+  Running Code Analysis for C/C++...
+  Generating Code...
   D3D11Starter.vcxproj -> C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\x64\Debug\D3D11Starter.exe
 C:\Users\vaibh\Documents\git\ggp-hws\CubeMaps\imstb_truetype.h(2148): warning C26819: Unannotated fallthrough between switch labels (es.78).

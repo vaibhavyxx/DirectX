@@ -49,6 +49,7 @@ private:
 	void LoadTextures(std::string filepath, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& srv);
 	void MaterialsUI();
 	void PostProcessSetup();
+	void DrawInsideOutline();
 
 	//Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerStateOverlay;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
