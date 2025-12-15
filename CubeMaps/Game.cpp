@@ -474,7 +474,9 @@ void Game::CreateMaterials()
 		LoadTextures("../../Assets/Materials/PBR/wood_normals.png", floor);
 	}
 	floorMaterial = std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor, floor, 0.0f, 0, 0, 0, 0);
-	outlineMaterial = std::make_shared<Material>(outlineShader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor, floor, 0.0f, 0, 0, 0, 0);
+	outlineMaterial = std::make_shared<Material>(outlineShader, DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f), 0.0f, ambientColor, floor, 0.0f, 0, 0, 0, 0);
+	outlineMaterial->AddTextureSRV(0, cobblestoneMaterials[2]);
+	outlineMaterial->AddSampler(0, samplerState);
 
 	floorMaterial->AddTextureSRV(0, floor);
 	floorMaterial->AddSampler(0, samplerState);
@@ -631,19 +633,24 @@ void Game::PostRender()
 	Graphics::Context->RSSetState(outlineRasterizer.Get());
 	//Data goes here for populating outlines
 	//Update color and outline VS data
+	/*
+	Bugs with outlining
 	OutlineVSData vsData = {};
-	vsData.outlineSize = 1.0f;
+	vsData.outlineSize = 0.0f;
 	vsData.view = cameras[currentCamera]->GetView();
 	vsData.projection = cameras[currentCamera]->GetProjection();
 	for (auto e : outlinedEntities) {
 		vsData.world = e->GetTransform()->GetWorldMatrix();
 		Graphics::FillAndBindNextCB(&vsData, sizeof(OutlineVSData), D3D11_VERTEX_SHADER, 0);
-	}
 
-	SolidColor color = {};
-	color.Color = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	Graphics::FillAndBindNextCB(&color, sizeof(SolidColor), D3D11_PIXEL_SHADER, 0);
-	Graphics::Context->RSSetState(0);
+		SolidColor color = {};
+		color.Color = DirectX::XMFLOAT3(outlineMaterial->GetColorTint().x, 
+			outlineMaterial->GetColorTint().y, outlineMaterial->GetColorTint().z);
+		Graphics::FillAndBindNextCB(&color, sizeof(SolidColor), D3D11_PIXEL_SHADER, 0);
+
+		e->GetMesh()->Draw();
+	}
+	Graphics::Context->RSSetState(0);*/
 
 	// Causes black screen
 	/*if (applyBlur) {
@@ -678,13 +685,13 @@ void Game::Draw(float deltaTime, float totalTime)
 	//DrawShadowData();
 	PreRender();
 	for (int i = 0; i < gameEntities.size(); i++) {
+
+		//outlinedEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[0], lightProjectionMatrix[0]);
 		gameEntities[i]->GetMaterial()->AddSampler(0, samplerState);
 		gameEntities[i]->GetMaterial()->AddSampler(1, RampSampler);
 		gameEntities[i]->GetMaterial()->AddTextureSRV(4, rampTexture);
 		gameEntities[i]->GetMaterial()->AddTextureSRV(5, rampSpecular);
 		gameEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[0], lightProjectionMatrix[0]);
-
-		outlinedEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[0], lightProjectionMatrix[0]);
 	}
 
 	floorGameObject->GetMaterial()->AddSampler(0, samplerState);
