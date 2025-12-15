@@ -79,8 +79,8 @@ Game::Game()
 	skyShader->LoadPixelShader("SkyPS.cso");
 	skyShader->CreatePixelBuffer();
 
-	outlineShader->LoadVertexShader("VertexShader.cso", Shader::ShaderType::Regular);
-	outlineShader->LoadPixelShader("DepthNormalOutlinePS.cso");
+	outlineShader->LoadVertexShader("OutlineVS.cso", Shader::ShaderType::Regular);
+	outlineShader->LoadPixelShader("OutlinePSColor.cso");
 	outlineShader->CreatePixelBuffer();
 
 	Initialize();
@@ -438,9 +438,9 @@ void Game::CreateTextures()
 void Game::CreateMaterials()
 {
 	materials = {
-		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f), 0.0f, ambientColor, floorMaterials[3], 0.0f, 1, 1, 1,1),
-		std::make_shared<Material>(shader, DirectX::XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f), 0.5f, ambientColor, floorMaterials[3], 1.0f, 1,1, 1, 1),
-		std::make_shared<Material>(shader, DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f), 0.25f, ambientColor, floorMaterials[3], 0.5f, 1,1,1,1) };
+		std::make_shared<Material>(outlineShader, DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f), 0.0f, ambientColor, floorMaterials[3], 0.0f, 1, 1, 1,1),
+		std::make_shared<Material>(outlineShader, DirectX::XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f), 0.5f, ambientColor, floorMaterials[3], 1.0f, 1,1, 1, 1),
+		std::make_shared<Material>(outlineShader, DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f), 0.25f, ambientColor, floorMaterials[3], 0.5f, 1,1,1,1) };
 
 	materials[0]->AddTextureSRV(0, floorMaterials[0]);
 	materials[0]->AddTextureSRV(1, floorMaterials[1]);
@@ -626,12 +626,23 @@ void Game::PostRender()
 
 	Graphics::Context->RSSetState(outlineRasterizer.Get());
 	//Data goes here for populating outlines
+	//Update color and outline VS data
+	OutlineVSData vsData = {};
+	vsData.outlineSize = 1.0f;
+	vsData.view = cameras[currentCamera]->GetView();
+	vsData.projection = cameras[currentCamera]->GetProjection();
+	for (auto e : gameEntities) {
+		vsData.world = e->GetTransform()->GetWorldMatrix();
+		Graphics::FillAndBindNextCB(&vsData, sizeof(OutlineVSData), D3D11_VERTEX_SHADER, 0);
+	}
 
-
+	SolidColor color = {};
+	color.Color = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	Graphics::FillAndBindNextCB(&color, sizeof(SolidColor), D3D11_PIXEL_SHADER, 0);
 	Graphics::Context->RSSetState(0);
 
-	/* Causes black screen
-	if (applyBlur) {
+	// Causes black screen
+	/*if (applyBlur) {
 		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
 		ID3D11Buffer* nothing = 0;
@@ -689,8 +700,8 @@ void Game::Draw(float deltaTime, float totalTime)
 		vsync ? 1 : 0,
 		vsync ? 0 : DXGI_PRESENT_ALLOW_TEARING);
 
-	Graphics::Context->OMSetRenderTargets(1, postProcessRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
-	//else Graphics::Context->OMSetRenderTargets(1, 0, Graphics::DepthBufferDSV.Get());
+	//Graphics::Context->OMSetRenderTargets(1, postProcessRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
+	//Graphics::Context->OMSetRenderTargets(1, 0, Graphics::DepthBufferDSV.Get());
 }
 
 void Game::FrameReset(float deltaTime) {
