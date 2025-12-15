@@ -83,7 +83,7 @@ Game::Game()
 	outlineShader->LoadVertexShader("OutlineVS.cso", Shader::ShaderType::Regular);
 	outlineShader->LoadPixelShader("OutlinePSColor.cso");
 	outlineShader->CreatePixelBuffer();
-	//outlineShader->Setup();
+	outlineShader->Setup();
 
 	Initialize();
 	CreateGeometry();
@@ -111,7 +111,7 @@ void Game::PreRender()
 {
 	Graphics::Context->ClearRenderTargetView(Graphics::BackBufferRTV.Get(), color);
 	Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-	DrawShadowData();
+	//DrawShadowData();
 
 	//Without nothing on the post process will show up
 	const float rtClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -655,8 +655,8 @@ void Game::PostRender()
 	ID3D11ShaderResourceView* nullSRVs[16] = {};
 	Graphics::Context->PSSetShaderResources(0, 16, nullSRVs);
 
-	Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
-	BuildUI();
+	//Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
+	//BuildUI();
 }
 
 void Game::Draw(float deltaTime, float totalTime)
@@ -682,6 +682,7 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	DrawInsideOutline();
 	PostRender();
+	BuildUI();
 
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
@@ -943,6 +944,7 @@ void Game::DrawInsideOutline()
 	vsData.lineThickness = 0.05f;
 	vsData.view = cameras[currentCamera]->GetView();
 	vsData.projection = cameras[currentCamera]->GetProjection();
+
 	for (auto e : outlinedEntities) {
 		vsData.world = e->GetTransform()->GetWorldMatrix();
 		Graphics::FillAndBindNextCB(&vsData, sizeof(OutlineVSData), D3D11_VERTEX_SHADER, 0);
@@ -951,11 +953,11 @@ void Game::DrawInsideOutline()
 		color.Color = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 		Graphics::FillAndBindNextCB(&color, sizeof(SolidColor), D3D11_PIXEL_SHADER, 0);
 		Graphics::Context->RSSetState(outlineRasterizer.Get());
-		e->GetMesh()->Draw();
 
 		Graphics::Context->VSSetShader(outlineMaterial->GetShader()->GetVertexShader().Get(), 0, 0);
 		Graphics::Context->PSSetShader(outlineMaterial->GetShader()->GetPixelShader().Get(), 0, 0);
-		outlineMaterial->GetShader()->Setup();
+		e->GetMesh()->Draw();
+
 		Graphics::Context->RSSetState(0);
 	}
 }
