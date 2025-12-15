@@ -631,11 +631,11 @@ void Game::PostRender()
 	//Renders items on screen
 	Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), 0);
 
-	//Graphics::Context->RSSetState(outlineRasterizer.Get());
+	Graphics::Context->RSSetState(outlineRasterizer.Get());
 	//Data goes here for populating outlines
 	//Update color and outline VS data
-	/*
-	Bugs with outlining
+	
+	//Bugs with outlining
 	OutlineVSData vsData = {};
 	vsData.outlineSize = 0.0f;
 	vsData.view = cameras[currentCamera]->GetView();
@@ -650,7 +650,7 @@ void Game::PostRender()
 		Graphics::FillAndBindNextCB(&color, sizeof(SolidColor), D3D11_PIXEL_SHADER, 0);
 
 		e->GetMesh()->Draw();
-	}*/
+	}
 	Graphics::Context->RSSetState(0);
 
 	// Causes black screen
