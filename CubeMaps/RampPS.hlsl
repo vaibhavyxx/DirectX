@@ -36,13 +36,6 @@ Texture2D ToonRampSpecular : register(t5);
 SamplerState BasicSampler : register(s0);
 SamplerState ClampSampler : register(s1);
 
-/*struct PS_Output
-{
-    float4 color : SV_Target0;
-    float4 normals : SV_Target1;
-    float4 depth : SV_Target2;
-};*/
-
 float4 main(VertexToPixel input) : SV_TARGET
 {
     input.normal = normalize(input.normal);
@@ -60,7 +53,6 @@ float4 main(VertexToPixel input) : SV_TARGET
 
     float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb * useSurfaceMap;
     surfaceColor *= colorTint.rgb;
-    //float distToLight = input.shadowMapPos.z;
 
     float3 totalLight = float3(0.0f, 0.0f, 0.0f);
     float diffuse = 0;

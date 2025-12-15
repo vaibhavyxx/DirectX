@@ -449,6 +449,7 @@ void Game::CreateMaterials()
 	materials[0]->AddTextureSRV(2, floorMaterials[2]);
 	materials[0]->AddTextureSRV(3, floorMaterials[3]);
 	materials[0]->AddTextureSRV(4, rampTexture);
+	materials[0]->AddTextureSRV(5, rampSpecular);
 	materials[0]->AddSampler(0, samplerState);
 	materials[0]->AddSampler(1, RampSampler);
 	materials[0]->BindTexturesAndSamplers();
@@ -458,6 +459,7 @@ void Game::CreateMaterials()
 	materials[1]->AddTextureSRV(2, metalMaterials[2]);
 	materials[1]->AddTextureSRV(3, metalMaterials[3]);
 	materials[1]->AddTextureSRV(4, rampTexture);
+	materials[1]->AddTextureSRV(5, rampSpecular);
 	materials[1]->AddSampler(0, samplerState);
 	materials[1]->AddSampler(1, RampSampler);
 	materials[1]->BindTexturesAndSamplers();
@@ -467,6 +469,7 @@ void Game::CreateMaterials()
 	materials[2]->AddTextureSRV(2, cobblestoneMaterials[2]);
 	materials[2]->AddTextureSRV(3, cobblestoneMaterials[3]);
 	materials[2]->AddTextureSRV(4, rampTexture);
+	materials[2]->AddTextureSRV(5, rampSpecular);
 	materials[2]->AddSampler(0, samplerState);
 	materials[2]->AddSampler(1, RampSampler);
 	materials[2]->BindTexturesAndSamplers();
@@ -484,7 +487,7 @@ void Game::CreateMaterials()
 	floorMaterial->AddSampler(0, samplerState);
 	floorMaterial->AddSampler(1, RampSampler);
 	floorMaterial->AddTextureSRV(4, rampTexture);
-	floorMaterial->AddTextureSRV(5, rampSpecular);
+	//floorMaterial->AddTextureSRV(5, rampSpecular);
 }
 
 std::shared_ptr<GameEntity> lightEntity;
@@ -632,10 +635,9 @@ void Game::PostRender()
 	//Renders items on screen
 	Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), 0);
 	//Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
-	//Graphics::Context->OMSetRenderTargets(1, postProcessRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
 
 	OutlineVSData vsData = {};
-	vsData.lineThickness = 0.0f;
+	vsData.lineThickness = 1.0f;
 	vsData.view = cameras[currentCamera]->GetView();
 	vsData.projection = cameras[currentCamera]->GetProjection();
 	for (auto e : outlinedEntities) {
@@ -647,11 +649,16 @@ void Game::PostRender()
 		Graphics::FillAndBindNextCB(&color, sizeof(SolidColor), D3D11_PIXEL_SHADER, 0);
 		Graphics::Context->RSSetState(outlineRasterizer.Get());
 		e->GetMesh()->Draw();
+
+		outlineMaterial->GetShader()->Setup();
+		Graphics::Context->VSSetShader(outlineMaterial->GetShader()->GetVertexShader().Get(), 0, 0);
+		Graphics::Context->PSSetShader(outlineMaterial->GetShader()->GetPixelShader().Get(), 0, 0);
 		Graphics::Context->RSSetState(0);
+		//Graphics::Context->PSSetShaderResources(0, 1, postProcessSRV.GetAddressOf());
+		//Graphics::Context->PSSetSamplers(0, 1, postProcessSampler.GetAddressOf());
 	}
 
-	// Causes black screen
-	if (applyBlur) {
+	/*if (applyBlur) {
 		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
 		ID3D11Buffer* nothing = 0;
@@ -674,6 +681,7 @@ void Game::PostRender()
 		ID3D11ShaderResourceView* nullSRVs[16] = {};
 		Graphics::Context->PSSetShaderResources(0, 16, nullSRVs);
 	}
+	*/
 	BuildUI();
 
 }
@@ -710,7 +718,7 @@ void Game::Draw(float deltaTime, float totalTime)
 		vsync ? 1 : 0,
 		vsync ? 0 : DXGI_PRESENT_ALLOW_TEARING);
 
-	//Graphics::Context->OMSetRenderTargets(1, postProcessRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
+	Graphics::Context->OMSetRenderTargets(1, postProcessRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
 	//Graphics::Context->OMSetRenderTargets(1, 0, Graphics::DepthBufferDSV.Get());
 }
 
