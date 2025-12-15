@@ -281,7 +281,7 @@ void Game::LoadLights(float offset)
 	dir.Type = LIGHT_TYPE_DIRECTIONAL;
 	dir.Color = XMFLOAT3(1.0f, 1.0f, 1.0f);
 	dir.Direction = XMFLOAT3(1.0f, -0.5f, 0.8f);
-	dir.Intensity = 1.0f;
+	dir.Intensity = 0.2f;
 
 	Light spot = {};
 	spot.Type = LIGHT_TYPE_SPOT;
@@ -295,7 +295,7 @@ void Game::LoadLights(float offset)
 
 	Light anotherDir = dir;
 	anotherDir.Direction = XMFLOAT3(-1.0f, 1.0f, 0.8f);
-	//anotherDir.Intensity = 1.0f;
+	anotherDir.Intensity = 0.04f;
 	anotherDir.Color = XMFLOAT3(1.0f, 1.0f, 0.5f);
 
 	Light oneMoreDir = dir;
@@ -306,15 +306,17 @@ void Game::LoadLights(float offset)
 	Light anotherSpot = spot;
 	anotherSpot.Position = XMFLOAT3(12.77f, -1.39f, -1.41f);
 	anotherSpot.Direction = XMFLOAT3(-0.3f, -1.0f, -1.0f);
+	anotherSpot.Intensity = 0.01f;
 
 	Light copySpot = spot;
 	copySpot.Direction = XMFLOAT3(1.0f, 1.0f, 1.0f);
 	copySpot.Position = XMFLOAT3(16.49f, 6.09f, -9.77f);
 	copySpot.Range = 100.0f;
+	copySpot.Intensity = 0.2f;
 
 	lights[0] = dir;
 	lights[1] = copySpot;
-	lights[2] = dir;
+	lights[2] = anotherSpot;
 	lights[3] = anotherDir;
 	lights[4] = dir;
 }
@@ -480,9 +482,8 @@ void Game::CreateMaterials()
 	materials[2]->BindTexturesAndSamplers();
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> floor;
-	{
-		LoadTextures("../../Assets/Materials/PBR/wood_normals.png", floor);
-	}
+	LoadTextures("../../Assets/Materials/PBR/wood_normals.png", floor);
+	
 	floorMaterial = std::make_shared<Material>(pbrShader, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f, ambientColor, floor, 0.0f, 0, 0, 0, 0);
 	outlineMaterial = std::make_shared<Material>(outlineShader, DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f), 0.0f, ambientColor, floor, 0.0f, 0, 0, 0, 0);
 
@@ -558,9 +559,9 @@ void Game::OnResize()
 // --------------------------------------------------------
 // Update your game here - user input, move objects, AI, etc.
 // --------------------------------------------------------
-float dist = 0;
-float threshold = 0.005f;
-float speed = 0.001f;
+float dist = 0.0f;
+float threshold = 0.0005f;
+float speed = 0.00005f;
 //float angleOffset = 0.707f;
 void Game::Update(float deltaTime, float totalTime)
 {
@@ -733,6 +734,14 @@ void Game::BuildUI() {
 		if (ImGui::Button("Camera 1")) currentCamera = 0;
 		if (ImGui::Button("Camera 2")) currentCamera = 1;
 		if (ImGui::Button("Camera 3")) currentCamera = 2;
+	}
+
+	if (ImGui::CollapsingHeader("Lights")) {
+		for (int i = 0; i < 5; i++) {
+			std::string labelLight = "Intensity ##" + std::to_string(i);
+			if (ImGui::DragFloat(labelLight.c_str(), &lights[i].Intensity, 0.01f, 0.0f, 1.0f)) lights[i].Intensity;
+		}
+		
 	}
 
 	if (ImGui::CollapsingHeader("Shadows")) {

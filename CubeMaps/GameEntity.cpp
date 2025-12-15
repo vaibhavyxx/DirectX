@@ -46,9 +46,6 @@ void GameEntity::Draw(std::shared_ptr<Camera> cam, Light* lights, DirectX::XMFLO
 	vsData.worldInvTranspose = transform->GetWorldInverseTransposeMatrix();
 	vsData.lightView = lightView;
 	vsData.lightProjection = lightProjection;
-	//vsData.lightProjection = 
-	//vsData.worldPos = transform->GetPosition();	
-
 	Graphics::FillAndBindNextCB(&vsData, sizeof(VertexStruct), D3D11_VERTEX_SHADER, 0);
 	
 	material->SetAmbient(color);

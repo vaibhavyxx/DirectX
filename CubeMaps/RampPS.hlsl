@@ -57,6 +57,7 @@ float4 main(VertexToPixel input) : SV_TARGET
     float3 totalLight = float3(0.0f, 0.0f, 0.0f);
     float diffuse = 0;
     float spec = 0;
+
     for (int i = 0; i < 5; i++)
     {
         float3 worldPos = input.worldPos;
@@ -91,7 +92,7 @@ float4 main(VertexToPixel input) : SV_TARGET
         
         diffuse = ApplyToonShadingUsingRamp(diffuse, ToonRamp, ClampSampler);
         spec = ApplyToonShadingUsingRamp(spec, ToonRampSpecular, ClampSampler);
-        totalLight = (diffuse * surfaceColor.rgb + spec) * light.Intensity * light.Color;
+        totalLight += (diffuse * surfaceColor.rgb + spec) * light.Intensity* light.Color;
     }
     return float4(totalLight, 0.0f);
 }
