@@ -1,0 +1,75 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.5.json",
+  "runs": [
+    {
+      "results": [],
+      "tool": {
+        "driver": {
+          "name": "PREfast",
+          "fullName": "MSVC Code Analysis",
+          "version": "14.44.35221.0",
+          "informationUri": "https://aka.ms/cpp/ca"
+        }
+      },
+      "invocations": [
+        {
+          "executionSuccessful": true
+        }
+      ],
+      "artifacts": [
+        {
+          "location": {
+            "uri": "file:///c:/users/vaibh/documents/git/ggp-hws/cubemaps/transform.cpp"
+          },
+          "roles": [
+            "analysisTarget"
+          ],
+          "hashes": {
+            "sha-256": "c7827f8014391a49236b1e3a5d2bee694d8b4eb5997adcb7c22e4bbfc03d951f"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/vaibh/documents/git/ggp-hws/cubemaps/transform.h"
+          },
+          "hashes": {
+            "sha-256": "0de23485532052095c9e63dc19cee082e96175db5cc74eb5bd90352ed79a6ee7"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/vaibh/documents/git/ggp-hws/cubemaps/material.h"
+          },
+          "hashes": {
+            "sha-256": "a6e71378cb0c284b9450a744341561215f65e102624f7ee0c65273d6a28afef9"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/vaibh/documents/git/ggp-hws/cubemaps/camera.h"
+          },
+          "hashes": {
+            "sha-256": "b0f7c1f1f34ddcd0694185b05a903e59930440c1e9c15fe8c88c88d32819b4c7"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/vaibh/documents/git/ggp-hws/cubemaps/shader.h"
+          },
+          "hashes": {
+            "sha-256": "285144fd373b6b2252415317d49af03b9cd484b3b8b7ecf449450a0db31d2c4e"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/vaibh/documents/git/ggp-hws/cubemaps/lights.h"
+          },
+          "hashes": {
+            "sha-256": "e68f1e06210b6b143ba576208216b22972b0461b488630a9904651b42cd86597"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -58,9 +58,9 @@ float4 main(VertexToPixel input) : SV_TARGET
     float3 finalNormal = mul(tbn, unpackedNormal);
     input.normal = finalNormal;
 
-    //float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb * useSurfaceMap;
-    float3 surfaceColor = colorTint.rgb;
-    float distToLight = input.shadowMapPos.z;
+    float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).rgb * useSurfaceMap;
+    surfaceColor *= colorTint.rgb;
+    //float distToLight = input.shadowMapPos.z;
 
     float3 totalLight = float3(0.0f, 0.0f, 0.0f);
     float diffuse = 0;
@@ -70,6 +70,7 @@ float4 main(VertexToPixel input) : SV_TARGET
         float3 worldPos = input.worldPos;
         float3 normal = input.normal;
         float3 toCam = normalize(camPos - worldPos);
+        float3 toLight = float3(0.0f, 0.0f, 0.0f);
         float atten = 1.0f;
         float spot = 1.0f;
       
@@ -79,22 +80,22 @@ float4 main(VertexToPixel input) : SV_TARGET
         switch (light.Type)
         {
             case LIGHT_TYPE_DIRECTIONAL:
-                distToLight = normalize(-light.Direction);
+                toLight = normalize(-light.Direction);
             break;
             
             case LIGHT_TYPE_POINT:
-                distToLight = normalize(light.Position - input.worldPos);
+                toLight = normalize(light.Position - input.worldPos);
                 atten = Attenuate(light, input.worldPos);
                 break;
             
             case LIGHT_TYPE_SPOT:
-                distToLight = normalize(light.Position - input.worldPos);
+                toLight = normalize(light.Position - input.worldPos);
                 atten = Attenuate(light, input.worldPos);
-                spot = pow(saturate(dot(-distToLight, normalize(light.Direction))), 0.5f);
+                spot = pow(saturate(dot(-toLight, normalize(light.Direction))), 0.5f);
                 break;
         }
-        diffuse = Diffuse(input.normal, distToLight);
-        spec = SpecularPhong(input.normal, distToLight, toCam, roughness);
+        diffuse = Diffuse(input.normal, toLight);
+        spec = SpecularPhong(input.normal, toLight, toCam, roughness);
         
         diffuse = ApplyToonShadingUsingRamp(diffuse, ToonRamp, ClampSampler);
         spec = ApplyToonShadingUsingRamp(spec, ToonRampSpecular, ClampSampler);

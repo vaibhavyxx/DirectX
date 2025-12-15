@@ -1,0 +1,59 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.5.json",
+  "runs": [
+    {
+      "results": [],
+      "tool": {
+        "driver": {
+          "name": "PREfast",
+          "fullName": "MSVC Code Analysis",
+          "version": "14.44.35221.0",
+          "informationUri": "https://aka.ms/cpp/ca"
+        }
+      },
+      "invocations": [
+        {
+          "executionSuccessful": true
+        }
+      ],
+      "artifacts": [
+        {
+          "location": {
+            "uri": "file:///c:/users/vaibh/documents/git/ggp-hws/cubemaps/camera.cpp"
+          },
+          "roles": [
+            "analysisTarget"
+          ],
+          "hashes": {
+            "sha-256": "b622cbed6fe0a0e773111e299799058893980ac391f866e87b575a8ce87019d0"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/vaibh/documents/git/ggp-hws/cubemaps/camera.h"
+          },
+          "hashes": {
+            "sha-256": "b0f7c1f1f34ddcd0694185b05a903e59930440c1e9c15fe8c88c88d32819b4c7"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/vaibh/documents/git/ggp-hws/cubemaps/transform.h"
+          },
+          "hashes": {
+            "sha-256": "0de23485532052095c9e63dc19cee082e96175db5cc74eb5bd90352ed79a6ee7"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/vaibh/documents/git/ggp-hws/cubemaps/input.h"
+          },
+          "hashes": {
+            "sha-256": "aa9b577ff209446b925fe49316b077c189bceb7805adc22db743a4a6d8fc4027"
+          }
+        }
+      ]
+    }
+  ]
+}

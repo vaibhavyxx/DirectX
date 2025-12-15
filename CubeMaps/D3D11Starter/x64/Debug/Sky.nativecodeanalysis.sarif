@@ -1,0 +1,123 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.5.json",
+  "runs": [
+    {
+      "results": [],
+      "tool": {
+        "driver": {
+          "name": "PREfast",
+          "fullName": "MSVC Code Analysis",
+          "version": "14.44.35221.0",
+          "informationUri": "https://aka.ms/cpp/ca"
+        }
+      },
+      "invocations": [
+        {
+          "executionSuccessful": true
+        }
+      ],
+      "artifacts": [
+        {
+          "location": {
+            "uri": "file:///c:/users/vaibh/documents/git/ggp-hws/cubemaps/sky.cpp"
+          },
+          "roles": [
+            "analysisTarget"
+          ],
+          "hashes": {
+            "sha-256": "0172d0e5840d03f5833f9dd4378fe579299b23099dc9f7aeb75c0e2413fc8d88"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/vaibh/documents/git/ggp-hws/cubemaps/sky.h"
+          },
+          "hashes": {
+            "sha-256": "2eb096adea595debc329f958751e99076f54ca715d25d09cb733b77f603a0d46"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/vaibh/documents/git/ggp-hws/cubemaps/mesh.h"
+          },
+          "hashes": {
+            "sha-256": "70bd6bed9de5cbc3d18266cf5625e08b0d28a218981c462a3c75bb652a1e5421"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/vaibh/documents/git/ggp-hws/cubemaps/vertex.h"
+          },
+          "hashes": {
+            "sha-256": "1449d003546b4fb3f54924cee1f8bbffd067c38b7a317a9f9ea0c6c5c25e17f3"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/vaibh/documents/git/ggp-hws/cubemaps/bufferstructs.h"
+          },
+          "hashes": {
+            "sha-256": "757bc1d927593f38666bfd7fe12200b6487c2da517b2ae52f435fbc331d448ce"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/vaibh/documents/git/ggp-hws/cubemaps/lights.h"
+          },
+          "hashes": {
+            "sha-256": "e68f1e06210b6b143ba576208216b22972b0461b488630a9904651b42cd86597"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/vaibh/documents/git/ggp-hws/cubemaps/camera.h"
+          },
+          "hashes": {
+            "sha-256": "b0f7c1f1f34ddcd0694185b05a903e59930440c1e9c15fe8c88c88d32819b4c7"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/vaibh/documents/git/ggp-hws/cubemaps/transform.h"
+          },
+          "hashes": {
+            "sha-256": "0de23485532052095c9e63dc19cee082e96175db5cc74eb5bd90352ed79a6ee7"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/vaibh/documents/git/ggp-hws/cubemaps/shader.h"
+          },
+          "hashes": {
+            "sha-256": "285144fd373b6b2252415317d49af03b9cd484b3b8b7ecf449450a0db31d2c4e"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/vaibh/documents/git/ggp-hws/cubemaps/graphics.h"
+          },
+          "hashes": {
+            "sha-256": "e146393adcfa9c4ad9c5fb7830a8b55c21e1622abac5a1c7cf089ec161ecbb6b"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/vaibh/documents/git/ggp-hws/cubemaps/packages/directxtk_desktop_win10.2025.7.10.1/include/bufferhelpers.h"
+          },
+          "hashes": {
+            "sha-256": "a7fa48d6b32f21f4b66e9b195435b7499dd9fd18bd64a2d03ca0e47bfbd17de7"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/vaibh/documents/git/ggp-hws/cubemaps/packages/directxtk_desktop_win10.2025.7.10.1/include/wictextureloader.h"
+          },
+          "hashes": {
+            "sha-256": "d09538765d25f39b003f0364cb5836cda983d448ac043a77add7ebd003b5825c"
+          }
+        }
+      ]
+    }
+  ]
+}
