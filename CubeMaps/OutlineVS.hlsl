@@ -2,10 +2,11 @@
 
 cbuffer ExternalData : register(b0)
 {
+    float lineThickness;
+    float3 padding;
     matrix world;
     matrix view;
     matrix projection;
-    float lineThickness;
 }
 
 VertexToPixel_Outline main(VertexShaderInput input)
@@ -15,7 +16,7 @@ VertexToPixel_Outline main(VertexShaderInput input)
     float3 posWorld = mul(world, float4(input.localPosition, 1.0f)).xyz;
     float3 normalWorld = normalize(mul((float3x3) world, input.normal));
 
-    posWorld += normalWorld * 0.01f;//outlineSize;
+    posWorld += normalWorld * lineThickness;
     
     matrix vp = mul(projection, view);
     output.position = mul(vp, float4(posWorld, 1.0f));

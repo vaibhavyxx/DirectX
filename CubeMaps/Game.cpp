@@ -82,6 +82,7 @@ Game::Game()
 	outlineShader->LoadVertexShader("OutlineVS.cso", Shader::ShaderType::Regular);
 	outlineShader->LoadPixelShader("OutlinePSColor.cso");
 	outlineShader->CreatePixelBuffer();
+	outlineShader->Setup();
 
 	Initialize();
 	CreateGeometry();
@@ -630,14 +631,11 @@ void Game::PostRender()
 {
 	//Renders items on screen
 	Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), 0);
+	//Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
+	//Graphics::Context->OMSetRenderTargets(1, postProcessRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
 
-	Graphics::Context->RSSetState(outlineRasterizer.Get());
-	//Data goes here for populating outlines
-	//Update color and outline VS data
-	
-	//Bugs with outlining
 	OutlineVSData vsData = {};
-	vsData.outlineSize = 0.0f;
+	vsData.lineThickness = 0.0f;
 	vsData.view = cameras[currentCamera]->GetView();
 	vsData.projection = cameras[currentCamera]->GetProjection();
 	for (auto e : outlinedEntities) {
@@ -645,13 +643,12 @@ void Game::PostRender()
 		Graphics::FillAndBindNextCB(&vsData, sizeof(OutlineVSData), D3D11_VERTEX_SHADER, 0);
 
 		SolidColor color = {};
-		color.Color = DirectX::XMFLOAT3(outlineMaterial->GetColorTint().x, 
-			outlineMaterial->GetColorTint().y, outlineMaterial->GetColorTint().z);
+		color.Color = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 		Graphics::FillAndBindNextCB(&color, sizeof(SolidColor), D3D11_PIXEL_SHADER, 0);
-
+		Graphics::Context->RSSetState(outlineRasterizer.Get());
 		e->GetMesh()->Draw();
+		Graphics::Context->RSSetState(0);
 	}
-	Graphics::Context->RSSetState(0);
 
 	// Causes black screen
 	if (applyBlur) {
@@ -687,7 +684,6 @@ void Game::Draw(float deltaTime, float totalTime)
 	PreRender();
 	for (int i = 0; i < gameEntities.size(); i++) {
 
-		//outlinedEntities[i]->Draw(cameras[currentCamera], &lights[0], ambientColor, lightViewMatrix[0], lightProjectionMatrix[0]);
 		gameEntities[i]->GetMaterial()->AddSampler(0, samplerState);
 		gameEntities[i]->GetMaterial()->AddSampler(1, RampSampler);
 		gameEntities[i]->GetMaterial()->AddTextureSRV(4, rampTexture);
@@ -800,10 +796,7 @@ void Game::BuildUI() {
 		std::string labelImplement = "Apply Blur";
 		std::string labelBlur = "Blur Amount";
 		std::string labelBlurRadius = "Blur Radius";
-
-		if (ImGui::Checkbox(labelImplement.c_str(), &applyBlur)) applyBlur;
-		if (ImGui::DragFloat(labelBlur.c_str(), &blurAmount, 0.001f, 0.0f, 0.01f)) blurAmount;
-		if (ImGui::DragInt(labelBlurRadius.c_str(), &blurRadius, 0, 1, 10)) blurRadius;
+		if (ImGui::DragInt(labelBlurRadius.c_str(), &blurRadius, 0, 0, 10)) blurRadius;
 	}
 
 	ImGui::End();

@@ -52,8 +52,9 @@ struct SolidColor {
 };
 
 struct OutlineVSData {
+    float lineThickness;
+    DirectX::XMFLOAT3 padding;
     DirectX::XMFLOAT4X4 world;
     DirectX::XMFLOAT4X4 view;
     DirectX::XMFLOAT4X4 projection;
-    float outlineSize;
 };
